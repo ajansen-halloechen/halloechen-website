@@ -84,8 +84,13 @@ deploy:
       echo "Deploying to FTP server: $FTP_HOST"
     - |
       lftp -u "$FTP_USER,$FTP_PASSWORD" "sftp://$FTP_HOST" -e "
-        set ftp:ssl-allow yes;
-        set ssl:verify-certificate no;
+        set cmd:fail-exit yes;
+        set net:max-retries 2;
+        set net:timeout 20;
+        set net:reconnect-interval-base 5;
+        set net:reconnect-interval-max 15;
+        set sftp:auto-confirm yes;
+        set xfer:log true;
         mirror --reverse --delete --verbose --exclude-glob .well-known/ dist/ $FTP_REMOTE_PATH;
         bye
       "
