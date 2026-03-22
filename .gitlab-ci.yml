@@ -1,13 +1,6 @@
-# GitLab CI/CD Pipeline
-# Runs type-check, lint, and format checks in parallel.
-# Build runs only after all checks pass.
-# Pipeline runs only for release tags.
-#
-# Required CI/CD variables (Settings → CI/CD → Variables):
-#   FTP_HOST          e.g. ftp.example.com
-#   FTP_USER          FTP username
-#   FTP_PASSWORD      FTP password (mark as masked/protected)
-#   FTP_REMOTE_PATH   Remote path on the server, e.g. /public_html/
+# GitLab CI/CD Pipeline for halloechen-website
+# Stages: type-check → lint → format → build → deploy
+# Runs only on release tags matching: release_X.Y.Z
 
 stages:
   - check
@@ -16,89 +9,72 @@ stages:
 
 workflow:
   rules:
-    # Create pipelines only for tags (release pipelines).
+    # Create pipelines only for release tags (release_X.Y.Z)
     - if: '$CI_COMMIT_TAG =~ /^release_\d+\.\d+\.\d+$/'
     - when: never
 
 # ── Shared config ────────────────────────────────────────────────────────────
 
 default:
-  image: node:22-alpine
-
-# Cache npm download cache across jobs for faster installs.
-.npm-cache: &npm-cache
+  image: node:22
   cache:
     key:
       files:
         - package-lock.json
     paths:
       - .npm/
-    policy: pull # jobs only read; the install step writes
+    policy: pull
 
-# Per-job install. This avoids missing optional native deps when passing node_modules across jobs.
-.install: &install
-  before_script:
-    - npm ci --prefer-offline --cache .npm
-    - OXIDE_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@tailwindcss/oxide'].version")
-    - npm install "@tailwindcss/oxide-linux-x64-musl@$OXIDE_VERSION" --no-save --prefer-offline --cache .npm
-    - LIGHTNINGCSS_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
-    - npm install "lightningcss-linux-x64-musl@$LIGHTNINGCSS_VERSION" --no-save --prefer-offline --cache .npm
+before_script:
+  - npm ci --prefer-offline --cache .npm
 
-# ── Check stage (all three jobs run in parallel) ──────────────────────────────
+# ── Type Check ───────────────────────────────────────────────────────────────
 
 type-check:
   stage: check
-  <<: *npm-cache
-  <<: *install
   script:
     - npm run type-check
 
+# ── Lint ─────────────────────────────────────────────────────────────────────
+
 lint:
   stage: check
-  <<: *npm-cache
-  <<: *install
   script:
-    # Use --max-warnings 0 so any ESLint warning also fails the pipeline.
-    # Do NOT use --fix here — CI must fail on issues, not silently correct them.
+    # Use --max-warnings 0 so any ESLint warning fails the pipeline.
+    # Do not use --fix here; CI must fail on issues, not silently fix them.
     - npx eslint . --max-warnings 0
+
+# ── Format ───────────────────────────────────────────────────────────────────
 
 format:
   stage: check
-  <<: *npm-cache
-  <<: *install
   script:
     # --check exits with a non-zero code if any file is not formatted.
     - npx prettier --check --experimental-cli src/
 
-# ── Build stage ───────────────────────────────────────────────────────────────
+# ── Build ────────────────────────────────────────────────────────────────────
 
 build:
   stage: build
-  # Wait for all three checks before building.
   needs:
     - type-check
     - lint
     - format
-  <<: *npm-cache
-  <<: *install
   script:
-    # build-only skips the redundant type-check that the full "build" script runs.
     - npm run build-only
   artifacts:
     name: dist
     paths:
       - dist/
-    # Keep the artifact long enough for the deploy job to pick it up.
     expire_in: 1 day
 
-# ── Deploy stage (release tags only) ─────────────────────────────────────────
+# ── Deploy (release tags only) ───────────────────────────────────────────────
 
 deploy:
   stage: deploy
   image: alpine:latest
   needs:
     - build
-  # Only deploy from release tags.
   rules:
     - if: $CI_COMMIT_TAG
   before_script:
