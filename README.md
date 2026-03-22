@@ -1,48 +1,130 @@
-# halloechen
+# Hallöchen Website
 
-This template should help get you started developing with Vue 3 in Vite.
+Die Website für das genossenschaftlich geführte Kneipenprojekt Hallöchen in
+Berlin-Moabit.
 
-## Recommended IDE Setup
+Die Anwendung ist eine Single-Page-Website auf Basis von Vue 3 und Vite. Sie
+enthält unter anderem:
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- einen Hero-Bereich mit Einführung
+- einen Veranstaltungsbereich mit Kalenderdaten
+- einen Bereich zum Konzept
+- Informationen zu Raum, Öffnungszeiten und rechtlichen Seiten
 
-## Recommended Browser Setup
+Wenn du fragen hast oder unterstützen willst, wende dich gerne an info@halloechen.org !
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Tech-Stack
 
-## Type Support for `.vue` Imports in TS
+- Vue 3
+- Vite
+- TypeScript
+- Vue Router
+- Tailwind CSS 4
+- ESLint
+- Prettier
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Voraussetzungen
 
-## Customize configuration
+- Node.js in einer Version passend zu `package.json`
+  - empfohlen: Node 22
+- npm
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+## Lokale Entwicklung
 
-## Project Setup
+Abhängigkeiten installieren:
 
 ```sh
 npm install
 ```
 
-### Compile and Hot-Reload for Development
+Entwicklungsserver starten:
 
 ```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Produktionsbuild lokal prüfen:
 
 ```sh
 npm run build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+Nur den Vite-Build ausführen:
+
+```sh
+npm run build-only
+```
+
+Vorschau des Produktionsbuilds starten:
+
+```sh
+npm run preview
+```
+
+## Qualitätschecks
+
+TypeScript-Check:
+
+```sh
+npm run type-check
+```
+
+Linting:
 
 ```sh
 npm run lint
 ```
+
+Formatierung:
+
+```sh
+npm run format
+```
+
+## Projektstruktur
+
+- `src/pages/`: Seiten wie Startseite, Impressum und Datenschutz
+- `src/components/`: wiederverwendbare UI-Bausteine
+- `src/composables/`: Vue-Composables für Scroll-Verhalten und Navigation
+- `src/calendar.ts`: Veranstaltungsdaten
+- `public/`: statische Dateien wie `robots.txt` und `sitemap.xml`
+
+## Deployment
+
+Das Deployment läuft über GitLab CI/CD.
+
+Die Pipeline führt folgende Schritte aus:
+
+1. Type-Check
+2. Linting
+3. Format-Check
+4. Produktionsbuild
+5. Deployment per FTP/SFTP
+
+Pipelines werden nur für Release-Tags im Format `release_X.Y.Z` erzeugt, zum
+Beispiel:
+
+```sh
+git tag release_1.0.0
+git push origin release_1.0.0
+```
+
+## Benötigte CI/CD-Variablen
+
+Für das Deployment müssen in GitLab unter `Settings > CI/CD > Variables`
+mindestens diese Variablen gesetzt sein:
+
+- `FTP_HOST`
+- `FTP_USER`
+- `FTP_PASSWORD`
+- `FTP_REMOTE_PATH`
+
+Wenn diese Variablen als `Protected` markiert sind, muss auch das verwendete
+Release-Tag geschützt sein.
+
+## Hinweise
+
+- Der Kalender ist aktuell statisch in `src/calendar.ts` hinterlegt.
+- Änderungen an Inhalten, Texten und Terminen können direkt im Quellcode
+  gepflegt werden.
+- Der Build-Output liegt nach erfolgreichem Build im Verzeichnis `dist/`.
