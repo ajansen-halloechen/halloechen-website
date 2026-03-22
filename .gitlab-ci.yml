@@ -24,54 +24,54 @@ workflow:
 
 default:
   image: node:22-alpine
+  variables:
+    # Force Lightning CSS to use WASM in CI to avoid native musl binary issues.
+    CSS_TRANSFORMER_WASM: "1"
 
-# Cache node_modules across jobs; keyed to the lockfile so it is
-# invalidated automatically when dependencies change.
-.node-cache: &node-cache
+# Cache npm download cache across jobs for faster installs.
+.npm-cache: &npm-cache
   cache:
     key:
       files:
         - package-lock.json
     paths:
-      - node_modules/
+      - .npm/
     policy: pull # jobs only read; the install step writes
-
-# npm install resolves and installs the correct platform package in Linux CI.
-.install: &install
-  before_script:
-    - npm install --prefer-offline
 
 # ── Install (primes the cache) ────────────────────────────────────────────────
 
 install:
   stage: check
-  <<: *node-cache
+  <<: *npm-cache
   cache:
     key:
       files:
         - package-lock.json
     paths:
-      - node_modules/
+      - .npm/
     policy: pull-push # this job writes the cache
   script:
-    - npm config set registry https://registry.npmjs.org/
-    - npm install --include=optional
+    - npm ci --prefer-offline --cache .npm
+  artifacts:
+    paths:
+      - node_modules/
+    expire_in: 1 day
 
 # ── Check stage (all three jobs run in parallel) ──────────────────────────────
 
 type-check:
   stage: check
-  needs: [install]
-  <<: *node-cache
-  <<: *install
+  needs:
+    - job: install
+      artifacts: true
   script:
     - npm run type-check
 
 lint:
   stage: check
-  needs: [install]
-  <<: *node-cache
-  <<: *install
+  needs:
+    - job: install
+      artifacts: true
   script:
     # Use --max-warnings 0 so any ESLint warning also fails the pipeline.
     # Do NOT use --fix here — CI must fail on issues, not silently correct them.
@@ -79,9 +79,9 @@ lint:
 
 format:
   stage: check
-  needs: [install]
-  <<: *node-cache
-  <<: *install
+  needs:
+    - job: install
+      artifacts: true
   script:
     # --check exits with a non-zero code if any file is not formatted.
     - npx prettier --check --experimental-cli src/
@@ -95,8 +95,8 @@ build:
     - type-check
     - lint
     - format
-  <<: *node-cache
-  <<: *install
+    - job: install
+      artifacts: true
   script:
     # build-only skips the redundant type-check that the full "build" script runs.
     - npm run build-only
