@@ -36,9 +36,10 @@ default:
       - node_modules/
     policy: pull # jobs only read; the install step writes
 
+# npm install resolves and installs the correct platform package in Linux CI.
 .install: &install
   before_script:
-    - npm ci --prefer-offline
+    - npm install --prefer-offline
 
 # ── Install (primes the cache) ────────────────────────────────────────────────
 
@@ -54,7 +55,7 @@ install:
     policy: pull-push # this job writes the cache
   script:
     - npm config set registry https://registry.npmjs.org/
-    - npm ci
+    - npm install --include=optional
 
 # ── Check stage (all three jobs run in parallel) ──────────────────────────────
 
