@@ -24,9 +24,10 @@ workflow:
 
 default:
   image: node:22-alpine
-  variables:
-    # Force Lightning CSS to use WASM in CI to avoid native musl binary issues.
-    CSS_TRANSFORMER_WASM: "1"
+
+# Force Lightning CSS to use WASM in CI to avoid native musl binary issues.
+variables:
+  CSS_TRANSFORMER_WASM: "1"
 
 # Cache npm download cache across jobs for faster installs.
 .npm-cache: &npm-cache
