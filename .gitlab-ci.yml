@@ -81,7 +81,9 @@ deploy:
     - apk add --no-cache lftp
   script:
     - |
-      lftp -u "$FTP_USER,$FTP_PASSWORD" "ftp://$FTP_HOST" -e "
+      echo "Deploying to FTP server: $FTP_HOST"
+    - |
+      lftp -u "$FTP_USER,$FTP_PASSWORD" "sftp://$FTP_HOST" -e "
         set ftp:ssl-allow yes;
         set ssl:verify-certificate no;
         mirror --reverse --delete --verbose --exclude-glob .well-known/ dist/ $FTP_REMOTE_PATH;
