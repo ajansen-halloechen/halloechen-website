@@ -25,10 +25,6 @@ workflow:
 default:
   image: node:22-alpine
 
-# Force Lightning CSS to use WASM in CI to avoid native musl binary issues.
-variables:
-  CSS_TRANSFORMER_WASM: "1"
-
 # Cache npm download cache across jobs for faster installs.
 .npm-cache: &npm-cache
   cache:
@@ -53,6 +49,8 @@ install:
     policy: pull-push # this job writes the cache
   script:
     - npm ci --prefer-offline --cache .npm
+    - LIGHTNINGCSS_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
+    - npm install "lightningcss-linux-x64-musl@$LIGHTNINGCSS_VERSION" --no-save --prefer-offline --cache .npm
   artifacts:
     paths:
       - node_modules/
