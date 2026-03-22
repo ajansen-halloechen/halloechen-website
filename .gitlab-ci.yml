@@ -49,6 +49,8 @@ install:
     policy: pull-push # this job writes the cache
   script:
     - npm ci --prefer-offline --cache .npm
+    - OXIDE_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@tailwindcss/oxide'].version")
+    - npm install "@tailwindcss/oxide-linux-x64-musl@$OXIDE_VERSION" --no-save --prefer-offline --cache .npm
     - LIGHTNINGCSS_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
     - npm install "lightningcss-linux-x64-musl@$LIGHTNINGCSS_VERSION" --no-save --prefer-offline --cache .npm
   artifacts:
