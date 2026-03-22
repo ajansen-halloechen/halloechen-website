@@ -35,44 +35,28 @@ default:
       - .npm/
     policy: pull # jobs only read; the install step writes
 
-# ── Install (primes the cache) ────────────────────────────────────────────────
-
-install:
-  stage: check
-  <<: *npm-cache
-  cache:
-    key:
-      files:
-        - package-lock.json
-    paths:
-      - .npm/
-    policy: pull-push # this job writes the cache
-  script:
+# Per-job install. This avoids missing optional native deps when passing node_modules across jobs.
+.install: &install
+  before_script:
     - npm ci --prefer-offline --cache .npm
     - OXIDE_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/@tailwindcss/oxide'].version")
     - npm install "@tailwindcss/oxide-linux-x64-musl@$OXIDE_VERSION" --no-save --prefer-offline --cache .npm
     - LIGHTNINGCSS_VERSION=$(node -p "require('./package-lock.json').packages['node_modules/lightningcss'].version")
     - npm install "lightningcss-linux-x64-musl@$LIGHTNINGCSS_VERSION" --no-save --prefer-offline --cache .npm
-  artifacts:
-    paths:
-      - node_modules/
-    expire_in: 1 day
 
 # ── Check stage (all three jobs run in parallel) ──────────────────────────────
 
 type-check:
   stage: check
-  needs:
-    - job: install
-      artifacts: true
+  <<: *npm-cache
+  <<: *install
   script:
     - npm run type-check
 
 lint:
   stage: check
-  needs:
-    - job: install
-      artifacts: true
+  <<: *npm-cache
+  <<: *install
   script:
     # Use --max-warnings 0 so any ESLint warning also fails the pipeline.
     # Do NOT use --fix here — CI must fail on issues, not silently correct them.
@@ -80,9 +64,8 @@ lint:
 
 format:
   stage: check
-  needs:
-    - job: install
-      artifacts: true
+  <<: *npm-cache
+  <<: *install
   script:
     # --check exits with a non-zero code if any file is not formatted.
     - npx prettier --check --experimental-cli src/
@@ -96,8 +79,8 @@ build:
     - type-check
     - lint
     - format
-    - job: install
-      artifacts: true
+  <<: *npm-cache
+  <<: *install
   script:
     # build-only skips the redundant type-check that the full "build" script runs.
     - npm run build-only
