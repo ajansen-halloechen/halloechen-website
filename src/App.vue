@@ -4,6 +4,7 @@ import TopBar from './components/TopBar.vue';
 import instagramIcon from './assets/instagram.svg?raw';
 import letterIcon from './assets/letter.svg?raw';
 import BottonBarLink from './components/BottonBarLink.vue';
+import logoSmall from './assets/logo-small.svg?raw';
 </script>
 
 <template>
@@ -18,14 +19,16 @@ import BottonBarLink from './components/BottonBarLink.vue';
     </main>
 
     <footer>
-      <div class="h-40 bg-gray-900 text-on-primary">
-        <div class="max-w-7xl mx-auto px-4 h-full flex justify-between p-4">
+      <div class=" h-52 bg-gray-900 text-on-primary">
+        <div class="max-w-7xl mx-auto px-4 h-full flex items-start justify-between p-4">
           <div class="h-full max-w-[50dvw]">
-            <p class="text-sm py-2">
+            <p class="text-sm pt-2 pb-6">
               &copy; 2026 Moabiter Trinkgenossenschaft eG
             </p>
+            <span class="block max-w-[50dvw] w-28 md:w-36 [&>svg]:h-auto [&>svg]:w-full" aria-hidden="true"
+              v-html="logoSmall" />
           </div>
-          <div class="h-full flex flex-col items-start justify-center space-y-1 md:flex-row md:space-y-0 md:space-x-2">
+          <div class="h-full flex flex-col items-start justify-start space-y-1 md:flex-row md:space-y-0 md:space-x-2">
             <div class="flex space-x-2">
               <BottonBarLink :is="'a'" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
                 rel="noopener noreferrer" aria-label="Instagram">
