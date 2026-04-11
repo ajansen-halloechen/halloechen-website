@@ -11,7 +11,7 @@ const props = defineProps<{
   <div class="flex items-center justify-center gap-6 mx-4">
     <div class="flex flex-col items-end justify-center p-2">
       <div class="text-xl font-semibold leading-none">
-        {{ new Date(props.event.timestamp).getDate() }}
+        {{ String(new Date(props.event.timestamp).getDate()).padStart(2, '0') }}
       </div>
       <div class="text-md uppercase tracking-wide">
         {{
