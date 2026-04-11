@@ -44,30 +44,23 @@ onClickOutside(topBarRef, () => {
 <template>
   <div ref="topBarRef" class="h-16 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
-      <RouterLink to="/" class="text-5xl text-primary font-hand font-bold"
-        >Hallöchen</RouterLink
-      >
+      <RouterLink to="/">
+        <img src="@/assets/logo.svg" alt="Hällöchen" class="h-10 w-auto" />
+
+      </RouterLink>
 
       <div class="ml-auto flex items-center gap-2">
         <!-- Desktop Nav -->
         <nav class="space-x-6 hidden md:flex">
-          <RouterLink
-            v-for="section in filteredSections"
-            :key="section.id"
-            :to="{ path: '/', hash: `#${section.id}` }"
+          <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
             class="text-xl hover:text-primary hover:font-bold"
-            :class="{ 'font-bold text-primary': activeSection === section.id }"
-          >
+            :class="{ 'font-bold text-primary': activeSection === section.id }">
             {{ section.title }}
           </RouterLink>
         </nav>
 
         <!-- Mobile burger button -->
-        <IconButton
-          class="md:hidden"
-          aria-label="Toggle navigation menu"
-          @click="toggleMobileMenu"
-        >
+        <IconButton class="md:hidden" aria-label="Toggle navigation menu" @click="toggleMobileMenu">
           <span class="sr-only">Toggle navigation menu</span>
           <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
           <XMarkIcon v-else class="h-8 w-8" />
@@ -76,31 +69,28 @@ onClickOutside(topBarRef, () => {
     </div>
 
     <!-- Mobile menu popover -->
-    <div
-      v-if="isMobileMenuOpen"
-      class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl"
-    >
+    <div v-if="isMobileMenuOpen"
+      class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
       <nav class="flex flex-col py-2">
-        <RouterLink
-          v-for="section in filteredSections"
-          :key="section.id"
-          :to="{ path: '/', hash: `#${section.id}` }"
+        <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
           class="px-4 py-2 text-md hover:bg-primary/10"
-          :class="{ 'font-bold text-primary': activeSection === section.id }"
-          @click="closeMobileMenu"
-        >
+          :class="{ 'font-bold text-primary': activeSection === section.id }" @click="closeMobileMenu">
           {{ section.title }}
         </RouterLink>
       </nav>
     </div>
   </div>
-  <div class="h-8 bg-primary text-white overflow-hidden flex items-center">
+  <div class="h-8 bg-primary text-on-primary overflow-hidden flex items-center">
     <div class="marquee flex whitespace-nowrap">
       <div v-for="i in 4" :key="i">
         <span class="p-8">#######</span>
         <span>
           Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist im
-          März geplant!!!&nbsp;
+          Mai geplant!!!&nbsp;
+        </span>
+        <span class="p-8">#######</span>
+        <span>
+          Offene Baustelle am 1. Mai - Kommt rum!!!&nbsp;
         </span>
       </div>
     </div>
