@@ -41,7 +41,7 @@ const router = createRouter({
       // Scroll to the section, compensating for fixed header height
       const el = document.querySelector<HTMLElement>(to.hash);
       if (el) {
-        const headerOffset = 48;
+        const headerOffset = 32;
         const top =
           el.getBoundingClientRect().top + window.scrollY - headerOffset;
         return { left: 0, top, behavior: 'instant' };

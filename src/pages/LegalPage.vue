@@ -1,21 +1,17 @@
 <template>
-  <h1 class="text-2xl font-bold mb-4 pt-8">Rechtliches</h1>
-  <section class="mb-8">
-    <h2 class="text-xl font-bold mb-2">Impressum</h2>
+  <h1 class="text-center text-2xl md:text-3xl font-bold py-8 md:py-10">Impressum</h1>
+  <section class="flex flex-col gap-4 md:gap-6 text-md md:text-lg">
     <p>
       Moabiter Trinkgenossenschaft eG<br />
-      Musterstraße 1<br />
-      10551 Berlin<br />
-      Deutschland
+      Waldstr. 44a<br />
+      10551 Berlin
     </p>
     <p>
-      Telefon: 030 12345678<br />
-      E-Mail: info@moabiter-trinkgenossenschaft.de
+      E-Mail: info@halloechen.org
     </p>
-    <p>Vertreten durch den Vorstand: Max Mustermann, Erika Musterfrau</p>
+    <p>Vertreten durch den Vorstand: Kay Greyer und Wolf Görz</p>
     <p>
-      Registergericht: Amtsgericht Berlin Charlottenburg<br />
-      Registernummer: VR 12345 B
+      Registergericht: Amtsgericht Charlottenburg (zu GnR 1079 B)
     </p>
   </section>
 </template>
