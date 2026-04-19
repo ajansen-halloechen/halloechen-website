@@ -1,36 +1,112 @@
-<script setup lang="ts">
-import { RouterLink } from 'vue-router';
-</script>
-
 <template>
-  <h1 class="text-2xl font-bold mb-4 pt-8">Datenschutzerklärung</h1>
-  <section class="mb-8">
-    <h2 class="text-xl font-bold mb-2">1. Datenschutz auf einen Blick</h2>
-    <p>
-      Allgemeine Hinweise zum Datenschutz finden Sie in unserer
-      <RouterLink to="/legal" class="text-blue-600 underline"
-        >Rechtliches</RouterLink
-      >.
-    </p>
-  </section>
-  <section class="mb-8">
-    <h2 class="text-xl font-bold mb-2">
-      2. Allgemeine Hinweise und Pflichtinformationen
-    </h2>
-    <p>
-      Wir nehmen den Schutz Ihrer persönlichen Daten sehr ernst.
-      Personenbezogene Daten werden von uns nur im notwendigen Umfang erhoben.
-      In keinem Fall werden die erhobenen Daten verkauft oder aus anderen
-      Gründen an Dritte weitergegeben.
-    </p>
-  </section>
-  <section class="mb-8">
-    <h2 class="text-xl font-bold mb-2">
-      3. Datenerfassung auf unserer Website
-    </h2>
-    <p>
-      Die Datenverarbeitung auf dieser Website erfolgt durch den
-      Websitebetreiber. Dessen Kontaktdaten können Sie dem Impressum entnehmen.
-    </p>
-  </section>
+  <div class="py-8 space-y-8 text-base leading-7">
+    <h1 class="text-2xl font-bold">Datenschutzerklärung</h1>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-bold">1. Verantwortlicher</h2>
+      <p>
+        Verantwortlich für die Datenverarbeitung auf dieser Website ist der
+        Websitebetreiber (siehe <a class="text-primary underline" href="/legal" target="_blank"
+          rel="noopener noreferrer">Impressum</a>).
+      </p>
+      <p>
+        Moabiter Trinkgenossenschaft eG<br />
+        Waldstr. 44a<br />
+        10551 Berlin
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-bold">2. Allgemeines zur Datenverarbeitung</h2>
+      <p>
+        Wir verarbeiten personenbezogene Daten nur, soweit dies zur
+        Bereitstellung einer funktionsfähigen Website sowie unserer Inhalte
+        erforderlich ist.
+      </p>
+      <p>
+        Diese Website verwendet keine eigenen Cookies, kein Tracking und keine
+        Analyse-Tools.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-bold">3. Hosting (Hetzner)</h2>
+      <p>
+        Unsere Website wird bei der Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen, Deutschland gehostet.
+        Beim Aufruf
+        der Website werden technisch notwendige Verbindungsdaten verarbeitet,
+        insbesondere:
+      </p>
+      <ul class="list-disc pl-6 space-y-1">
+        <li>IP-Adresse</li>
+        <li>Datum und Uhrzeit der Anfrage</li>
+        <li>aufgerufene Seite/Datei</li>
+        <li>übertragene Datenmenge</li>
+        <li>Browsertyp und Betriebssystem</li>
+        <li>Referrer-URL (falls übermittelt)</li>
+      </ul>
+      <p>
+        Die Verarbeitung erfolgt zur technischen Bereitstellung, Stabilität und
+        Sicherheit der Website (z. B. Abwehr von Missbrauch und Angriffen) auf
+        Grundlage von Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse).
+      </p>
+      <p>
+        Server-Logfiles werden bei Hosting-Anbietern üblicherweise für einen
+        begrenzten Zeitraum gespeichert und anschließend automatisch gelöscht.
+        Die konkrete Speicherdauer richtet sich nach der Konfiguration beim
+        Hosting-Anbieter.
+      </p>
+    </section>
+
+    <section class="space-y-3">
+      <h2 class="text-xl font-bold">4. Einbindung von Google Maps</h2>
+      <p>
+        Auf unserer Website ist ein Kartenmodul von Google Maps eingebunden.
+        Anbieter ist Google Ireland Limited, Gordon House, Barrow Street,
+        Dublin 4, Irland.
+      </p>
+      <p>
+        Beim Laden der Karte wird eine Verbindung zu Servern von Google
+        hergestellt. Dabei können insbesondere IP-Adresse und ggf. weitere
+        technische Nutzungsdaten an Google übermittelt werden.
+      </p>
+      <p>
+        Dabei kann eine Verarbeitung in Drittländern (insbesondere den USA)
+        nicht ausgeschlossen werden.
+      </p>
+      <p>
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse
+        an einer nutzerfreundlichen Darstellung unseres Standorts).
+      </p>
+      <p>
+        Google-Nutzungsbedingungen:
+        <a class="text-primary underline" href="https://www.google.com/intl/de_de/help/terms_maps/" target="_blank"
+          rel="noopener noreferrer">
+          https://www.google.com/intl/de_de/help/terms_maps/
+        </a>
+      </p>
+      <p>
+        Google-Datenschutzerklärung:
+        <a class="text-primary underline" href="https://policies.google.com/privacy?hl=de" target="_blank"
+          rel="noopener noreferrer">
+          https://policies.google.com/privacy?hl=de
+        </a>
+      </p>
+    </section>
+
+    <section class="space-y-3 pb-8">
+      <h2 class="text-xl font-bold">5. Ihre Rechte</h2>
+      <p>
+        Sie haben im Rahmen der gesetzlichen Vorgaben insbesondere folgende
+        Rechte: Auskunft, Berichtigung, Löschung, Einschränkung der
+        Verarbeitung, Widerspruch gegen die Verarbeitung sowie
+        Datenübertragbarkeit.
+      </p>
+      <p>
+        Außerdem haben Sie das Recht, sich bei einer Datenschutzaufsichtsbehörde
+        zu beschweren.
+      </p>
+      <p>Stand: April 2026</p>
+    </section>
+  </div>
 </template>
