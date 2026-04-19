@@ -5,6 +5,7 @@ import { sections } from '@/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { onClickOutside } from '@vueuse/core';
 import IconButton from './IconButton.vue';
+import logo from '@/assets/logo.svg?raw';
 
 const route = useRoute();
 
@@ -42,10 +43,11 @@ onClickOutside(topBarRef, () => {
 </script>
 
 <template>
-  <div ref="topBarRef" class="h-16 relative">
+  <div ref="topBarRef" class="h-24 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
       <RouterLink to="/">
-        <img src="@/assets/logo.svg" alt="Hällöchen" class="h-10 w-auto" />
+        <span class="h-20 w-auto text-primary [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
+          aria-label="Hällöchen logo" />
 
       </RouterLink>
 
@@ -53,8 +55,8 @@ onClickOutside(topBarRef, () => {
         <!-- Desktop Nav -->
         <nav class="space-x-6 hidden md:flex">
           <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
-            class="text-xl hover:text-primary hover:font-bold"
-            :class="{ 'font-bold text-primary': activeSection === section.id }">
+            class="text-xl hover:text-tertiary hover:font-bold"
+            :class="{ 'font-bold text-tertiary': activeSection === section.id }">
             {{ section.title }}
           </RouterLink>
         </nav>
@@ -73,8 +75,8 @@ onClickOutside(topBarRef, () => {
       class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
       <nav class="flex flex-col py-2">
         <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
-          class="px-4 py-2 text-md hover:bg-primary/10"
-          :class="{ 'font-bold text-primary': activeSection === section.id }" @click="closeMobileMenu">
+          class="px-4 py-2 text-md hover:text-tertiary hover:font-bold"
+          :class="{ 'font-bold text-tertiary': activeSection === section.id }" @click="closeMobileMenu">
           {{ section.title }}
         </RouterLink>
       </nav>

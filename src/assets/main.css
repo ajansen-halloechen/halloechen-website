@@ -52,7 +52,7 @@
 
   --color-primary: var(--color-primary-900);
   --color-secondary: var(--color-secondary-900);
-  --color-tertiary: var(--color-tertiary-300);
+  --color-tertiary: var(--color-tertiary-400);
   --color-on-primary: var(--color-primary-50);
   --color-on-secondary: var(--color-secondary-50);
   --color-success: var(--color-tertiary-300);
