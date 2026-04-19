@@ -66,23 +66,23 @@
         Dublin 4, Irland.
       </p>
       <p>
-        Beim Laden der Karte wird eine Verbindung zu Servern von Google
-        hergestellt. Dabei können insbesondere IP-Adresse und ggf. weitere
-        technische Nutzungsdaten an Google übermittelt werden.
+        Die Karte wird erst geladen, wenn Sie sie aktiv per Klick freigeben
+        (2-Klick-Lösung). Erst danach wird eine Verbindung zu Servern von
+        Google hergestellt. Dabei können insbesondere IP-Adresse und ggf.
+        weitere technische Nutzungsdaten an Google übermittelt werden.
       </p>
       <p>
         Dabei kann eine Verarbeitung in Drittländern (insbesondere den USA)
         nicht ausgeschlossen werden.
       </p>
       <p>
-        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse
-        an einer nutzerfreundlichen Darstellung unseres Standorts).
+        Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO.
       </p>
       <p>
-        Google-Nutzungsbedingungen:
-        <a class="text-primary underline" href="https://www.google.com/intl/de_de/help/terms_maps/" target="_blank"
+        Google-Maps-Nutzungsbedingungen:
+        <a class="text-primary underline" href="https://www.google.com/intl/de_DE/help/terms_maps/" target="_blank"
           rel="noopener noreferrer">
-          https://www.google.com/intl/de_de/help/terms_maps/
+          https://www.google.com/intl/de_DE/help/terms_maps/
         </a>
       </p>
       <p>
