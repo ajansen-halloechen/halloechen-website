@@ -1,5 +1,5 @@
 <template>
-  <h1 class="text-center text-2xl md:text-3xl font-bold py-8 md:py-10">Impressum</h1>
+  <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Impressum</h1>
   <section class="flex flex-col gap-4 md:gap-6 text-md md:text-lg pb-10 md:pb-16">
     <p>
       Moabiter Trinkgenossenschaft eG<br />
