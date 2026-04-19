@@ -11,7 +11,7 @@ const calendarEvents: CalendarEvent[] = [
     timestamp: '2026-05-01T14:00:00Z',
     title: 'Offene Baustelle',
     description:
-      'Wir sind noch nicht ganz fertig, aber am 1. Mai öffnen wir schon mal die Türen für Euch! Es wird Getränke und Musik geben. Kommt rum!!!',
+      'Wir sind noch nicht ganz fertig, aber am 1. Mai öffnen wir schon mal die Türen für Euch! Es wird Getränke und Musik geben!',
   },
 ];
 
