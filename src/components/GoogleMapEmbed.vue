@@ -23,7 +23,7 @@ const onMapLoad = () => {
 <template>
     <div class="w-full h-full relative overflow-hidden rounded-md">
         <div v-if="!mapEnabled"
-            class="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center border border-tertiary border-3">
+            class="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center border border-tertiary border-3 rounded-md">
             <p class="text-sm">
                 Mit dem Klick auf den Button wird Google Maps geladen. Dabei können personenbezogene Daten (z. B.
                 Ihre IP-Adresse) an Google übermittelt werden.
