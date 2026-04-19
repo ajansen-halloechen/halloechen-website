@@ -1,49 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
-
-const mapEnabled = ref(false);
-const mapLoaded = ref(false);
-
-const enableMap = () => {
-  mapEnabled.value = true;
-};
-
-const onMapLoad = () => {
-  setTimeout(() => {
-    mapLoaded.value = true;
-  }, 500);
-};
+import GoogleMapEmbed from './GoogleMapEmbed.vue';
 </script>
 
 <template>
   <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
     <div class="space-y-6">
       <h3 class="text-xl font-semibold">Raum:</h3>
-      <div class="w-full max-w-xl aspect-[4/3] relative rounded-md">
-        <div v-if="!mapEnabled"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center border border-tertiary border-2">
-          <p class="text-sm text-slate-700">
-            Mit dem Klick auf den Button wird Google Maps geladen. Dabei können personenbezogene Daten (z. B.
-            Ihre IP-Adresse) an Google übermittelt werden.
-          </p>
-          <button class="px-4 py-2 rounded-md bg-primary text-on-primary font-semibold hover:opacity-90 transition"
-            type="button" @click="enableMap">
-            Karte laden
-          </button>
-          <p class="text-xs text-slate-600">
-            Details in der
-            <RouterLink to="/privacy" class="underline text-primary">Datenschutzerklärung</RouterLink>.
-          </p>
-        </div>
-        <iframe v-else
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2427.183252228707!2d13.328274877647784!3d52.53011853547905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851af3f3a5f61%3A0x9703c9045c49ca3a!2sHall%C3%B6chen!5e0!3m2!1sde!2sde!4v1768928723404!5m2!1sde!2sde"
-          class="w-full h-full" style="border: 0" allowfullscreen loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade" @load="onMapLoad" />
-        <div v-if="mapEnabled && !mapLoaded"
-          class="absolute inset-0 flex items-center justify-center bg-white/70 dark:bg-slate-900/60">
-          <div class="h-10 w-10 border-4 border-slate-300 border-t-slate-700 rounded-full animate-spin"></div>
-        </div>
+      <div class="w-full max-w-xl aspect-[4/3]">
+        <GoogleMapEmbed
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2427.183252228707!2d13.328274877647784!3d52.53011853547905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851af3f3a5f61%3A0x9703c9045c49ca3a!2sHall%C3%B6chen!5e0!3m2!1sde!2sde!4v1768928723404!5m2!1sde!2sde" />
       </div>
     </div>
     <div class="space-y-6">
