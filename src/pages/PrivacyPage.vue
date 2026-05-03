@@ -7,7 +7,13 @@
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist der
         Websitebetreiber (siehe
-        <a class="text-primary underline" href="/legal" target="_blank" rel="noopener noreferrer">Impressum</a>).
+        <a
+          class="text-primary underline"
+          href="/legal"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Impressum</a
+        >).
       </p>
       <p>
         Moabiter Trinkgenossenschaft eG<br />
@@ -79,15 +85,23 @@
       </p>
       <p>
         Google-Maps-Nutzungsbedingungen:
-        <a class="text-primary underline" href="https://www.google.com/intl/de_DE/help/terms_maps/" target="_blank"
-          rel="noopener noreferrer">
+        <a
+          class="text-primary underline"
+          href="https://www.google.com/intl/de_DE/help/terms_maps/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://www.google.com/intl/de_DE/help/terms_maps/
         </a>
       </p>
       <p>
         Google-Datenschutzerklärung:
-        <a class="text-primary underline" href="https://policies.google.com/privacy?hl=de" target="_blank"
-          rel="noopener noreferrer">
+        <a
+          class="text-primary underline"
+          href="https://policies.google.com/privacy?hl=de"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://policies.google.com/privacy?hl=de
         </a>
       </p>
