@@ -12,7 +12,10 @@
       Konzerte und Veranstaltungen statt. Du kannst Dart spielen oder einfach
       abhängen.
     </p>
-    <img src="@/assets/banana.png" alt="Bild: Gemütliches Beisammensein im Hallöchen"
-      class="object-contain h-[50dvh] w-auto mt-4 rounded-md" />
+    <img
+      src="@/assets/banana.png"
+      alt="Bild: Gemütliches Beisammensein im Hallöchen"
+      class="object-contain h-[50dvh] w-auto mt-4 rounded-md"
+    />
   </div>
 </template>

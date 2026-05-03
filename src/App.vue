@@ -6,7 +6,8 @@ import FooterBar from './components/FooterBar.vue';
 
 <template>
   <div
-    class="min-h-dvh flex flex-col bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20">
+    class="min-h-dvh flex flex-col bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20"
+  >
     <header class="sticky top-0 z-50 backdrop-blur-3xl">
       <TopBar />
     </header>
