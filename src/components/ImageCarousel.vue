@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useGesture } from '@vueuse/gesture';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/vue/24/outline';
+import IconButton from './IconButton.vue';
 
 import img1 from '@/assets/carousel/IMG_5209.JPG';
 import img2 from '@/assets/carousel/IMG_5210.JPG';
@@ -116,16 +117,14 @@ onMounted(() => {
         </div>
 
         <!-- Arrows -->
-        <button
-            class="absolute left-2 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background/90 rounded-full p-1 transition-colors"
+        <IconButton class="absolute left-2 top-1/2 -translate-y-1/2 text-tertiary bg-primary/70 hover:bg-primary/90"
             aria-label="Previous slide" @click="prev">
-            <ChevronLeftIcon class="h-6 w-6" />
-        </button>
-        <button
-            class="absolute right-2 top-1/2 -translate-y-1/2 bg-background/70 hover:bg-background/90 rounded-full p-1 transition-colors"
+            <ChevronLeftIcon class="h-5 w-5" />
+        </IconButton>
+        <IconButton class="absolute right-2 top-1/2 -translate-y-1/2 text-tertiary bg-primary/70 hover:bg-primary/90"
             aria-label="Next slide" @click="next">
-            <ChevronRightIcon class="h-6 w-6" />
-        </button>
+            <ChevronRightIcon class="h-5 w-5" />
+        </IconButton>
 
         <!-- Dots -->
         <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" role="tablist"
