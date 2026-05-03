@@ -92,7 +92,8 @@ onClickOutside(topBarRef, () => {
         </span>
         <span class="p-8">#######</span>
         <span>
-          Offene Baustelle am 1. Mai - Kommt rum!!!&nbsp;
+          Coming soon - schaut auch auf <a class="underline" href="https://www.instagram.com/halloechen_moabit/"
+            target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a> für Updates!&nbsp;
         </span>
       </div>
     </div>
