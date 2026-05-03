@@ -13,7 +13,7 @@ const props = defineProps<{
 
 <template>
   <component :is="componentMap[props.is]"
-    class="text-sm inline-flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors duration-150 hover:bg-tertiary">
+    class="text-sm inline-flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors duration-150 hover:bg-accent">
     <slot />
   </component>
 </template>

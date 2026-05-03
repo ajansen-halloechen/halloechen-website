@@ -46,7 +46,7 @@ onClickOutside(topBarRef, () => {
   <div ref="topBarRef" class="h-24 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
       <RouterLink to="/">
-        <span class="inline-block h-20 w-auto text-tertiary [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
+        <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
           aria-label="Hällöchen logo" />
 
       </RouterLink>
@@ -55,8 +55,8 @@ onClickOutside(topBarRef, () => {
         <!-- Desktop Nav -->
         <nav class="space-x-6 hidden md:flex">
           <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
-            class="text-xl hover:text-tertiary hover:font-bold"
-            :class="{ 'font-bold text-tertiary': activeSection === section.id }">
+            class="text-xl hover:text-accent hover:font-bold"
+            :class="{ 'font-bold text-accent': activeSection === section.id }">
             {{ section.title }}
           </RouterLink>
         </nav>
@@ -75,8 +75,8 @@ onClickOutside(topBarRef, () => {
       class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
       <nav class="flex flex-col py-2">
         <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
-          class="px-4 py-2 text-md hover:text-tertiary hover:font-bold"
-          :class="{ 'font-bold text-tertiary': activeSection === section.id }" @click="closeMobileMenu">
+          class="px-4 py-2 text-md hover:text-accent hover:font-bold"
+          :class="{ 'font-bold text-accent': activeSection === section.id }" @click="closeMobileMenu">
           {{ section.title }}
         </RouterLink>
       </nav>
