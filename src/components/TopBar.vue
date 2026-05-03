@@ -5,7 +5,7 @@ import { sections } from '@/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { onClickOutside } from '@vueuse/core';
 import IconButton from './IconButton.vue';
-import logo from '@/assets/logo.svg?raw';
+import logo from '@/assets/logo-inverted.svg?raw';
 
 const route = useRoute();
 
@@ -46,7 +46,7 @@ onClickOutside(topBarRef, () => {
   <div ref="topBarRef" class="h-24 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
       <RouterLink to="/">
-        <span class="inline-block h-20 w-auto text-primary [&>svg]:h-auto [&>svg]:w-full bg-tertiary" v-html="logo"
+        <span class="inline-block h-20 w-auto text-tertiary [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
           aria-label="Hällöchen logo" />
 
       </RouterLink>
