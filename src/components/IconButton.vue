@@ -3,7 +3,7 @@
 <template>
   <button
     type="button"
-    class="inline-flex items-center justify-center p-2 text-primary hover:bg-primary/10 rounded-md"
+    class="inline-flex items-center justify-center p-2 text-primary rounded-md hover:bg-primary/70 hover:text-tertiary"
   >
     <slot />
   </button>

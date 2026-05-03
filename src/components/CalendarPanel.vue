@@ -61,13 +61,13 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
     <div class="flex items-center justify-between border-b-3 border-primary pb-2">
       <IconButton class="disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Previous month"
         :disabled="!canGoPrev" @click="goPrevMonth">
-        <ChevronLeftIcon class="h-8 w-8" />
+        <ChevronLeftIcon class="h-6 w-6" />
       </IconButton>
       <div class="text-xl font-semibold capitalize">
         {{ monthLabel }}
       </div>
       <IconButton aria-label="Next month" @click="goNextMonth">
-        <ChevronRightIcon class="h-8 w-8" />
+        <ChevronRightIcon class="h-6 w-6" />
       </IconButton>
     </div>
 
