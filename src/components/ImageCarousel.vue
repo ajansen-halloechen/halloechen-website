@@ -104,15 +104,14 @@ onMounted(() => {
 </script>
 
 <template>
-    <div ref="containerRef" class="relative w-full h-full overflow-hidden select-none touch-pan-y" role="region"
+    <div ref="containerRef" class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y" role="region"
         aria-roledescription="carousel" aria-label="Image carousel">
         <!-- Track -->
         <div ref="trackRef" class="flex h-full w-full" :style="trackStyle">
-            <div v-for="(src, i) in images" :key="i"
-                class="min-w-full h-full flex items-center justify-center bg-black/5" role="group"
+            <div v-for="(src, i) in images" :key="i" class="min-w-full h-full" role="group"
                 :aria-roledescription="'slide'" :aria-label="`Slide ${i + 1} of ${images.length}`"
                 :aria-hidden="i !== currentIndex">
-                <img :src="src" :alt="`Carousel image ${i + 1}`" class="object-contain h-full w-full" />
+                <img :src="src" :alt="`Carousel image ${i + 1}`" class="object-cover h-full w-full" />
             </div>
         </div>
 
