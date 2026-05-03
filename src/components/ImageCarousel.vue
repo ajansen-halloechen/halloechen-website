@@ -11,7 +11,6 @@ import img3 from '@/assets/carousel/IMG_5211.JPG';
 const images = [img1, img2, img3];
 
 const currentIndex = ref(0);
-const trackRef = ref<HTMLElement | null>(null);
 const containerRef = ref<HTMLElement | null>(null);
 const isTransitioning = ref(true);
 
@@ -107,7 +106,7 @@ onMounted(() => {
     <div ref="containerRef" class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y" role="region"
         aria-roledescription="carousel" aria-label="Image carousel">
         <!-- Track -->
-        <div ref="trackRef" class="flex h-full w-full" :style="trackStyle">
+        <div class="flex h-full w-full" :style="trackStyle">
             <div v-for="(src, i) in images" :key="i" class="min-w-full h-full" role="group"
                 :aria-roledescription="'slide'" :aria-label="`Slide ${i + 1} of ${images.length}`"
                 :aria-hidden="i !== currentIndex">
