@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-5xl mx-auto space-y-8 text-base leading-7">
+  <div class="max-w-5xl mx-auto px-8 space-y-8 text-base leading-7">
     <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Datenschutz</h1>
 
     <section class="space-y-3">
