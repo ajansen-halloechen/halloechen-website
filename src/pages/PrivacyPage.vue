@@ -1,19 +1,13 @@
 <template>
-  <div class="py-8 space-y-8 text-base leading-7">
-    <h1 class="text-2xl font-bold">Datenschutzerklärung</h1>
+  <div class="max-w-5xl mx-auto space-y-8 text-base leading-7">
+    <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Datenschutz</h1>
 
     <section class="space-y-3">
       <h2 class="text-xl font-bold">1. Verantwortlicher</h2>
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist der
         Websitebetreiber (siehe
-        <a
-          class="text-primary underline"
-          href="/legal"
-          target="_blank"
-          rel="noopener noreferrer"
-          >Impressum</a
-        >).
+        <a class="text-primary underline" href="/legal" target="_blank" rel="noopener noreferrer">Impressum</a>).
       </p>
       <p>
         Moabiter Trinkgenossenschaft eG<br />
@@ -85,23 +79,15 @@
       </p>
       <p>
         Google-Maps-Nutzungsbedingungen:
-        <a
-          class="text-primary underline"
-          href="https://www.google.com/intl/de_DE/help/terms_maps/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a class="text-primary underline" href="https://www.google.com/intl/de_DE/help/terms_maps/" target="_blank"
+          rel="noopener noreferrer">
           https://www.google.com/intl/de_DE/help/terms_maps/
         </a>
       </p>
       <p>
         Google-Datenschutzerklärung:
-        <a
-          class="text-primary underline"
-          href="https://policies.google.com/privacy?hl=de"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
+        <a class="text-primary underline" href="https://policies.google.com/privacy?hl=de" target="_blank"
+          rel="noopener noreferrer">
           https://policies.google.com/privacy?hl=de
         </a>
       </p>
