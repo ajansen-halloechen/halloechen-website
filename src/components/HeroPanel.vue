@@ -5,7 +5,7 @@ import ImageCarousel from './ImageCarousel.vue';
 
 <template>
   <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
-    <div class="w-full h-[60dvh] md:h-[70dvh] md:max-h-[600px] rounded-md overflow-hidden">
+    <div class="w-full rounded-md overflow-hidden">
       <ImageCarousel />
     </div>
     <div class="w-full flex flex-col justify-center space-y-4 md:space-y-6">
