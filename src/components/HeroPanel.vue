@@ -4,7 +4,7 @@ import ImageCarousel from './ImageCarousel.vue';
 </script>
 
 <template>
-  <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+  <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
     <div class="w-full rounded-md overflow-hidden">
       <ImageCarousel />
     </div>
@@ -14,9 +14,7 @@ import ImageCarousel from './ImageCarousel.vue';
         Willkommen in deiner genossenschaftlich geführten Kneipe in
         Berlin-Moabit.
       </h1>
-      <p
-        class="text-2xl md:text-3xl font-bold pt-4 inline-flex items-center gap-1"
-      >
+      <p class="text-2xl md:text-3xl font-bold pt-4 inline-flex items-center gap-1">
         Prost!
         <HeartIcon class="size-7 md:size-8 text-secondary" />
         🍺
