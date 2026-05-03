@@ -12,7 +12,7 @@ import BottonBarLink from './BottonBarLink.vue';
                 <p class="text-sm pt-2 pb-6">
                     &copy; 2026 Moabiter Trinkgenossenschaft eG
                 </p>
-                <span class="block text-tertiary max-w-[50dvw] w-8 md:w-12 [&>svg]:h-auto [&>svg]:w-full"
+                <span class="block text-accent max-w-[50dvw] w-8 md:w-12 [&>svg]:h-auto [&>svg]:w-full"
                     aria-hidden="true" v-html="logoSmall" />
             </div>
             <div class="h-full flex flex-col items-start justify-start space-y-1 md:flex-row md:space-y-0 md:space-x-2">
