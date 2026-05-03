@@ -46,7 +46,7 @@ onClickOutside(topBarRef, () => {
   <div ref="topBarRef" class="h-24 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
       <RouterLink to="/">
-        <span class="h-20 w-auto text-primary [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
+        <span class="inline-block h-20 w-auto text-primary [&>svg]:h-auto [&>svg]:w-full bg-tertiary" v-html="logo"
           aria-label="Hällöchen logo" />
 
       </RouterLink>
