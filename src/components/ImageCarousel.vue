@@ -14,7 +14,7 @@ const currentIndex = ref(0);
 const containerRef = ref<HTMLElement | null>(null);
 const isTransitioning = ref(true);
 
-const INTERVAL_MS = 15_000;
+const INTERVAL_MS = 5_000;
 let timer: ReturnType<typeof setInterval> | null = null;
 
 const prefersReducedMotion = ref(false);
@@ -127,9 +127,8 @@ onMounted(() => {
         <!-- Dots -->
         <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" role="tablist"
             aria-label="Slide navigation">
-            <button v-for="(_, i) in images" :key="i"
-                class="h-3 w-3 rounded-full border border-white/80 transition-colors"
-                :class="i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-white/80'"
+            <button v-for="(_, i) in images" :key="i" class="h-3 w-3 rounded-full transition-colors"
+                :class="i === currentIndex ? 'bg-primary' : 'bg-white/60 hover:bg-white/80'"
                 :aria-label="`Go to slide ${i + 1}`" :aria-selected="i === currentIndex" role="tab" @click="goTo(i)" />
         </div>
 
