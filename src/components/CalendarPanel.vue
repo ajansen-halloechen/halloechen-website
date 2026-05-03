@@ -39,7 +39,7 @@ function goNextMonth() {
 }
 
 const eventsForMonth = computed<CalendarEvent[]>(() => {
-  let monthStart = selectedMonth.value;
+  const monthStart = selectedMonth.value;
   const monthEnd = new Date(
     monthStart.getFullYear(),
     monthStart.getMonth() + 1,
@@ -50,10 +50,6 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
     999,
   );
 
-  if (today > monthStart && today <= monthEnd) {
-    monthStart = today;
-  }
-
   return getCalendarEvents(monthStart, monthEnd).sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   );
@@ -62,15 +58,9 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
 
 <template>
   <div class="max-h-[75dvh] rounded-lg md:px-6 flex flex-col gap-1">
-    <div
-      class="flex items-center justify-between border-b-3 border-primary pb-2"
-    >
-      <IconButton
-        class="disabled:opacity-30 disabled:hover:bg-transparent"
-        aria-label="Previous month"
-        :disabled="!canGoPrev"
-        @click="goPrevMonth"
-      >
+    <div class="flex items-center justify-between border-b-3 border-primary pb-2">
+      <IconButton class="disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Previous month"
+        :disabled="!canGoPrev" @click="goPrevMonth">
         <ChevronLeftIcon class="h-8 w-8" />
       </IconButton>
       <div class="text-xl font-semibold capitalize">
@@ -82,11 +72,7 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
     </div>
 
     <div v-if="eventsForMonth.length" class="flex-1 overflow-y-auto">
-      <div
-        v-for="event in eventsForMonth"
-        :key="event.id"
-        class="py-2 border-b border-primary"
-      >
+      <div v-for="event in eventsForMonth" :key="event.id" class="py-2 border-b border-primary">
         <CalendarItem :event="event" class="md:hidden" />
         <CalendarItemMd :event="event" class="hidden md:flex" />
       </div>
