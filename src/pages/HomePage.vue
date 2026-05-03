@@ -16,29 +16,17 @@ useScrollSpy(sectionRefs);
 </script>
 
 <template>
-  <PanelRoot :ref="sections.HERO.id" :id="sections.HERO.id">
+  <PanelRoot class="max-w-7xl" :ref="sections.HERO.id" :id="sections.HERO.id">
     <HeroPanel />
   </PanelRoot>
-  <PanelRoot
-    :ref="sections.EVENTS.id"
-    :id="sections.EVENTS.id"
-    :title="'Veranstaltungen'"
-  >
+  <PanelRoot :ref="sections.EVENTS.id" :id="sections.EVENTS.id" :title="'Veranstaltungen'">
     <CalendarPanel />
   </PanelRoot>
-  <PanelRoot
-    :ref="sections.CONCEPT.id"
-    :id="sections.CONCEPT.id"
-    :title="'Konzept'"
-  >
+  <PanelRoot :ref="sections.CONCEPT.id" :id="sections.CONCEPT.id" :title="'Konzept'">
     <ConceptPanel />
   </PanelRoot>
-  <PanelRoot
-    :ref="sections.LOCATION_AND_BUSINESS_HOURS.id"
-    :id="sections.LOCATION_AND_BUSINESS_HOURS.id"
-    class="mb-10"
-    :title="'Raum und Zeit'"
-  >
+  <PanelRoot :ref="sections.LOCATION_AND_BUSINESS_HOURS.id" :id="sections.LOCATION_AND_BUSINESS_HOURS.id" class="mb-10"
+    :title="'Raum und Zeit'">
     <LocationAndBusinessHoursPanel />
   </PanelRoot>
 </template>

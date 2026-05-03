@@ -11,7 +11,7 @@ import FooterBar from './components/FooterBar.vue';
       <TopBar />
     </header>
 
-    <main class="flex-1 max-w-5xl w-full mx-auto px-8">
+    <main class="flex-1 w-full">
       <RouterView />
     </main>
 
