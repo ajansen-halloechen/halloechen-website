@@ -115,20 +115,19 @@ onMounted(() => {
         </div>
 
         <!-- Arrows -->
-        <IconButton class="absolute left-2 top-1/2 -translate-y-1/2 text-tertiary bg-primary/70 hover:bg-primary/90"
-            aria-label="Previous slide" @click="prev">
-            <ChevronLeftIcon class="h-5 w-5" />
+        <IconButton class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Previous slide"
+            @click="prev">
+            <ChevronLeftIcon class="h-4 w-4" />
         </IconButton>
-        <IconButton class="absolute right-2 top-1/2 -translate-y-1/2 text-tertiary bg-primary/70 hover:bg-primary/90"
-            aria-label="Next slide" @click="next">
-            <ChevronRightIcon class="h-5 w-5" />
+        <IconButton class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Next slide" @click="next">
+            <ChevronRightIcon class="h-4 w-4" />
         </IconButton>
 
         <!-- Dots -->
         <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" role="tablist"
             aria-label="Slide navigation">
             <button v-for="(_, i) in images" :key="i" class="h-3 w-3 rounded-full transition-colors"
-                :class="i === currentIndex ? 'bg-primary' : 'bg-white/60 hover:bg-white/80'"
+                :class="i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-primary/70'"
                 :aria-label="`Go to slide ${i + 1}`" :aria-selected="i === currentIndex" role="tab" @click="goTo(i)" />
         </div>
 
