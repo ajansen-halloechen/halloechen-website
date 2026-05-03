@@ -46,23 +46,33 @@ onClickOutside(topBarRef, () => {
   <div ref="topBarRef" class="h-24 relative">
     <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
       <RouterLink to="/">
-        <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
-          aria-label="Hällöchen logo" />
-
+        <span
+          class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full"
+          v-html="logo"
+          aria-label="Hällöchen logo"
+        />
       </RouterLink>
 
       <div class="ml-auto flex items-center gap-2">
         <!-- Desktop Nav -->
         <nav class="space-x-6 hidden md:flex">
-          <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
+          <RouterLink
+            v-for="section in filteredSections"
+            :key="section.id"
+            :to="{ path: '/', hash: `#${section.id}` }"
             class="text-xl hover:text-accent hover:font-bold"
-            :class="{ 'font-bold text-accent': activeSection === section.id }">
+            :class="{ 'font-bold text-accent': activeSection === section.id }"
+          >
             {{ section.title }}
           </RouterLink>
         </nav>
 
         <!-- Mobile burger button -->
-        <IconButton class="md:hidden" aria-label="Toggle navigation menu" @click="toggleMobileMenu">
+        <IconButton
+          class="md:hidden"
+          aria-label="Toggle navigation menu"
+          @click="toggleMobileMenu"
+        >
           <span class="sr-only">Toggle navigation menu</span>
           <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
           <XMarkIcon v-else class="h-8 w-8" />
@@ -71,12 +81,19 @@ onClickOutside(topBarRef, () => {
     </div>
 
     <!-- Mobile menu popover -->
-    <div v-if="isMobileMenuOpen"
-      class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
+    <div
+      v-if="isMobileMenuOpen"
+      class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl"
+    >
       <nav class="flex flex-col py-2">
-        <RouterLink v-for="section in filteredSections" :key="section.id" :to="{ path: '/', hash: `#${section.id}` }"
+        <RouterLink
+          v-for="section in filteredSections"
+          :key="section.id"
+          :to="{ path: '/', hash: `#${section.id}` }"
           class="px-4 py-2 text-md hover:text-accent hover:font-bold"
-          :class="{ 'font-bold text-accent': activeSection === section.id }" @click="closeMobileMenu">
+          :class="{ 'font-bold text-accent': activeSection === section.id }"
+          @click="closeMobileMenu"
+        >
           {{ section.title }}
         </RouterLink>
       </nav>
@@ -92,8 +109,16 @@ onClickOutside(topBarRef, () => {
         </span>
         <span class="p-8">#######</span>
         <span>
-          Coming soon - schaut auch auf <a class="underline" href="https://www.instagram.com/halloechen_moabit/"
-            target="_blank" rel="noopener noreferrer" aria-label="Instagram">Instagram</a> für Updates!&nbsp;
+          Coming soon - schaut auch auf
+          <a
+            class="underline"
+            href="https://www.instagram.com/halloechen_moabit/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            >Instagram</a
+          >
+          für Updates!&nbsp;
         </span>
       </div>
     </div>

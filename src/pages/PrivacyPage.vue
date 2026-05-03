@@ -6,8 +6,14 @@
       <h2 class="text-xl font-bold">1. Verantwortlicher</h2>
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist der
-        Websitebetreiber (siehe <a class="text-primary underline" href="/legal" target="_blank"
-          rel="noopener noreferrer">Impressum</a>).
+        Websitebetreiber (siehe
+        <a
+          class="text-primary underline"
+          href="/legal"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Impressum</a
+        >).
       </p>
       <p>
         Moabiter Trinkgenossenschaft eG<br />
@@ -32,10 +38,9 @@
     <section class="space-y-3">
       <h2 class="text-xl font-bold">3. Hosting (Hetzner)</h2>
       <p>
-        Unsere Website wird bei der Hetzner Online GmbH, Industriestr. 25, 91710 Gunzenhausen, Deutschland gehostet.
-        Beim Aufruf
-        der Website werden technisch notwendige Verbindungsdaten verarbeitet,
-        insbesondere:
+        Unsere Website wird bei der Hetzner Online GmbH, Industriestr. 25, 91710
+        Gunzenhausen, Deutschland gehostet. Beim Aufruf der Website werden
+        technisch notwendige Verbindungsdaten verarbeitet, insbesondere:
       </p>
       <ul class="list-disc pl-6 space-y-1">
         <li>IP-Adresse</li>
@@ -62,14 +67,14 @@
       <h2 class="text-xl font-bold">4. Einbindung von Google Maps</h2>
       <p>
         Auf unserer Website ist ein Kartenmodul von Google Maps eingebunden.
-        Anbieter ist Google Ireland Limited, Gordon House, Barrow Street,
-        Dublin 4, Irland.
+        Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin
+        4, Irland.
       </p>
       <p>
         Die Karte wird erst geladen, wenn Sie sie aktiv per Klick freigeben
-        (2-Klick-Lösung). Erst danach wird eine Verbindung zu Servern von
-        Google hergestellt. Dabei können insbesondere IP-Adresse und ggf.
-        weitere technische Nutzungsdaten an Google übermittelt werden.
+        (2-Klick-Lösung). Erst danach wird eine Verbindung zu Servern von Google
+        hergestellt. Dabei können insbesondere IP-Adresse und ggf. weitere
+        technische Nutzungsdaten an Google übermittelt werden.
       </p>
       <p>
         Dabei kann eine Verarbeitung in Drittländern (insbesondere den USA)
@@ -80,15 +85,23 @@
       </p>
       <p>
         Google-Maps-Nutzungsbedingungen:
-        <a class="text-primary underline" href="https://www.google.com/intl/de_DE/help/terms_maps/" target="_blank"
-          rel="noopener noreferrer">
+        <a
+          class="text-primary underline"
+          href="https://www.google.com/intl/de_DE/help/terms_maps/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://www.google.com/intl/de_DE/help/terms_maps/
         </a>
       </p>
       <p>
         Google-Datenschutzerklärung:
-        <a class="text-primary underline" href="https://policies.google.com/privacy?hl=de" target="_blank"
-          rel="noopener noreferrer">
+        <a
+          class="text-primary underline"
+          href="https://policies.google.com/privacy?hl=de"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://policies.google.com/privacy?hl=de
         </a>
       </p>

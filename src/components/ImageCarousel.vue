@@ -20,120 +20,154 @@ let timer: ReturnType<typeof setInterval> | null = null;
 const prefersReducedMotion = ref(false);
 
 onMounted(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    prefersReducedMotion.value = mq.matches;
-    mq.addEventListener('change', (e) => {
-        prefersReducedMotion.value = e.matches;
-    });
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  prefersReducedMotion.value = mq.matches;
+  mq.addEventListener('change', (e) => {
+    prefersReducedMotion.value = e.matches;
+  });
 });
 
 const trackStyle = computed(() => ({
-    transform: `translateX(-${currentIndex.value * 100}%)`,
-    transition: isTransitioning.value ? 'transform 500ms ease-in-out' : 'none',
+  transform: `translateX(-${currentIndex.value * 100}%)`,
+  transition: isTransitioning.value ? 'transform 500ms ease-in-out' : 'none',
 }));
 
 function goTo(index: number) {
-    isTransitioning.value = true;
-    currentIndex.value = index;
-    resetTimer();
+  isTransitioning.value = true;
+  currentIndex.value = index;
+  resetTimer();
 }
 
 function next() {
-    goTo((currentIndex.value + 1) % images.length);
+  goTo((currentIndex.value + 1) % images.length);
 }
 
 function prev() {
-    goTo((currentIndex.value - 1 + images.length) % images.length);
+  goTo((currentIndex.value - 1 + images.length) % images.length);
 }
 
 function startTimer() {
-    if (prefersReducedMotion.value) return;
-    timer = setInterval(next, INTERVAL_MS);
+  if (prefersReducedMotion.value) return;
+  timer = setInterval(next, INTERVAL_MS);
 }
 
 function stopTimer() {
-    if (timer) {
-        clearInterval(timer);
-        timer = null;
-    }
+  if (timer) {
+    clearInterval(timer);
+    timer = null;
+  }
 }
 
 function resetTimer() {
-    stopTimer();
-    startTimer();
+  stopTimer();
+  startTimer();
 }
 
 watch(prefersReducedMotion, (reduced) => {
-    if (reduced) stopTimer();
-    else startTimer();
+  if (reduced) stopTimer();
+  else startTimer();
 });
 
 onMounted(() => {
-    startTimer();
+  startTimer();
 });
 
 onUnmounted(() => {
-    stopTimer();
+  stopTimer();
 });
 
 // Swipe handling
 const SWIPE_THRESHOLD = 50;
 
 onMounted(() => {
-    if (!containerRef.value) return;
+  if (!containerRef.value) return;
 
-    useGesture(
-        {
-            onDrag({ movement: [mx], direction: [dx], cancel, last }) {
-                if (last) {
-                    if (Math.abs(mx) > SWIPE_THRESHOLD) {
-                        if (dx < 0) next();
-                        else prev();
-                    }
-                    cancel?.();
-                }
-            },
-        },
-        {
-            domTarget: containerRef,
-            eventOptions: { passive: true },
-        },
-    );
+  useGesture(
+    {
+      onDrag({ movement: [mx], direction: [dx], cancel, last }) {
+        if (last) {
+          if (Math.abs(mx) > SWIPE_THRESHOLD) {
+            if (dx < 0) next();
+            else prev();
+          }
+          cancel?.();
+        }
+      },
+    },
+    {
+      domTarget: containerRef,
+      eventOptions: { passive: true },
+    },
+  );
 });
 </script>
 
 <template>
-    <div ref="containerRef" class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y" role="region"
-        aria-roledescription="carousel" aria-label="Image carousel">
-        <!-- Track -->
-        <div class="flex h-full w-full" :style="trackStyle">
-            <div v-for="(src, i) in images" :key="i" class="min-w-full h-full" role="group"
-                :aria-roledescription="'slide'" :aria-label="`Slide ${i + 1} of ${images.length}`"
-                :aria-hidden="i !== currentIndex">
-                <img :src="src" :alt="`Carousel image ${i + 1}`" class="object-cover h-full w-full" />
-            </div>
-        </div>
-
-        <!-- Arrows -->
-        <IconButton class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Previous slide"
-            @click="prev">
-            <ChevronLeftIcon class="h-4 w-4" />
-        </IconButton>
-        <IconButton class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Next slide" @click="next">
-            <ChevronRightIcon class="h-4 w-4" />
-        </IconButton>
-
-        <!-- Dots -->
-        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" role="tablist"
-            aria-label="Slide navigation">
-            <button v-for="(_, i) in images" :key="i" class="h-3 w-3 rounded-full transition-colors"
-                :class="i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-primary/70'"
-                :aria-label="`Go to slide ${i + 1}`" :aria-selected="i === currentIndex" role="tab" @click="goTo(i)" />
-        </div>
-
-        <!-- Screen reader live region -->
-        <div class="sr-only" aria-live="polite" aria-atomic="true">
-            Slide {{ currentIndex + 1 }} of {{ images.length }}
-        </div>
+  <div
+    ref="containerRef"
+    class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y"
+    role="region"
+    aria-roledescription="carousel"
+    aria-label="Image carousel"
+  >
+    <!-- Track -->
+    <div class="flex h-full w-full" :style="trackStyle">
+      <div
+        v-for="(src, i) in images"
+        :key="i"
+        class="min-w-full h-full"
+        role="group"
+        :aria-roledescription="'slide'"
+        :aria-label="`Slide ${i + 1} of ${images.length}`"
+        :aria-hidden="i !== currentIndex"
+      >
+        <img
+          :src="src"
+          :alt="`Carousel image ${i + 1}`"
+          class="object-cover h-full w-full"
+        />
+      </div>
     </div>
+
+    <!-- Arrows -->
+    <IconButton
+      class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40"
+      aria-label="Previous slide"
+      @click="prev"
+    >
+      <ChevronLeftIcon class="h-4 w-4" />
+    </IconButton>
+    <IconButton
+      class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/40"
+      aria-label="Next slide"
+      @click="next"
+    >
+      <ChevronRightIcon class="h-4 w-4" />
+    </IconButton>
+
+    <!-- Dots -->
+    <div
+      class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2"
+      role="tablist"
+      aria-label="Slide navigation"
+    >
+      <button
+        v-for="(_, i) in images"
+        :key="i"
+        class="h-3 w-3 rounded-full transition-colors"
+        :class="
+          i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-primary/70'
+        "
+        :aria-label="`Go to slide ${i + 1}`"
+        :aria-selected="i === currentIndex"
+        role="tab"
+        @click="goTo(i)"
+      />
+    </div>
+
+    <!-- Screen reader live region -->
+    <div class="sr-only" aria-live="polite" aria-atomic="true">
+      Slide {{ currentIndex + 1 }} of {{ images.length }}
+    </div>
+  </div>
 </template>

@@ -8,13 +8,16 @@ import GoogleMapEmbed from './GoogleMapEmbed.vue';
       <h3 class="text-xl font-semibold">Raum:</h3>
       <div class="w-full max-w-xl aspect-[4/3]">
         <GoogleMapEmbed
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2427.183252228707!2d13.328274877647784!3d52.53011853547905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851af3f3a5f61%3A0x9703c9045c49ca3a!2sHall%C3%B6chen!5e0!3m2!1sde!2sde!4v1768928723404!5m2!1sde!2sde" />
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2427.183252228707!2d13.328274877647784!3d52.53011853547905!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47a851af3f3a5f61%3A0x9703c9045c49ca3a!2sHall%C3%B6chen!5e0!3m2!1sde!2sde!4v1768928723404!5m2!1sde!2sde"
+        />
       </div>
     </div>
     <div class="space-y-6">
       <h3 class="text-xl font-semibold">Zeit:</h3>
       <!-- Banner: Zurzeit wegen Umbau nur zu Veranstaltungen geöffnet -->
-      <div class="px-4 py-2 bg-secondary text-on-secondary font-semibold rounded-md flex justify-center items-center">
+      <div
+        class="px-4 py-2 bg-secondary text-on-secondary font-semibold rounded-md flex justify-center items-center"
+      >
         Momentan wegen Umbau nur zu Veranstaltungen geöffnet!
       </div>
       <table class="border-collapse max-w-xs gap-1">
