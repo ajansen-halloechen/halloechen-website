@@ -57,7 +57,7 @@ onClickOutside(topBarRef, () => {
 
 <template>
     <div ref="topBarRef" class="h-24 relative">
-        <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
+        <div class="max-w-[120rem] mx-auto px-4 lg:px-8 h-full flex items-center">
             <slot name="logo">
                 <NuxtLink to="/">
                     <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
@@ -76,8 +76,8 @@ onClickOutside(topBarRef, () => {
                 </nav>
 
                 <!-- Burger button (always visible when showDesktopMenu is false) -->
-                <IconButton v-if="items.length" :class="mobileMenuHiddenClass"
-                    aria-label="Toggle navigation menu" @click="toggleMobileMenu">
+                <IconButton v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
+                    @click="toggleMobileMenu">
                     <span class="sr-only">Toggle navigation menu</span>
                     <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
                     <XMarkIcon v-else class="h-8 w-8" />
@@ -86,8 +86,7 @@ onClickOutside(topBarRef, () => {
         </div>
 
         <!-- Mobile / popover menu -->
-        <div v-if="isMobileMenuOpen"
-            :class="mobileMenuHiddenClass"
+        <div v-if="isMobileMenuOpen" :class="mobileMenuHiddenClass"
             class="absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
             <nav class="flex flex-col py-2">
                 <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
@@ -99,8 +98,8 @@ onClickOutside(topBarRef, () => {
         </div>
     </div>
 
-    <div v-if="showMarquee" class="h-8 bg-primary text-on-primary overflow-hidden flex items-center">
-        <div class="marquee flex whitespace-nowrap">
+    <div class="h-8 bg-primary text-on-primary overflow-hidden flex items-center">
+        <div v-if="showMarquee" class="marquee flex whitespace-nowrap">
             <slot name="marquee">
                 <div v-for="i in 4" :key="i">
                     <span class="p-8">#######</span>
