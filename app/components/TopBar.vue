@@ -1,28 +1,44 @@
 <script setup lang="ts">
-import { sections } from '~/utils/navigation';
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { onClickOutside } from '@vueuse/core';
+import type { RouteLocationRaw } from 'vue-router';
 import logo from '~/assets/logo-inverted.svg?raw';
 
-const route = useRoute();
+export interface TopBarItem {
+    id: string;
+    label: string;
+    to: RouteLocationRaw;
+}
+
+const props = withDefaults(
+    defineProps<{
+        items?: TopBarItem[];
+        activeItem?: string;
+        showDesktopMenu?: boolean;
+        showMarquee?: boolean;
+    }>(),
+    {
+        items: () => [],
+        activeItem: '',
+        showDesktopMenu: true,
+        showMarquee: true,
+    },
+);
+
+defineEmits<{
+    (e: 'navigate', item: TopBarItem): void;
+}>();
 
 const isMobileMenuOpen = ref(false);
 const topBarRef = ref<HTMLElement | null>(null);
 
-// Remove HERO from sections
-const filteredSections = Object.values(sections).filter(
-    (section) => section.id !== sections.HERO.id,
+const mobileMenuHiddenClass = computed(() =>
+    props.showDesktopMenu ? 'md:hidden' : '',
 );
-const sectionIds = Object.values(filteredSections).map((section) => section.id);
 
-const activeSection = computed(() => {
-    // Get the hash from the current route, remove the leading '#'
-    const hash = route.hash.replace('#', '');
-
-    // Check if the hash corresponds to a known section
-    const matchingId = sectionIds.find((id) => id === hash);
-    return matchingId ?? '';
-});
+const desktopNavClass = computed(() =>
+    props.showDesktopMenu ? 'hidden md:flex' : 'hidden',
+);
 
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -42,23 +58,26 @@ onClickOutside(topBarRef, () => {
 <template>
     <div ref="topBarRef" class="h-24 relative">
         <div class="max-w-7xl mx-auto px-4 h-full flex items-center">
-            <NuxtLink to="/">
-                <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
-                    aria-label="Hällöchen logo" />
-            </NuxtLink>
+            <slot name="logo">
+                <NuxtLink to="/">
+                    <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
+                        aria-label="Hällöchen logo" />
+                </NuxtLink>
+            </slot>
 
             <div class="ml-auto flex items-center gap-2">
-                <!-- Desktop Nav -->
-                <nav class="space-x-6 hidden md:flex">
-                    <NuxtLink v-for="section in filteredSections" :key="section.id"
-                        :to="{ path: '/', hash: `#${section.id}` }" class="text-xl hover:text-accent hover:font-bold"
-                        :class="{ 'font-bold text-accent': activeSection === section.id }">
-                        {{ section.title }}
+                <!-- Desktop Nav (hidden entirely when showDesktopMenu is false) -->
+                <nav v-if="items.length" class="space-x-6" :class="desktopNavClass">
+                    <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
+                        class="text-xl hover:text-accent hover:font-bold"
+                        :class="{ 'font-bold text-accent': activeItem === item.id }">
+                        {{ item.label }}
                     </NuxtLink>
                 </nav>
 
-                <!-- Mobile burger button -->
-                <IconButton class="md:hidden" aria-label="Toggle navigation menu" @click="toggleMobileMenu">
+                <!-- Burger button (always visible when showDesktopMenu is false) -->
+                <IconButton v-if="items.length" :class="mobileMenuHiddenClass"
+                    aria-label="Toggle navigation menu" @click="toggleMobileMenu">
                     <span class="sr-only">Toggle navigation menu</span>
                     <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
                     <XMarkIcon v-else class="h-8 w-8" />
@@ -66,35 +85,38 @@ onClickOutside(topBarRef, () => {
             </div>
         </div>
 
-        <!-- Mobile menu popover -->
+        <!-- Mobile / popover menu -->
         <div v-if="isMobileMenuOpen"
-            class="md:hidden absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
+            :class="mobileMenuHiddenClass"
+            class="absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
             <nav class="flex flex-col py-2">
-                <NuxtLink v-for="section in filteredSections" :key="section.id"
-                    :to="{ path: '/', hash: `#${section.id}` }"
+                <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
                     class="px-4 py-2 text-md hover:text-accent hover:font-bold"
-                    :class="{ 'font-bold text-accent': activeSection === section.id }" @click="closeMobileMenu">
-                    {{ section.title }}
+                    :class="{ 'font-bold text-accent': activeItem === item.id }" @click="closeMobileMenu">
+                    {{ item.label }}
                 </NuxtLink>
             </nav>
         </div>
     </div>
-    <div class="h-8 bg-primary text-on-primary overflow-hidden flex items-center">
+
+    <div v-if="showMarquee" class="h-8 bg-primary text-on-primary overflow-hidden flex items-center">
         <div class="marquee flex whitespace-nowrap">
-            <div v-for="i in 4" :key="i">
-                <span class="p-8">#######</span>
-                <span>
-                    Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist im
-                    Mai geplant!!!&nbsp;
-                </span>
-                <span class="p-8">#######</span>
-                <span>
-                    Coming soon - schaut auch auf
-                    <a class="underline" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
-                        rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
-                    für Updates!&nbsp;
-                </span>
-            </div>
+            <slot name="marquee">
+                <div v-for="i in 4" :key="i">
+                    <span class="p-8">#######</span>
+                    <span>
+                        Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist im
+                        Mai geplant!!!&nbsp;
+                    </span>
+                    <span class="p-8">#######</span>
+                    <span>
+                        Coming soon - schaut auch auf
+                        <a class="underline" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
+                            rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+                        für Updates!&nbsp;
+                    </span>
+                </div>
+            </slot>
         </div>
     </div>
 </template>
