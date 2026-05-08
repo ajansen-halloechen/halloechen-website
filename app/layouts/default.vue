@@ -2,15 +2,23 @@
 import TopBar from '~/components/TopBar.vue';
 import type { TopBarItem } from '~/components/TopBar.vue';
 import FooterBar from '~/components/FooterBar.vue';
+import { ArrowRightEndOnRectangleIcon } from '@heroicons/vue/24/outline';
 import { sections } from '~/utils/navigation';
 
 const route = useRoute();
 
-const navItems = computed<TopBarItem[]>(() =>
-    Object.values(sections)
+const navItems = computed<TopBarItem[]>(() => [
+    ...Object.values(sections)
         .filter((s) => s.id !== sections.HERO.id)
         .map((s) => ({ id: s.id, label: s.title, to: { path: '/', hash: `#${s.id}` } })),
-);
+    {
+        id: 'login',
+        label: '',
+        icon: ArrowRightEndOnRectangleIcon,
+        tooltip: 'Login',
+        to: '/internal/zeiterfassung',
+    },
+]);
 
 const activeItem = computed(() => {
     const hash = route.hash.replace('#', '');
