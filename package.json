@@ -23,5 +23,10 @@
     "vue": "^3.5.33",
     "vue-router": "^5.0.6",
     "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "@vue/language-core": "^3.2.8",
+    "drizzle-kit": "^0.31.10"
   }
 }
