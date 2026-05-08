@@ -14,9 +14,13 @@
     "@tailwindcss/vite": "^4.1.18",
     "@vueuse/core": "^14.1.0",
     "@vueuse/gesture": "^2.0.0",
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2",
     "nuxt": "^4.4.4",
+    "pg": "^8.20.0",
     "tailwindcss": "^4.1.18",
     "vue": "^3.5.33",
-    "vue-router": "^5.0.6"
+    "vue-router": "^5.0.6",
+    "zod": "^4.4.3"
   }
 }
