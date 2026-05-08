@@ -13,17 +13,27 @@ export interface TopBarItem {
     to: RouteLocationRaw;
 }
 
+type Breakpoint = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
+const breakpointClasses: Record<Breakpoint, { desktop: string; mobileHidden: string }> = {
+    sm: { desktop: 'hidden sm:flex', mobileHidden: 'sm:hidden' },
+    md: { desktop: 'hidden md:flex', mobileHidden: 'md:hidden' },
+    lg: { desktop: 'hidden lg:flex', mobileHidden: 'lg:hidden' },
+    xl: { desktop: 'hidden xl:flex', mobileHidden: 'xl:hidden' },
+    '2xl': { desktop: 'hidden 2xl:flex', mobileHidden: '2xl:hidden' },
+};
+
 const props = withDefaults(
     defineProps<{
         items?: TopBarItem[];
         activeItem?: string;
-        showDesktopMenu?: boolean;
+        breakpoint?: Breakpoint;
         showMarquee?: boolean;
     }>(),
     {
         items: () => [],
         activeItem: '',
-        showDesktopMenu: true,
+        breakpoint: 'lg',
         showMarquee: true,
     },
 );
@@ -36,11 +46,11 @@ const isMobileMenuOpen = ref(false);
 const topBarRef = ref<HTMLElement | null>(null);
 
 const mobileMenuHiddenClass = computed(() =>
-    props.showDesktopMenu ? 'md:hidden' : '',
+    breakpointClasses[props.breakpoint].mobileHidden,
 );
 
 const desktopNavClass = computed(() =>
-    props.showDesktopMenu ? 'hidden md:flex' : 'hidden',
+    breakpointClasses[props.breakpoint].desktop,
 );
 
 const toggleMobileMenu = () => {
@@ -96,7 +106,7 @@ onClickOutside(topBarRef, () => {
 
         <!-- Mobile / popover menu -->
         <div v-if="isMobileMenuOpen" :class="mobileMenuHiddenClass"
-            class="absolute right-4 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
+            class="absolute right-4 lg:right-8 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
             <nav class="flex flex-col py-2">
                 <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
                     class="px-4 py-2 text-md hover:text-accent hover:font-bold"
