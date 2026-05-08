@@ -2,11 +2,14 @@
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
 import { onClickOutside } from '@vueuse/core';
 import type { RouteLocationRaw } from 'vue-router';
+import type { Component } from 'vue';
 import logo from '~/assets/logo-inverted.svg?raw';
 
 export interface TopBarItem {
     id: string;
     label: string;
+    icon?: Component;
+    tooltip?: string;
     to: RouteLocationRaw;
 }
 
@@ -67,12 +70,18 @@ onClickOutside(topBarRef, () => {
 
             <div class="ml-auto flex items-center gap-2">
                 <!-- Desktop Nav (hidden entirely when showDesktopMenu is false) -->
-                <nav v-if="items.length" class="space-x-6" :class="desktopNavClass">
-                    <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
-                        class="text-xl hover:text-accent hover:font-bold"
-                        :class="{ 'font-bold text-accent': activeItem === item.id }">
-                        {{ item.label }}
-                    </NuxtLink>
+                <nav v-if="items.length" class="space-x-6 items-center" :class="desktopNavClass">
+                    <template v-for="item in items" :key="item.id">
+                        <NuxtLink v-if="item.icon" :to="item.to" :title="item.tooltip"
+                            class="inline-flex items-center hover:text-accent"
+                            :class="{ 'text-accent': activeItem === item.id }">
+                            <component :is="item.icon" class="h-6 w-6" />
+                        </NuxtLink>
+                        <NuxtLink v-else :to="item.to" class="text-xl hover:text-accent hover:font-bold"
+                            :class="{ 'font-bold text-accent': activeItem === item.id }">
+                            {{ item.label }}
+                        </NuxtLink>
+                    </template>
                 </nav>
 
                 <!-- Burger button (always visible when showDesktopMenu is false) -->
@@ -92,7 +101,10 @@ onClickOutside(topBarRef, () => {
                 <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
                     class="px-4 py-2 text-md hover:text-accent hover:font-bold"
                     :class="{ 'font-bold text-accent': activeItem === item.id }" @click="closeMobileMenu">
-                    {{ item.label }}
+                    <span class="inline-flex items-center gap-2">
+                        <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
+                        {{ item.label || item.tooltip }}
+                    </span>
                 </NuxtLink>
             </nav>
         </div>
