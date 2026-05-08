@@ -3,7 +3,7 @@ import { HeartIcon } from '@heroicons/vue/24/solid';
 </script>
 
 <template>
-    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
         <div class="w-full rounded-md overflow-hidden">
             <ImageCarousel />
         </div>

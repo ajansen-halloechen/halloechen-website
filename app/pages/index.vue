@@ -9,7 +9,7 @@ useScrollSpy(sectionRefs);
 </script>
 
 <template>
-    <PanelRoot class="max-w-7xl" :ref="sections.HERO.id" :id="sections.HERO.id">
+    <PanelRoot class="max-w-[100rem]" :ref="sections.HERO.id" :id="sections.HERO.id">
         <HeroPanel />
     </PanelRoot>
     <PanelRoot :ref="sections.EVENTS.id" :id="sections.EVENTS.id" :title="'Veranstaltungen'">
