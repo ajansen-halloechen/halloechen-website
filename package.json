@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/pg": "^8.20.0",
     "@vue/language-core": "^3.2.8",
-    "drizzle-kit": "^0.31.10"
+    "drizzle-kit": "^0.31.10",
+    "vue-tsc": "^3.2.8"
   }
 }
