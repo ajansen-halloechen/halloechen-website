@@ -16,7 +16,7 @@ const navItems = computed<TopBarItem[]>(() => [
         label: '',
         icon: ArrowRightEndOnRectangleIcon,
         tooltip: 'Login',
-        to: '/internal/zeiterfassung',
+        to: '/internal/working-hours',
     },
 ]);
 

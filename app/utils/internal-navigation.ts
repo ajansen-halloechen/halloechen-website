@@ -3,12 +3,17 @@ import type { TopBarItem } from "~/components/TopBar.vue";
 
 const internalNavItems: TopBarItem[] = [
   {
-    id: "zeiterfassung",
-    label: "Zeiterfassung",
-    to: "/internal/zeiterfassung",
+    id: "events",
+    label: "Veranstaltungen",
+    to: "/internal/events",
   },
-  { id: "schichten", label: "Schichten", to: "/internal/schichten" },
-  { id: "rechnungen", label: "Rechnungen", to: "/internal/rechnungen" },
+  {
+    id: "working-hours",
+    label: "Zeiterfassung",
+    to: "/internal/working-hours",
+  },
+  { id: "shifts", label: "Schichten", to: "/internal/shifts" },
+  { id: "invoices", label: "Rechnungen", to: "/internal/invoices" },
   {
     id: "logout",
     label: "",
