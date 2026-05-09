@@ -1,5 +1,5 @@
-import { ref, watch, type Ref } from "vue";
-import { useIntersectionObserver } from "@vueuse/core";
+import { ref, watch, type Ref } from 'vue';
+import { useIntersectionObserver } from '@vueuse/core';
 
 export interface UseScrollSpyOptions {
   /**
@@ -36,7 +36,7 @@ export function useScrollSpy(
   const thresholds =
     options.thresholds ?? Array.from({ length: 101 }, (_, i) => i / 100);
   const lockDurationMs = options.lockDurationMs ?? 500;
-  const basePath = options.basePath ?? "/";
+  const basePath = options.basePath ?? '/';
 
   useIntersectionObserver(
     sectionRefs,

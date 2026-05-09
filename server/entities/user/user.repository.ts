@@ -1,7 +1,7 @@
-import { eq } from "drizzle-orm";
-import { db } from "#server/database";
-import { users } from "./user.schema";
-import type { NewUser } from "#shared/types/user";
+import { eq } from 'drizzle-orm';
+import { db } from '#server/database';
+import { users } from './user.schema';
+import type { NewUser } from '#shared/types/user';
 
 export const userRepository = {
   async findAll() {
