@@ -9,17 +9,19 @@ useScrollSpy(sectionRefs);
 </script>
 
 <template>
-    <PanelRoot class="max-w-[100rem]" :ref="sections.HERO.id" :id="sections.HERO.id">
-        <HeroPanel />
-    </PanelRoot>
-    <PanelRoot :ref="sections.EVENTS.id" :id="sections.EVENTS.id" :title="'Veranstaltungen'">
-        <CalendarPanel />
-    </PanelRoot>
-    <PanelRoot :ref="sections.CONCEPT.id" :id="sections.CONCEPT.id" :title="'Konzept'">
-        <ConceptPanel />
-    </PanelRoot>
-    <PanelRoot :ref="sections.LOCATION_AND_BUSINESS_HOURS.id" :id="sections.LOCATION_AND_BUSINESS_HOURS.id"
-        class="mb-10" :title="'Raum und Zeit'">
-        <LocationAndBusinessHoursPanel />
-    </PanelRoot>
+    <div>
+        <PanelRoot :id="sections.HERO.id" :ref="sections.HERO.id" class="max-w-[100rem]">
+            <HeroPanel />
+        </PanelRoot>
+        <PanelRoot :id="sections.EVENTS.id" :ref="sections.EVENTS.id" :title="'Veranstaltungen'">
+            <CalendarPanel />
+        </PanelRoot>
+        <PanelRoot :id="sections.CONCEPT.id" :ref="sections.CONCEPT.id" :title="'Konzept'">
+            <ConceptPanel />
+        </PanelRoot>
+        <PanelRoot :id="sections.LOCATION_AND_BUSINESS_HOURS.id" :ref="sections.LOCATION_AND_BUSINESS_HOURS.id"
+            class="mb-10" :title="'Raum und Zeit'">
+            <LocationAndBusinessHoursPanel />
+        </PanelRoot>
+    </div>
 </template>
