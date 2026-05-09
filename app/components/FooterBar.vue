@@ -6,7 +6,7 @@ import logoSmall from '~/assets/logo-small.svg?raw';
 
 <template>
     <div class="h-52 bg-gray-900 text-on-primary">
-        <div class="max-w-[100rem] mx-auto px-4 h-full flex items-start justify-between p-4">
+        <div class="max-w-[100rem] mx-auto px-4 lg:px-8 h-full flex items-start justify-between p-4">
             <div class="h-full max-w-[50dvw]">
                 <p class="text-sm pt-2 pb-6">
                     &copy; 2026 Moabiter Trinkgenossenschaft eG
