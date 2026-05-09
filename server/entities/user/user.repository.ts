@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from '#server/database';
-import { users } from './user.schema';
+import { users } from './user.table';
 import type { NewUser } from '#shared/types/user';
 
 export const userRepository = {
