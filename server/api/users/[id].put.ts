@@ -1,6 +1,6 @@
 import { readValidatedBody } from "h3";
-import { userService } from "~/server/entities/user/user.service";
-import { updateUserSchema } from "~/server/entities/user/user.validation";
+import { userService } from "#server/entities/user/user.service";
+import { updateUserSchema } from "#server/entities/user/user.validation";
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, "id")!;
