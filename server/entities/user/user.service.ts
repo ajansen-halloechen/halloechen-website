@@ -1,6 +1,6 @@
 import { createError } from "h3";
 import { userRepository } from "./user.repository";
-import type { CreateUserInput, UpdateUserInput } from "~/shared/types/user";
+import type { CreateUserInput, UpdateUserInput } from "#shared/types/user";
 
 export const userService = {
   async getAll() {
