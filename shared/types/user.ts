@@ -1,12 +1,10 @@
 import type { z } from 'zod';
-import type { users } from '#server/entities/user/user.schema';
 import type {
-  createUserSchema,
-  updateUserSchema,
-} from '#server/entities/user/user.validation';
+  userCreateSchema,
+  userSchema,
+  userUpdateSchema,
+} from '#server/entities/user/user.schema';
 
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-
-export type CreateUserInput = z.infer<typeof createUserSchema>;
-export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+export type User = z.infer<typeof userSchema>;
+export type UserCreate = z.infer<typeof userCreateSchema>;
+export type UserUpdate = z.infer<typeof userUpdateSchema>;

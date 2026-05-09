@@ -1,6 +1,6 @@
 import { createError } from 'h3';
 import { userRepository } from './user.repository';
-import type { CreateUserInput, UpdateUserInput } from '#shared/types/user';
+import type { UserCreate, UserUpdate } from '#shared/types/user';
 
 export const userService = {
   async getAll() {
@@ -15,7 +15,7 @@ export const userService = {
     return user;
   },
 
-  async create(input: CreateUserInput) {
+  async create(input: UserCreate) {
     const existing = await userRepository.findByEmail(input.email);
     if (existing) {
       throw createError({
@@ -26,7 +26,7 @@ export const userService = {
     return userRepository.create(input);
   },
 
-  async update(id: string, input: UpdateUserInput) {
+  async update(id: string, input: UserUpdate) {
     if (input.email) {
       const existing = await userRepository.findByEmail(input.email);
       if (existing && existing.id !== id) {
