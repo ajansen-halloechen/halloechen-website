@@ -7,7 +7,8 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "typecheck": "nuxt typecheck"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
@@ -28,6 +29,12 @@
     "@types/pg": "^8.20.0",
     "@vue/language-core": "^3.2.8",
     "drizzle-kit": "^0.31.10",
+    "typescript": "^6.0.3",
     "vue-tsc": "^3.2.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "unrs-resolver"
+    ]
   }
 }
