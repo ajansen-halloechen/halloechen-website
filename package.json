@@ -8,10 +8,12 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typecheck": "nuxt typecheck"
+    "typecheck": "nuxt typecheck",
+    "lint": "eslint . --fix"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
+    "@nuxt/eslint": "1.15.2",
     "@tailwindcss/vite": "^4.1.18",
     "@vueuse/core": "^14.1.0",
     "@vueuse/gesture": "^2.0.0",
