@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type CalendarEvent } from '~/utils/calendar';
+import type { CalendarEvent } from '~/utils/calendar';
 import CalendarTime from './CalendarTime.vue';
 
 const props = defineProps<{

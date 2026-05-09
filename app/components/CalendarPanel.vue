@@ -55,7 +55,8 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
 <template>
     <div class="max-h-[75dvh] rounded-lg md:px-6 flex flex-col gap-1">
         <div class="flex items-center justify-between border-b-3 border-primary pb-2">
-            <IconButton class="disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Previous month"
+            <IconButton
+class="disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Previous month"
                 :disabled="!canGoPrev" @click="goPrevMonth">
                 <ChevronLeftIcon class="h-6 w-6" />
             </IconButton>

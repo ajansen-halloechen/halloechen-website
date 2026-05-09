@@ -73,8 +73,10 @@ onClickOutside(topBarRef, () => {
         <div class="max-w-[120rem] mx-auto px-4 lg:px-8 h-full flex items-center">
             <slot name="logo">
                 <NuxtLink to="/">
-                    <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" v-html="logo"
-                        aria-label="Hällöchen logo" />
+                    <!-- eslint-disable vue/no-v-html -->
+                    <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full"
+                        aria-label="Hällöchen logo" v-html="logo" />
+                    <!-- eslint-enable vue/no-v-html -->
                 </NuxtLink>
             </slot>
 
@@ -112,7 +114,7 @@ onClickOutside(topBarRef, () => {
                     class="px-4 py-2 text-md hover:text-accent hover:font-bold"
                     :class="{ 'font-bold text-accent': activeItem === item.id }" @click="closeMobileMenu">
                     <span class="inline-flex items-center gap-2">
-                        <component v-if="item.icon" :is="item.icon" class="h-5 w-5" />
+                        <component :is="item.icon" v-if="item.icon" class="h-5 w-5" />
                         {{ item.label || item.tooltip }}
                     </span>
                 </NuxtLink>
