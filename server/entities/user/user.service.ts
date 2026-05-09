@@ -1,12 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { createError } from 'h3';
 import { userRepository } from './user.repository';
-import type {
-  UserCreate,
-  UserUpdate,
-  UserSetup,
-  UserPatch,
-} from '#shared/types/user';
+import type { UserCreate, UserSetup, UserPatch } from '#shared/types/user';
 
 function stripPasswordHash<T extends { passwordHash?: unknown }>(
   user: T,
@@ -80,24 +75,6 @@ export const userService = {
     });
 
     return stripPasswordHash(updated!);
-  },
-
-  async update(id: string, input: UserUpdate) {
-    if (input.email) {
-      const existing = await userRepository.findByEmail(input.email);
-      if (existing && existing.id !== id) {
-        throw createError({
-          statusCode: 409,
-          statusMessage: 'A user with this email already exists',
-        });
-      }
-    }
-
-    const user = await userRepository.update(id, input);
-    if (!user) {
-      throw createError({ statusCode: 404, statusMessage: 'User not found' });
-    }
-    return stripPasswordHash(user);
   },
 
   async patch(id: string, input: UserPatch) {
