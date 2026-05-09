@@ -9,7 +9,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "format": "prettier --config .prettierrc --write \"**/*.{ts,vue,md,yml,yaml}\""
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
@@ -31,6 +32,8 @@
     "@types/pg": "^8.20.0",
     "@vue/language-core": "^3.2.8",
     "drizzle-kit": "^0.31.10",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "3.8.3",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.2.8"
   },
