@@ -1,7 +1,9 @@
 import { eq } from 'drizzle-orm';
 import { db } from '#server/database';
 import { users } from './user.table';
-import type { NewUser } from '#shared/types/user';
+
+type UserInsert = typeof users.$inferInsert;
+type UserColumns = typeof users.$inferSelect;
 
 export const userRepository = {
   async findAll() {
@@ -18,12 +20,20 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
-  async create(data: NewUser) {
+  async findBySetupToken(token: string) {
+    const rows = await db
+      .select()
+      .from(users)
+      .where(eq(users.setupToken, token));
+    return rows[0] ?? null;
+  },
+
+  async create(data: UserInsert) {
     const rows = await db.insert(users).values(data).returning();
     return rows[0]!;
   },
 
-  async update(id: string, data: Partial<NewUser>) {
+  async update(id: string, data: Partial<UserColumns>) {
     const rows = await db
       .update(users)
       .set(data)
