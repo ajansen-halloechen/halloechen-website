@@ -16,7 +16,7 @@ async function handleLogin() {
             body: { email: email.value, password: password.value },
         });
         await fetchSession();
-        await navigateTo('/internal/events');
+        await navigateTo('/internal/working-hours');
     } catch (e: unknown) {
         if (e instanceof Error && 'statusCode' in e && (e as any).statusCode === 401) {
             error.value = 'Ungültige E-Mail oder Passwort.';
