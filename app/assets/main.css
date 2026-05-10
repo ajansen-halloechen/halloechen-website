@@ -50,7 +50,7 @@
     --color-warning-900: oklch(0.239 0.051 104.5);
     --color-warning-950: oklch(0.188 0.04 105.03);
 
-    --color-primary: var(--color-primary-900);
+    --color-primary: var(--color-primary-800);
     --color-secondary: var(--color-secondary-900);
     --color-accent: var(--color-accent-400);
     --color-on-primary: var(--color-primary-50);

@@ -7,10 +7,11 @@ const loading = ref(false);
 const { fetch: fetchSession } = useUserSession();
 
 async function handleLogin() {
+    error.value = '';
     loading.value = true;
 
     try {
-        await useFetch('/api/auth/login', {
+        await $fetch('/api/auth/login', {
             method: 'POST',
             body: { email: email.value, password: password.value },
         });
@@ -29,36 +30,21 @@ async function handleLogin() {
 </script>
 
 <template>
-    <div
-        class="min-h-dvh flex items-center justify-center bg-gradient-to-r from-primary/10 via-background/95 to-primary/10 px-4">
-        <form class="w-full max-w-sm space-y-6 rounded-2xl bg-white/80 backdrop-blur p-8 shadow-lg"
+    <div class="w-full grow flex items-center justify-center">
+        <form class="w-full max-w-sm space-y-6 bg-neutral-50 p-8 border border-accent border-3 rounded-md my-10"
             @submit.prevent="handleLogin">
-            <h1 class="text-2xl font-bold text-center text-primary-900">
-                Hallöchen Login
+            <h1 class="text-2xl font-bold text-center">
+                Für internen Bereich anmelden
             </h1>
-
-            <div v-if="error" class="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+            <div v-if="error" class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md">
                 {{ error }}
             </div>
-
-            <div class="space-y-1">
-                <label for="email" class="block text-sm font-medium text-gray-700">
-                    E-Mail
-                </label>
-                <input id="email" v-model="email" type="email" required autocomplete="email"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" />
-            </div>
-
-            <div class="space-y-1">
-                <label for="password" class="block text-sm font-medium text-gray-700">
-                    Passwort
-                </label>
-                <input id="password" v-model="password" type="password" required autocomplete="current-password"
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 outline-none" />
-            </div>
+            <UiInputField id="email" v-model="email" label="E-Mail" type="email" required autocomplete="email" />
+            <UiInputField id="password" v-model="password" label="Passwort" type="password" required
+                autocomplete="current-password" />
 
             <button type="submit" :disabled="loading"
-                class="w-full rounded-lg bg-primary-700 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-800 disabled:opacity-50 transition-colors cursor-pointer">
+                class="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-on-primary hover:bg-primary-900 disabled:opacity-50 transition-colors cursor-pointer">
                 {{ loading ? 'Anmelden…' : 'Anmelden' }}
             </button>
         </form>
