@@ -1,5 +1,5 @@
 import { ArrowRightStartOnRectangleIcon } from '@heroicons/vue/24/outline';
-import type { TopBarItem } from '~/components/TopBar.vue';
+import type { TopBarItem } from '~/types/top-bar';
 
 const internalNavItems: TopBarItem[] = [
   {
