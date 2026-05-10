@@ -5,15 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1778255797415,
-      "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1778342197415,
-      "tag": "0001_add-password-and-setup-token",
+      "when": 1778400104554,
+      "tag": "0000_great_photon",
       "breakpoints": true
     }
   ]

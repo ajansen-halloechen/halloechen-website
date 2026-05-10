@@ -10,7 +10,10 @@
     "postinstall": "nuxt prepare",
     "typecheck": "nuxt typecheck",
     "lint": "eslint . --fix",
-    "format": "prettier --config .prettierrc --write \"**/*.{ts,vue,md,yml,yaml}\""
+    "format": "prettier --config .prettierrc --write \"**/*.{ts,vue,md,yml,yaml}\"",
+    "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
+    "db:rollback": "drizzle-kit migrate:rollback --config ./drizzle.config.ts"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
