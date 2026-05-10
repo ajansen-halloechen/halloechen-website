@@ -37,7 +37,7 @@ const activeItem = computed(() => {
       <TopBar :items="navItems" :active-item="activeItem" />
     </header>
 
-    <main class="flex-1 w-full">
+    <main class="flex-1 flex flex-col w-full">
       <slot />
     </main>
 
