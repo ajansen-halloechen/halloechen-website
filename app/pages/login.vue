@@ -31,7 +31,8 @@ async function handleLogin() {
 
 <template>
     <div class="w-full grow flex items-center justify-center">
-        <form class="w-full max-w-sm space-y-6 bg-neutral-50 p-8 border border-accent border-3 rounded-md my-10"
+        <form
+            class="w-full min-h-90 max-w-sm flex flex-col gap-2 bg-neutral-50 p-8 mx-2 border border-accent border-3 rounded-md"
             @submit.prevent="handleLogin">
             <h1 class="text-2xl font-bold text-center">
                 Für internen Bereich anmelden
