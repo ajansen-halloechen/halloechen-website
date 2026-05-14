@@ -30,13 +30,9 @@ async function handleLogin() {
 </script>
 
 <template>
-    <div class="w-full grow flex items-center justify-center">
-        <form
-            class="w-full min-h-90 max-w-sm flex flex-col gap-4 bg-neutral-50 p-8 mx-2 border border-accent border-3 rounded-md"
-            @submit.prevent="handleLogin">
-            <h1 class="text-2xl font-bold text-center">
-                Für internen Bereich anmelden
-            </h1>
+    <UiAuthPanel>
+        <template #heading>Für internen Bereich anmelden</template>
+        <form class="flex flex-col gap-4" @submit.prevent="handleLogin">
             <div v-if="error" class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md">
                 {{ error }}
             </div>
@@ -48,5 +44,5 @@ async function handleLogin() {
                 {{ loading ? 'Anmelden…' : 'Anmelden' }}
             </UiButton>
         </form>
-    </div>
+    </UiAuthPanel>
 </template>

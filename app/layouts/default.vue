@@ -19,7 +19,7 @@ const navItems = computed<TopBarItem[]>(() => [
     id: 'login',
     label: '',
     icon: ArrowRightEndOnRectangleIcon,
-    tooltip: 'Login',
+    tooltip: 'Intern',
     to: '/internal/working-hours',
   },
 ]);

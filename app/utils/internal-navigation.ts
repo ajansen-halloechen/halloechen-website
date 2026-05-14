@@ -19,8 +19,8 @@ const internalNavItems: TopBarItem[] = [
     id: 'logout',
     label: '',
     icon: ArrowRightStartOnRectangleIcon,
-    tooltip: 'Logout',
-    to: '/',
+    tooltip: 'Abmelden',
+    to: '/logout',
   },
 ];
 
