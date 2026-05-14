@@ -32,7 +32,7 @@ async function handleLogin() {
 <template>
     <div class="w-full grow flex items-center justify-center">
         <form
-            class="w-full min-h-90 max-w-sm flex flex-col gap-2 bg-neutral-50 p-8 mx-2 border border-accent border-3 rounded-md"
+            class="w-full min-h-90 max-w-sm flex flex-col gap-4 bg-neutral-50 p-8 mx-2 border border-accent border-3 rounded-md"
             @submit.prevent="handleLogin">
             <h1 class="text-2xl font-bold text-center">
                 Für internen Bereich anmelden
@@ -44,10 +44,9 @@ async function handleLogin() {
             <UiInputField id="password" v-model="password" label="Passwort" type="password" required
                 autocomplete="current-password" />
 
-            <button type="submit" :disabled="loading"
-                class="w-full rounded-md bg-primary px-4 py-2 text-sm font-semibold text-on-primary hover:bg-primary-900 disabled:opacity-50 transition-colors cursor-pointer">
+            <UiButton type="submit" :disabled="loading" class="w-full">
                 {{ loading ? 'Anmelden…' : 'Anmelden' }}
-            </button>
+            </UiButton>
         </form>
     </div>
 </template>
