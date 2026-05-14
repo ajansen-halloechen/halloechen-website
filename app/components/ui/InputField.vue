@@ -18,7 +18,7 @@ withDefaults(
 </script>
 
 <template>
-    <div class="space-y-1">
+    <div class="flex flex-col gap-1">
         <label :for="id" class="block text-sm font-medium">
             {{ label }}
         </label>
