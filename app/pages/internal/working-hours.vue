@@ -166,13 +166,14 @@ const columns = [
     header: 'Datum',
     cell: (info) => formatDate(info.getValue()),
   }),
+  columnHelper.accessor('activity', {
+    header: 'Aktivität',
+  }),
   columnHelper.display({
     id: 'hours',
     header: 'Stunden',
     cell: (info) => computeHours(info.row.original).toFixed(1),
-  }),
-  columnHelper.accessor('activity', {
-    header: 'Aktivität',
+    meta: { align: 'right', shrink: true },
   }),
   columnHelper.display({
     id: 'actions',
@@ -200,19 +201,25 @@ const table = useVueTable({
 
     <div class="mb-10 overflow-x-auto bg-surface rounded-md border border-primary">
       <table class="min-w-full divide-y divide-primary">
-        <thead>
+        <thead class="bg-gray-300">
           <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <th v-for="header in headerGroup.headers" :key="header.id"
-              class="px-4 py-4 text-left text-sm font-semibold tracking-wider">
+              class="px-4 py-4 text-left text-md font-semibold tracking-wider" :class="{
+                'text-right': (header.column.columnDef.meta as any)?.align === 'right',
+                'w-0': (header.column.columnDef.meta as any)?.shrink,
+              }">
               <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
                 :props="header.getContext()" />
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-primary">
+        <tbody class="divide-y divide-gray-200">
           <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">
             <td v-for="cell in row.getVisibleCells()" :key="cell.id"
-              class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+              class="px-4 py-2 whitespace-nowrap text-sm text-gray-700" :class="{
+                'text-right': (cell.column.columnDef.meta as any)?.align === 'right',
+                'w-0': (cell.column.columnDef.meta as any)?.shrink,
+              }">
               <template v-if="cell.column.id === 'actions'">
                 <div class="flex gap-1">
                   <IconButton aria-label="Bearbeiten">
