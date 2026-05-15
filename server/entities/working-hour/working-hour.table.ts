@@ -18,7 +18,7 @@ export const workingHours = pgTable('working_hours', {
   activityId: uuid('activity_id')
     .notNull()
     .references(() => activities.id),
-  date: date('date').notNull(),
+  date: date('date', { mode: 'date' }).notNull(),
   startTime: time('start_time').notNull(),
   endTime: time('end_time').notNull(),
   breakInHours: real('break_in_hours').notNull().default(0),

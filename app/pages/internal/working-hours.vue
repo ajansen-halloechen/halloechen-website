@@ -18,205 +18,43 @@ import {
   FunnelIcon,
 } from '@heroicons/vue/24/outline';
 import type { Activity } from '~~/shared/types/activity';
+import type { User } from '~~/shared/types/user';
 import type { WorkingHour } from '~~/shared/types/working-hour';
+import type { WorkingHourFormData } from '~/components/WorkingHourForm.vue';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
+
+const { user: currentUser } = useUserSession();
 
 const today = new Date();
 const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
 const selectedMonth = ref(new Date(currentMonthStart));
 
-const users: Record<number, string> = {
-  1: 'Anna Müller',
-  2: 'Ben Schmidt',
-  3: 'Clara Weber',
-};
-
+const { data: backendUsers } = await useFetch<User[]>('/api/users');
 const { data: backendActivities } = await useFetch<Activity[]>('/api/activities');
+const { data: workingHours, refresh: refreshWorkingHours } = await useFetch<WorkingHour[]>('/api/working-hours');
 
-const workingHours = ref<WorkingHour[]>([
-  {
-    id: 1,
-    userId: 1,
-    date: '2026-05-12',
-    startTime: '08:00',
-    endTime: '16:30',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Barschicht',
-    createdAt: '2026-05-12T08:00:00Z',
-    updatedAt: '2026-05-12T16:30:00Z',
-  },
-  {
-    id: 2,
-    userId: 2,
-    date: '2026-05-12',
-    startTime: '09:00',
-    endTime: '17:00',
-    breakInHours: 1,
-    plusOneDay: false,
-    activity: 'Klo putzen',
-    createdAt: '2026-05-12T09:00:00Z',
-    updatedAt: '2026-05-12T17:00:00Z',
-  },
-  {
-    id: 3,
-    userId: 3,
-    date: '2026-05-13',
-    startTime: '22:00',
-    endTime: '06:00',
-    breakInHours: 0.5,
-    plusOneDay: true,
-    activity: 'Rechnungen',
-    createdAt: '2026-05-13T22:00:00Z',
-    updatedAt: '2026-05-14T06:00:00Z',
-  },
-  {
-    id: 4,
-    userId: 1,
-    date: '2026-05-13',
-    startTime: '07:30',
-    endTime: '15:30',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Barschicht',
-    createdAt: '2026-05-13T07:30:00Z',
-    updatedAt: '2026-05-13T15:30:00Z',
-  },
-  {
-    id: 5,
-    userId: 2,
-    date: '2026-05-14',
-    startTime: '10:00',
-    endTime: '18:00',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Barschicht',
-    createdAt: '2026-05-14T10:00:00Z',
-    updatedAt: '2026-05-14T18:00:00Z',
-  },
-  {
-    id: 6,
-    userId: 3,
-    date: '2026-05-14',
-    startTime: '08:00',
-    endTime: '12:00',
-    breakInHours: 0,
-    plusOneDay: false,
-    activity: 'Klo putzen',
-    createdAt: '2026-05-14T08:00:00Z',
-    updatedAt: '2026-05-14T12:00:00Z',
-  },
-  {
-    id: 7,
-    userId: 1,
-    date: '2026-05-14',
-    startTime: '18:00',
-    endTime: '02:00',
-    breakInHours: 0.5,
-    plusOneDay: true,
-    activity: 'Barschicht',
-    createdAt: '2026-05-14T18:00:00Z',
-    updatedAt: '2026-05-15T02:00:00Z',
-  },
-  {
-    id: 8,
-    userId: 2,
-    date: '2026-05-15',
-    startTime: '07:00',
-    endTime: '13:00',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Rechnungen',
-    createdAt: '2026-05-15T07:00:00Z',
-    updatedAt: '2026-05-15T13:00:00Z',
-  },
-  {
-    id: 9,
-    userId: 3,
-    date: '2026-05-15',
-    startTime: '14:00',
-    endTime: '22:00',
-    breakInHours: 1,
-    plusOneDay: false,
-    activity: 'Barschicht',
-    createdAt: '2026-05-15T14:00:00Z',
-    updatedAt: '2026-05-15T22:00:00Z',
-  },
-  {
-    id: 10,
-    userId: 1,
-    date: '2026-05-15',
-    startTime: '09:00',
-    endTime: '15:00',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Klo putzen',
-    createdAt: '2026-05-15T09:00:00Z',
-    updatedAt: '2026-05-15T15:00:00Z',
-  },
-  {
-    id: 11,
-    userId: 3,
-    date: '2026-05-14',
-    startTime: '08:00',
-    endTime: '12:00',
-    breakInHours: 0,
-    plusOneDay: false,
-    activity: 'Klo putzen',
-    createdAt: '2026-05-14T08:00:00Z',
-    updatedAt: '2026-05-14T12:00:00Z',
-  },
-  {
-    id: 12,
-    userId: 1,
-    date: '2026-05-14',
-    startTime: '18:00',
-    endTime: '02:00',
-    breakInHours: 0.5,
-    plusOneDay: true,
-    activity: 'Barschicht',
-    createdAt: '2026-05-14T18:00:00Z',
-    updatedAt: '2026-05-15T02:00:00Z',
-  },
-  {
-    id: 13,
-    userId: 2,
-    date: '2026-05-15',
-    startTime: '07:00',
-    endTime: '13:00',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Rechnungen',
-    createdAt: '2026-05-15T07:00:00Z',
-    updatedAt: '2026-05-15T13:00:00Z',
-  },
-  {
-    id: 14,
-    userId: 3,
-    date: '2026-05-15',
-    startTime: '14:00',
-    endTime: '22:00',
-    breakInHours: 1,
-    plusOneDay: false,
-    activity: 'Barschicht',
-    createdAt: '2026-05-15T14:00:00Z',
-    updatedAt: '2026-05-15T22:00:00Z',
-  },
-  {
-    id: 15,
-    userId: 1,
-    date: '2026-05-15',
-    startTime: '09:00',
-    endTime: '15:00',
-    breakInHours: 0.5,
-    plusOneDay: false,
-    activity: 'Klo putzen',
-    createdAt: '2026-05-15T09:00:00Z',
-    updatedAt: '2026-05-15T15:00:00Z',
-  },
-]);
+const userMap = computed(() =>
+  new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
+);
+
+const activityMap = computed(() =>
+  new Map((backendActivities.value ?? []).map((a) => [a.id, a])),
+);
+
+function getUserDisplayName(user: User): string {
+  if (user.firstName || user.lastName) {
+    return [user.firstName, user.lastName].filter(Boolean).join(' ');
+  }
+  return user.email;
+}
+
+const formActivityNames = computed(() =>
+  (backendActivities.value ?? [])
+    .map((a) => a.name)
+    .sort((a, b) => a.localeCompare(b, 'de')),
+);
 
 function computeHours(row: WorkingHour): number {
   const [sh = 0, sm = 0] = row.startTime.split(':').map(Number);
@@ -226,62 +64,60 @@ function computeHours(row: WorkingHour): number {
   return Math.max(0, (diff / 60) - row.breakInHours);
 }
 
-function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('de-DE', {
+function formatDate(date: Date | string): string {
+  const d = date instanceof Date ? date : new Date(date);
+  return d.toLocaleDateString('de-DE', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
 }
 
+function toIsoDateString(date: Date | string): string {
+  if (typeof date === 'string') return date.slice(0, 10);
+  return date.toISOString().slice(0, 10);
+}
+
 const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
 const columnFilters = ref<ColumnFiltersState>([]);
 
-const selectedUsers = ref<number[]>([]);
+const selectedUsers = ref<string[]>([]);
 const selectedActivities = ref<string[]>([]);
 
 const uniqueUserIds = computed(() =>
-  [...new Set(workingHours.value.map((w) => w.userId))].sort(),
+  [...new Set((workingHours.value ?? []).map((w) => w.userId))].sort(),
 );
-const uniqueActivities = computed(() =>
-  [...new Set(workingHours.value.map((w) => w.activity))].sort(),
+
+const uniqueActivityIds = computed(() =>
+  [...new Set((workingHours.value ?? []).map((w) => w.activityId))].sort(),
 );
-const formActivities = computed(() => {
-  const localActivities = workingHours.value.map((entry) => entry.activity);
-  const persistedActivities = (backendActivities.value ?? []).map((entry) => entry.name);
 
-  return [...new Set([...persistedActivities, ...localActivities])].sort((a, b) => a.localeCompare(b, 'de'));
-});
-
-async function ensureActivityExists(activityName: string) {
-  const normalizedActivityName = activityName.trim();
-  if (!normalizedActivityName) {
-    return;
-  }
+async function ensureActivityExists(activityName: string): Promise<string> {
+  const normalized = activityName.trim();
+  const existing = (backendActivities.value ?? []).find(
+    (a) => a.name.toLowerCase() === normalized.toLowerCase(),
+  );
+  if (existing) return existing.id;
 
   const activity = await $fetch<Activity>('/api/activities', {
     method: 'POST',
-    body: {
-      name: normalizedActivityName,
-    },
+    body: { name: normalized },
   });
 
-  const existingActivities = backendActivities.value ?? [];
-  if (!existingActivities.some((entry) => entry.id === activity.id)) {
-    backendActivities.value = [...existingActivities, activity];
-  }
+  backendActivities.value = [...(backendActivities.value ?? []), activity];
+  return activity.id;
 }
 
-function toggleUserFilter(userId: number) {
+function toggleUserFilter(userId: string) {
   const idx = selectedUsers.value.indexOf(userId);
   if (idx === -1) selectedUsers.value.push(userId);
   else selectedUsers.value.splice(idx, 1);
   applyFilters();
 }
 
-function toggleActivityFilter(activity: string) {
-  const idx = selectedActivities.value.indexOf(activity);
-  if (idx === -1) selectedActivities.value.push(activity);
+function toggleActivityFilter(activityId: string) {
+  const idx = selectedActivities.value.indexOf(activityId);
+  if (idx === -1) selectedActivities.value.push(activityId);
   else selectedActivities.value.splice(idx, 1);
   applyFilters();
 }
@@ -289,7 +125,7 @@ function toggleActivityFilter(activity: string) {
 function applyFilters() {
   const filters: ColumnFiltersState = [];
   if (selectedUsers.value.length) filters.push({ id: 'userId', value: selectedUsers.value });
-  if (selectedActivities.value.length) filters.push({ id: 'activity', value: selectedActivities.value });
+  if (selectedActivities.value.length) filters.push({ id: 'activityId', value: selectedActivities.value });
   columnFilters.value = filters;
 }
 
@@ -298,8 +134,11 @@ const columnHelper = createColumnHelper<WorkingHour>();
 const columns = [
   columnHelper.accessor('userId', {
     header: 'Genoss*in',
-    cell: (info) => users[info.getValue()] ?? `User ${info.getValue()}`,
-    filterFn: (row, _columnId, filterValue: number[]) =>
+    cell: (info) => {
+      const user = userMap.value.get(info.getValue());
+      return user ? getUserDisplayName(user) : info.getValue();
+    },
+    filterFn: (row, _columnId, filterValue: string[]) =>
       filterValue.includes(row.getValue('userId')),
     enableSorting: false,
   }),
@@ -308,10 +147,11 @@ const columns = [
     cell: (info) => formatDate(info.getValue()),
     enableSorting: true,
   }),
-  columnHelper.accessor('activity', {
+  columnHelper.accessor('activityId', {
     header: 'Aktivität',
+    cell: (info) => activityMap.value.get(info.getValue())?.name ?? info.getValue(),
     filterFn: (row, _columnId, filterValue: string[]) =>
-      filterValue.includes(row.getValue('activity')),
+      filterValue.includes(row.getValue('activityId')),
     enableSorting: false,
   }),
   columnHelper.display({
@@ -328,7 +168,7 @@ const columns = [
 
 const table = useVueTable({
   get data() {
-    return workingHours.value;
+    return workingHours.value ?? [];
   },
   columns,
   state: {
@@ -348,47 +188,68 @@ const table = useVueTable({
 
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
-const editingEntry = ref<WorkingHour | undefined>();
+const editingId = ref<string | undefined>();
+const editingEntry = ref<WorkingHourFormData>();
 
 function openEditModal(entry: WorkingHour) {
-  editingEntry.value = entry;
+  editingId.value = entry.id;
+  editingEntry.value = {
+    date: toIsoDateString(entry.date),
+    startTime: entry.startTime,
+    endTime: entry.endTime,
+    breakInHours: entry.breakInHours,
+    plusOneDay: entry.plusOneDay,
+    activityName: activityMap.value.get(entry.activityId)?.name ?? '',
+  };
   showEditModal.value = true;
 }
 
-async function handleCreate(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
-  const activity = data.activity.trim();
-  await ensureActivityExists(activity);
+async function handleCreate(data: WorkingHourFormData) {
+  const activityId = await ensureActivityExists(data.activityName);
 
-  const now = new Date().toISOString();
-  workingHours.value.push({
-    ...data,
-    activity,
-    id: Math.max(0, ...workingHours.value.map((w) => w.id)) + 1,
-    createdAt: now,
-    updatedAt: now,
+  await $fetch('/api/working-hours', {
+    method: 'POST',
+    body: {
+      userId: currentUser.value!.id,
+      activityId,
+      date: data.date,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      breakInHours: data.breakInHours,
+      plusOneDay: data.plusOneDay,
+    },
   });
+
+  await refreshWorkingHours();
   showCreateModal.value = false;
 }
 
-async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
-  if (!editingEntry.value) return;
+async function handleEdit(data: WorkingHourFormData) {
+  if (!editingId.value) return;
 
-  const activity = data.activity.trim();
-  await ensureActivityExists(activity);
+  const activityId = await ensureActivityExists(data.activityName);
 
-  const idx = workingHours.value.findIndex((w) => w.id === editingEntry.value!.id);
-  if (idx !== -1) {
-    const existing = workingHours.value[idx]!;
-    workingHours.value[idx] = {
-      id: existing.id,
-      createdAt: existing.createdAt,
-      updatedAt: new Date().toISOString(),
-      ...data,
-      activity,
-    };
-  }
+  await $fetch(`/api/working-hours/${editingId.value}`, {
+    method: 'PATCH',
+    body: {
+      activityId,
+      date: data.date,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      breakInHours: data.breakInHours,
+      plusOneDay: data.plusOneDay,
+    },
+  });
+
+  await refreshWorkingHours();
   showEditModal.value = false;
   editingEntry.value = undefined;
+  editingId.value = undefined;
+}
+
+async function handleDelete(id: string) {
+  await $fetch(`/api/working-hours/${id}`, { method: 'DELETE' });
+  await refreshWorkingHours();
 }
 </script>
 
@@ -402,7 +263,7 @@ async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedA
             <PlusIcon class="size-6" />
           </UiIconButton>
         </template>
-        <WorkingHourForm :users="users" :activities="formActivities" @submit="handleCreate" />
+        <WorkingHourForm :activities="formActivityNames" @submit="handleCreate" />
       </UiModal>
     </div>
     <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
@@ -440,13 +301,13 @@ async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedA
                       class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
                       <input type="checkbox" :checked="selectedUsers.includes(userId)" class="accent-primary"
                         @change="toggleUserFilter(userId)" />
-                      {{ users[userId] ?? `User ${userId}` }}
+                      {{ userMap.get(userId) ? getUserDisplayName(userMap.get(userId)!) : userId }}
                     </label>
                   </div>
                 </UiPopover>
 
                 <!-- Filter for activity column -->
-                <UiPopover v-if="header.column.id === 'activity'">
+                <UiPopover v-if="header.column.id === 'activityId'">
                   <template #trigger>
                     <UiIconButton aria-label="Nach Aktivität filtern" class="ml-1"
                       :class="{ 'text-accent': selectedActivities.length > 0 }">
@@ -454,11 +315,11 @@ async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedA
                     </UiIconButton>
                   </template>
                   <div class="flex flex-col gap-1 min-w-40">
-                    <label v-for="activity in uniqueActivities" :key="activity"
+                    <label v-for="activityId in uniqueActivityIds" :key="activityId"
                       class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                      <input type="checkbox" :checked="selectedActivities.includes(activity)" class="accent-primary"
-                        @change="toggleActivityFilter(activity)" />
-                      {{ activity }}
+                      <input type="checkbox" :checked="selectedActivities.includes(activityId)" class="accent-primary"
+                        @change="toggleActivityFilter(activityId)" />
+                      {{ activityMap.get(activityId)?.name ?? activityId }}
                     </label>
                   </div>
                 </UiPopover>
@@ -478,7 +339,7 @@ async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedA
                   <UiIconButton aria-label="Bearbeiten" @click="openEditModal(row.original)">
                     <PencilIcon class="size-5" />
                   </UiIconButton>
-                  <UiIconButton aria-label="Löschen">
+                  <UiIconButton aria-label="Löschen" @click="handleDelete(row.original.id)">
                     <TrashIcon class="size-5" />
                   </UiIconButton>
                 </div>
@@ -493,7 +354,7 @@ async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedA
     </div>
 
     <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
-      <WorkingHourForm :users="users" :activities="formActivities" :initial-data="editingEntry" @submit="handleEdit" />
+      <WorkingHourForm :activities="formActivityNames" :initial-data="editingEntry" @submit="handleEdit" />
     </UiModal>
   </div>
 </template>
