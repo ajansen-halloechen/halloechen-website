@@ -41,15 +41,14 @@ function goNextMonth() {
 
 <template>
     <div class="flex items-center justify-between">
-        <IconButton class="disabled:opacity-30 disabled:hover:bg-transparent" aria-label="Previous month"
-            :disabled="!canGoPrev" @click="goPrevMonth">
+        <UiIconButton aria-label="Previous month" :disabled="!canGoPrev" @click="goPrevMonth">
             <ChevronLeftIcon class="h-6 w-6" />
-        </IconButton>
+        </UiIconButton>
         <div class="text-xl font-semibold capitalize">
             {{ monthLabel }}
         </div>
-        <IconButton aria-label="Next month" @click="goNextMonth">
+        <UiIconButton aria-label="Next month" @click="goNextMonth">
             <ChevronRightIcon class="h-6 w-6" />
-        </IconButton>
+        </UiIconButton>
     </div>
 </template>
