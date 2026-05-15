@@ -27,10 +27,10 @@ defineProps<{
     required?: boolean;
 }>();
 
-const model = defineModel<string>();
+const model = defineModel<string>({ required: true });
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- CalendarDate's #private field breaks Volar's structural type checking
-const internalValue = ref<any>(parseIso(model.value));
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- CalendarDate #private field breaks Volar structural typing
+const pickerValue = ref<any>(parseIso(model.value));
 
 function parseIso(val: string | undefined): CalendarDate | undefined {
     if (!val) return undefined;
@@ -39,19 +39,18 @@ function parseIso(val: string | undefined): CalendarDate | undefined {
     return undefined;
 }
 
-function toIso(val: { year: number; month: number; day: number }): string {
-    return `${val.year}-${String(val.month).padStart(2, '0')}-${String(val.day).padStart(2, '0')}`;
-}
-
+// Model (ISO string) → picker (CalendarDate)
 watch(model, (v) => {
     const parsed = parseIso(v);
-    if (parsed?.toString() !== internalValue.value?.toString()) {
-        internalValue.value = parsed;
+    if (parsed?.toString() !== pickerValue.value?.toString()) {
+        pickerValue.value = parsed;
     }
 });
 
-watch(internalValue, (v) => {
-    const iso = v ? toIso(v) : undefined;
+// Picker (CalendarDate) → model (ISO string)
+watch(pickerValue, (v) => {
+    if (!v) return;
+    const iso = `${v.year}-${String(v.month).padStart(2, '0')}-${String(v.day).padStart(2, '0')}`;
     if (iso !== model.value) {
         model.value = iso;
     }
@@ -63,17 +62,23 @@ watch(internalValue, (v) => {
         <label :for="id" class="block text-sm font-medium">
             {{ label }}
         </label>
-        <DatePickerRoot v-model="internalValue" locale="de-DE" :week-starts-on="1" close-on-select>
-            <DatePickerField :id="id"
-                class="flex items-center gap-0.5 rounded-md border border-gray-300 px-3 py-2 text-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"
-                v-slot="{ segments }">
+        <DatePickerRoot v-model="pickerValue" locale="de-DE" :week-starts-on="1" close-on-select>
+            <DatePickerField v-slot="{ segments }" :id="id"
+                class="flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
                 <template v-for="item in segments" :key="item.part">
-                    <DatePickerInput v-if="item.part === 'literal'" :part="item.part" class="text-gray-400" />
+                    <DatePickerInput v-if="item.part === 'literal'" :part="item.part">
+                        <span class="text-gray-400">{{ item.value }}</span>
+                    </DatePickerInput>
                     <DatePickerInput v-else :part="item.part"
-                        class="rounded px-0.5 outline-none focus:bg-primary/10 placeholder:text-gray-400 data-[placeholder]:text-gray-400" />
+                        class="rounded px-1 text-center outline-none data-[placeholder]:text-gray-400 focus:bg-primary/10">
+                        {{ item.value }}
+                    </DatePickerInput>
                 </template>
-                <DatePickerTrigger class="ml-auto cursor-pointer text-primary hover:text-primary-600">
-                    <CalendarIcon class="size-4" />
+                <DatePickerTrigger as-child>
+                    <button type="button" class="ml-auto cursor-pointer text-primary hover:text-primary-600"
+                        aria-label="Kalender öffnen">
+                        <CalendarIcon class="size-4" />
+                    </button>
                 </DatePickerTrigger>
             </DatePickerField>
 
@@ -106,12 +111,12 @@ watch(internalValue, (v) => {
                             <DatePickerGridRow v-for="(week, idx) in month.rows" :key="idx" class="flex">
                                 <DatePickerCell v-for="day in week" :key="day.toString()" :date="day" class="p-0">
                                     <DatePickerCellTrigger :day="day" :month="month.value" class="flex size-8 items-center justify-center rounded text-sm cursor-pointer
-                      hover:bg-primary/10
-                      data-[selected]:bg-primary data-[selected]:text-on-primary
-                      data-[today]:font-bold
-                      data-[outside-view]:text-gray-300
-                      data-[disabled]:text-gray-300 data-[disabled]:cursor-not-allowed
-                      data-[unavailable]:text-gray-300 data-[unavailable]:line-through" />
+                                        hover:bg-primary/10
+                                        data-[selected]:bg-primary data-[selected]:text-on-primary
+                                        data-[today]:font-bold
+                                        data-[outside-view]:text-gray-300
+                                        data-[disabled]:text-gray-300 data-[disabled]:cursor-not-allowed
+                                        data-[unavailable]:text-gray-300 data-[unavailable]:line-through" />
                                 </DatePickerCell>
                             </DatePickerGridRow>
                         </DatePickerGridBody>

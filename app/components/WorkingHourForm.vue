@@ -58,7 +58,7 @@ function handleSubmit() {
             </select>
         </div>
 
-        <UiDatePicker id="wh-date" v-model="date" label="Datum" required />
+        <UiDateInput id="wh-date" v-model="date" label="Datum" required />
 
         <div class="grid grid-cols-2 gap-4">
             <UiInputField id="wh-start" v-model="startTime" label="Beginn" type="time" required />
