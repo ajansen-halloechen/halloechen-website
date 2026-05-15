@@ -65,6 +65,78 @@ const workingHours = ref<WorkingHour[]>([
     createdAt: '2026-05-13T07:30:00Z',
     updatedAt: '2026-05-13T15:30:00Z',
   },
+  {
+    id: 5,
+    userId: 2,
+    date: '2026-05-14',
+    startTime: '10:00',
+    endTime: '18:00',
+    breakInHours: 0.5,
+    plusOneDay: false,
+    activity: 'Barschicht',
+    createdAt: '2026-05-14T10:00:00Z',
+    updatedAt: '2026-05-14T18:00:00Z',
+  },
+  {
+    id: 6,
+    userId: 3,
+    date: '2026-05-14',
+    startTime: '08:00',
+    endTime: '12:00',
+    breakInHours: 0,
+    plusOneDay: false,
+    activity: 'Klo putzen',
+    createdAt: '2026-05-14T08:00:00Z',
+    updatedAt: '2026-05-14T12:00:00Z',
+  },
+  {
+    id: 7,
+    userId: 1,
+    date: '2026-05-14',
+    startTime: '18:00',
+    endTime: '02:00',
+    breakInHours: 0.5,
+    plusOneDay: true,
+    activity: 'Barschicht',
+    createdAt: '2026-05-14T18:00:00Z',
+    updatedAt: '2026-05-15T02:00:00Z',
+  },
+  {
+    id: 8,
+    userId: 2,
+    date: '2026-05-15',
+    startTime: '07:00',
+    endTime: '13:00',
+    breakInHours: 0.5,
+    plusOneDay: false,
+    activity: 'Rechnungen',
+    createdAt: '2026-05-15T07:00:00Z',
+    updatedAt: '2026-05-15T13:00:00Z',
+  },
+  {
+    id: 9,
+    userId: 3,
+    date: '2026-05-15',
+    startTime: '14:00',
+    endTime: '22:00',
+    breakInHours: 1,
+    plusOneDay: false,
+    activity: 'Barschicht',
+    createdAt: '2026-05-15T14:00:00Z',
+    updatedAt: '2026-05-15T22:00:00Z',
+  },
+  {
+    id: 10,
+    userId: 1,
+    date: '2026-05-15',
+    startTime: '09:00',
+    endTime: '15:00',
+    breakInHours: 0.5,
+    plusOneDay: false,
+    activity: 'Klo putzen',
+    createdAt: '2026-05-15T09:00:00Z',
+    updatedAt: '2026-05-15T15:00:00Z',
+  },
 ]);
 
 function computeHours(row: WorkingHour): number {
@@ -118,7 +190,7 @@ const table = useVueTable({
 </script>
 
 <template>
-  <div class="flex flex-col max-w-7xl mx-auto px-8">
+  <div class="flex flex-col w-full max-w-7xl mx-auto px-8">
     <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Zeiterfassung</h1>
     <div class="flex justify-end mb-4">
       <IconButton aria-label="Arbeitszeit hinzufügen">
@@ -126,19 +198,19 @@ const table = useVueTable({
       </IconButton>
     </div>
 
-    <div class="flex-1 pb-10 overflow-x-auto rounded-lg border border-gray-200">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-primary-200">
+    <div class="mb-10 overflow-x-auto bg-surface rounded-md border border-primary">
+      <table class="min-w-full divide-y divide-primary">
+        <thead>
           <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <th v-for="header in headerGroup.headers" :key="header.id"
-              class="px-4 py-4 text-left text-sm font-semibold uppercase tracking-wider">
+              class="px-4 py-4 text-left text-sm font-semibold tracking-wider">
               <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
                 :props="header.getContext()" />
             </th>
           </tr>
         </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-gray-50">
+        <tbody class="divide-y divide-primary">
+          <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">
             <td v-for="cell in row.getVisibleCells()" :key="cell.id"
               class="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
               <template v-if="cell.column.id === 'actions'">
