@@ -1,20 +1,28 @@
 import { userRepository } from '#server/entities/user/user.repository';
+import { a } from 'vue-router/dist/index-D_VEAp3P.js';
 
-export default defineNitroPlugin(async () => {
-  const email: string = 'test@halloechen.org';
+async function addUserIfNotExists(
+  email: string,
+  firstName: string,
+  lastName: string,
+  password: string,
+): Promise<void> {
   const existing = await userRepository.findByEmail(email);
-
   if (existing) {
     return;
   }
 
-  const passwordHash: string = await hashPassword('test1234');
+  const passwordHash = await hashPassword(password);
   await userRepository.create({
     email,
-    firstName: 'Test',
-    lastName: 'User',
+    firstName,
+    lastName,
     passwordHash,
   });
+  console.log(`Seeded test user: ${email} / ${password}`);
+}
 
-  console.log(`Seeded test user: ${email} / test1234`);
+export default defineNitroPlugin(async () => {
+  await addUserIfNotExists('test@halloechen.org', 'Test', 'User', 'test1234');
+  await addUserIfNotExists('test2@halloechen.org', 'Test2', 'User', 'password');
 });

@@ -4,6 +4,7 @@ import { workingHourPatchSchema } from '#server/entities/working-hour/working-ho
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')!;
+  const userId = event.context.user!.id;
   const body = await readValidatedBody(event, workingHourPatchSchema.parse);
-  return workingHourService.patch(id, body);
+  return workingHourService.patch(id, body, userId);
 });
