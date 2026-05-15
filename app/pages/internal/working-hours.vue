@@ -338,6 +338,11 @@ async function handleDelete(id: string) {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
+          <tr v-if="table.getRowModel().rows.length === 0">
+            <td :colspan="columns.length" class="px-4 py-8 text-center text-sm text-gray-500">
+              Keine Einträge für diesen Monat vorhanden.
+            </td>
+          </tr>
           <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">
             <td v-for="cell in row.getVisibleCells()" :key="cell.id"
               class="px-4 py-2 whitespace-nowrap text-sm text-gray-700" :class="{
