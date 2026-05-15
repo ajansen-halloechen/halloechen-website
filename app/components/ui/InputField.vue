@@ -24,7 +24,7 @@ const containerClass = 'flex items-center w-full rounded-md border border-gray-3
 <template>
     <div class="flex flex-col gap-1">
         <label :for="id" class="block text-sm font-medium">
-            {{ label }}
+            {{ label }}<span v-if="required" class="ml-0.5 align-super text-xs leading-none text-red-500">*</span>
         </label>
         <div v-if="$slots.default" :class="containerClass">
             <slot />

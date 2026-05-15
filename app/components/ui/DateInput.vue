@@ -58,7 +58,7 @@ watch(pickerValue, (v) => {
 </script>
 
 <template>
-    <UiInputField :id="id" :label="label">
+    <UiInputField :id="id" :label="label" :required="required">
         <DatePickerRoot v-model="pickerValue" locale="de-DE" :week-starts-on="1" close-on-select>
             <DatePickerField v-slot="{ segments }" :id="id" class="flex items-center w-full">
                 <template v-for="item in segments" :key="item.part">
