@@ -25,7 +25,7 @@ const open = defineModel<boolean>('open', { default: false });
         <DialogPortal>
             <DialogOverlay class="fixed inset-0 z-50 bg-black/50" />
             <DialogContent
-                class="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg">
+                class="fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg">
                 <div class="flex items-center justify-between mb-4">
                     <DialogTitle class="text-lg font-semibold">
                         {{ title }}
