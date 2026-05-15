@@ -52,6 +52,7 @@
     --color-primary: var(--color-primary-800);
     --color-secondary: var(--color-secondary-900);
     --color-accent: var(--color-accent-400);
+    --color-surface: var(--color-neutral-50);
     --color-on-primary: var(--color-primary-50);
     --color-on-secondary: var(--color-secondary-50);
     --color-success: var(--color-accent-300);

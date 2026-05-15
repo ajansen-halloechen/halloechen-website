@@ -13,18 +13,12 @@ const activeItem = computed(() => {
 
 <template>
   <div
-    class="min-h-dvh flex flex-col bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20"
-  >
+    class="min-h-dvh flex flex-col bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20">
     <header class="sticky top-0 z-50 backdrop-blur-3xl">
-      <TopBar
-        :items="internalNavItems"
-        :active-item="activeItem"
-        breakpoint="xl"
-        :show-marquee="false"
-      />
+      <TopBar :items="internalNavItems" :active-item="activeItem" breakpoint="xl" :show-marquee="false" />
     </header>
 
-    <main class="flex-1 w-full">
+    <main class="flex-1 flex flex-col w-full">
       <slot />
     </main>
 
