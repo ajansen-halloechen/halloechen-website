@@ -3,9 +3,21 @@ import {
   createColumnHelper,
   FlexRender,
   getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
   useVueTable,
+  type SortingState,
+  type ColumnFiltersState,
 } from '@tanstack/vue-table';
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import {
+  PlusIcon,
+  PencilIcon,
+  TrashIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+  ChevronUpDownIcon,
+  FunnelIcon,
+} from '@heroicons/vue/24/outline';
 import type { WorkingHour } from '~~/shared/types/working-hour';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
@@ -220,19 +232,60 @@ function formatDate(dateStr: string): string {
   });
 }
 
+const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
+const columnFilters = ref<ColumnFiltersState>([]);
+
+const selectedUsers = ref<number[]>([]);
+const selectedActivities = ref<string[]>([]);
+
+const uniqueUserIds = computed(() =>
+  [...new Set(workingHours.value.map((w) => w.userId))].sort(),
+);
+const uniqueActivities = computed(() =>
+  [...new Set(workingHours.value.map((w) => w.activity))].sort(),
+);
+
+function toggleUserFilter(userId: number) {
+  const idx = selectedUsers.value.indexOf(userId);
+  if (idx === -1) selectedUsers.value.push(userId);
+  else selectedUsers.value.splice(idx, 1);
+  applyFilters();
+}
+
+function toggleActivityFilter(activity: string) {
+  const idx = selectedActivities.value.indexOf(activity);
+  if (idx === -1) selectedActivities.value.push(activity);
+  else selectedActivities.value.splice(idx, 1);
+  applyFilters();
+}
+
+function applyFilters() {
+  const filters: ColumnFiltersState = [];
+  if (selectedUsers.value.length) filters.push({ id: 'userId', value: selectedUsers.value });
+  if (selectedActivities.value.length) filters.push({ id: 'activity', value: selectedActivities.value });
+  columnFilters.value = filters;
+}
+
 const columnHelper = createColumnHelper<WorkingHour>();
 
 const columns = [
   columnHelper.accessor('userId', {
     header: 'Genoss*in',
     cell: (info) => users[info.getValue()] ?? `User ${info.getValue()}`,
+    filterFn: (row, _columnId, filterValue: number[]) =>
+      filterValue.includes(row.getValue('userId')),
+    enableSorting: false,
   }),
   columnHelper.accessor('date', {
     header: 'Datum',
     cell: (info) => formatDate(info.getValue()),
+    enableSorting: true,
   }),
   columnHelper.accessor('activity', {
     header: 'Aktivität',
+    filterFn: (row, _columnId, filterValue: string[]) =>
+      filterValue.includes(row.getValue('activity')),
+    enableSorting: false,
   }),
   columnHelper.display({
     id: 'hours',
@@ -251,7 +304,19 @@ const table = useVueTable({
     return workingHours.value;
   },
   columns,
+  state: {
+    get sorting() { return sorting.value; },
+    get columnFilters() { return columnFilters.value; },
+  },
+  onSortingChange: (updater) => {
+    sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
+  },
+  onColumnFiltersChange: (updater) => {
+    columnFilters.value = typeof updater === 'function' ? updater(columnFilters.value) : updater;
+  },
   getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
 });
 </script>
 
@@ -274,8 +339,54 @@ const table = useVueTable({
                 'text-right': (header.column.columnDef.meta as any)?.align === 'right',
                 'w-0': (header.column.columnDef.meta as any)?.shrink,
               }">
-              <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                :props="header.getContext()" />
+              <div class="flex items-center gap-1">
+                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                  :props="header.getContext()" />
+
+                <!-- Sort toggle for date column -->
+                <UiIconButton v-if="header.column.getCanSort()" aria-label="Sortierung umschalten"
+                  class="ml-1" @click="header.column.toggleSorting()">
+                  <ChevronUpIcon v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
+                  <ChevronDownIcon v-else-if="header.column.getIsSorted() === 'desc'" class="size-4" />
+                  <ChevronUpDownIcon v-else class="size-4" />
+                </UiIconButton>
+
+                <!-- Filter for userId column -->
+                <UiPopover v-if="header.column.id === 'userId'">
+                  <template #trigger>
+                    <UiIconButton aria-label="Nach Genoss*in filtern" class="ml-1"
+                      :class="{ 'text-accent': selectedUsers.length > 0 }">
+                      <FunnelIcon class="size-4" />
+                    </UiIconButton>
+                  </template>
+                  <div class="flex flex-col gap-1 min-w-40">
+                    <label v-for="userId in uniqueUserIds" :key="userId"
+                      class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
+                      <input type="checkbox" :checked="selectedUsers.includes(userId)"
+                        class="accent-primary" @change="toggleUserFilter(userId)" />
+                      {{ users[userId] ?? `User ${userId}` }}
+                    </label>
+                  </div>
+                </UiPopover>
+
+                <!-- Filter for activity column -->
+                <UiPopover v-if="header.column.id === 'activity'">
+                  <template #trigger>
+                    <UiIconButton aria-label="Nach Aktivität filtern" class="ml-1"
+                      :class="{ 'text-accent': selectedActivities.length > 0 }">
+                      <FunnelIcon class="size-4" />
+                    </UiIconButton>
+                  </template>
+                  <div class="flex flex-col gap-1 min-w-40">
+                    <label v-for="activity in uniqueActivities" :key="activity"
+                      class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
+                      <input type="checkbox" :checked="selectedActivities.includes(activity)"
+                        class="accent-primary" @change="toggleActivityFilter(activity)" />
+                      {{ activity }}
+                    </label>
+                  </div>
+                </UiPopover>
+              </div>
             </th>
           </tr>
         </thead>

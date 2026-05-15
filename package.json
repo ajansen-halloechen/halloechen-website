@@ -27,6 +27,7 @@
     "nuxt": "^4.4.4",
     "nuxt-auth-utils": "0.5.29",
     "pg": "^8.20.0",
+    "reka-ui": "^2.9.7",
     "tailwind-merge": "^3.6.0",
     "tailwind-variants": "^3.2.2",
     "tailwindcss": "^4.1.18",
