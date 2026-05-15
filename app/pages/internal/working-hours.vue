@@ -336,10 +336,12 @@ async function handleDelete(id: string) {
               }">
               <template v-if="cell.column.id === 'actions'">
                 <div class="flex gap-1">
-                  <UiIconButton aria-label="Bearbeiten" @click="openEditModal(row.original)">
+                  <UiIconButton aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
+                    @click="openEditModal(row.original)">
                     <PencilIcon class="size-5" />
                   </UiIconButton>
-                  <UiIconButton aria-label="Löschen" @click="handleDelete(row.original.id)">
+                  <UiIconButton aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
+                    @click="handleDelete(row.original.id)">
                     <TrashIcon class="size-5" />
                   </UiIconButton>
                 </div>

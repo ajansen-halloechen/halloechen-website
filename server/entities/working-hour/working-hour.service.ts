@@ -47,7 +47,22 @@ export const workingHourService = {
     return workingHourRepository.create(input);
   },
 
-  async patch(id: string, input: WorkingHourPatch) {
+  async patch(id: string, input: WorkingHourPatch, userId: string) {
+    const existing = await workingHourRepository.findById(id);
+    if (!existing) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Working hour not found',
+      });
+    }
+
+    if (existing.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only edit your own working hours',
+      });
+    }
+
     if (input.activityId) {
       const activity = await activityRepository.findById(input.activityId);
       if (!activity) {
@@ -59,23 +74,26 @@ export const workingHourService = {
     }
 
     const workingHour = await workingHourRepository.update(id, input);
-    if (!workingHour) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Working hour not found',
-      });
-    }
-    return workingHour;
+    return workingHour!;
   },
 
-  async remove(id: string) {
-    const workingHour = await workingHourRepository.remove(id);
-    if (!workingHour) {
+  async remove(id: string, userId: string) {
+    const existing = await workingHourRepository.findById(id);
+    if (!existing) {
       throw createError({
         statusCode: 404,
         statusMessage: 'Working hour not found',
       });
     }
-    return workingHour;
+
+    if (existing.userId !== userId) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'You can only delete your own working hours',
+      });
+    }
+
+    const workingHour = await workingHourRepository.remove(id);
+    return workingHour!;
   },
 };
