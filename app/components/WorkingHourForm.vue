@@ -10,8 +10,11 @@ const emit = defineEmits<{
     submit: [data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>];
 }>();
 
+const today = new Date();
+const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
 const userId = ref(props.initialData?.userId ?? Number(Object.keys(props.users)[0]));
-const date = ref(props.initialData?.date ?? '');
+const date = ref(props.initialData?.date ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '');
 const endTime = ref(props.initialData?.endTime ?? '');
 const breakInHours = ref(String(props.initialData?.breakInHours ?? 0));
@@ -55,7 +58,7 @@ function handleSubmit() {
             </select>
         </div>
 
-        <UiInputField id="wh-date" v-model="date" label="Datum" type="date" required />
+        <UiDatePicker id="wh-date" v-model="date" label="Datum" required />
 
         <div class="grid grid-cols-2 gap-4">
             <UiInputField id="wh-start" v-model="startTime" label="Beginn" type="time" required />
