@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const model = defineModel<string>({ required: true });
+const model = defineModel<string>();
 
 withDefaults(
     defineProps<{
@@ -17,6 +17,8 @@ withDefaults(
         step: undefined,
     },
 );
+
+const containerClass = 'flex items-center w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary';
 </script>
 
 <template>
@@ -24,7 +26,10 @@ withDefaults(
         <label :for="id" class="block text-sm font-medium">
             {{ label }}
         </label>
-        <input :id="id" v-model="model" :type="type" :required="required" :autocomplete="autocomplete" :step="step"
-            class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none" />
+        <div v-if="$slots.default" :class="containerClass">
+            <slot />
+        </div>
+        <input v-else :id="id" v-model="model" :type="type" :required="required" :autocomplete="autocomplete"
+            :step="step" :class="[containerClass, 'outline-none']" />
     </div>
 </template>

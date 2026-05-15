@@ -58,13 +58,9 @@ watch(pickerValue, (v) => {
 </script>
 
 <template>
-    <div class="flex flex-col gap-1">
-        <label :for="id" class="block text-sm font-medium">
-            {{ label }}
-        </label>
+    <UiInputField :id="id" :label="label">
         <DatePickerRoot v-model="pickerValue" locale="de-DE" :week-starts-on="1" close-on-select>
-            <DatePickerField v-slot="{ segments }" :id="id"
-                class="flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
+            <DatePickerField v-slot="{ segments }" :id="id" class="flex items-center w-full">
                 <template v-for="item in segments" :key="item.part">
                     <DatePickerInput v-if="item.part === 'literal'" :part="item.part">
                         <span class="text-gray-400">{{ item.value }}</span>
@@ -124,5 +120,5 @@ watch(pickerValue, (v) => {
                 </DatePickerCalendar>
             </DatePickerContent>
         </DatePickerRoot>
-    </div>
+    </UiInputField>
 </template>
