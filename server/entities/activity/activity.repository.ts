@@ -1,4 +1,4 @@
-import { asc, sql } from 'drizzle-orm';
+import { asc, eq, sql } from 'drizzle-orm';
 import { db } from '#server/database';
 import { activities } from './activity.table';
 
@@ -7,6 +7,14 @@ type ActivityInsert = typeof activities.$inferInsert;
 export const activityRepository = {
   async findAll() {
     return db.select().from(activities).orderBy(asc(activities.name));
+  },
+
+  async findById(id: string) {
+    const rows = await db
+      .select()
+      .from(activities)
+      .where(eq(activities.id, id));
+    return rows[0] ?? null;
   },
 
   async findByName(name: string) {
