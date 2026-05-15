@@ -92,12 +92,12 @@ onClickOutside(topBarRef, () => {
         </nav>
 
         <!-- Burger button (always visible when showDesktopMenu is false) -->
-        <IconButton v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
+        <UiIconButton v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
           @click="toggleMobileMenu">
           <span class="sr-only">Toggle navigation menu</span>
           <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
           <XMarkIcon v-else class="h-8 w-8" />
-        </IconButton>
+        </UiIconButton>
       </div>
     </div>
 

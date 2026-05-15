@@ -259,9 +259,9 @@ const table = useVueTable({
   <div class="flex flex-col w-full max-w-7xl mx-auto px-8">
     <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Zeiterfassung</h1>
     <div class="flex justify-end mb-4">
-      <IconButton aria-label="Arbeitszeit hinzufügen">
+      <UiIconButton variant="solid" aria-label="Arbeitszeit hinzufügen">
         <PlusIcon class="size-6" />
-      </IconButton>
+      </UiIconButton>
     </div>
     <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
 
@@ -288,12 +288,12 @@ const table = useVueTable({
               }">
               <template v-if="cell.column.id === 'actions'">
                 <div class="flex gap-1">
-                  <IconButton aria-label="Bearbeiten">
+                  <UiIconButton aria-label="Bearbeiten">
                     <PencilIcon class="size-5" />
-                  </IconButton>
-                  <IconButton aria-label="Löschen">
+                  </UiIconButton>
+                  <UiIconButton aria-label="Löschen">
                     <TrashIcon class="size-5" />
-                  </IconButton>
+                  </UiIconButton>
                 </div>
               </template>
               <template v-else>
