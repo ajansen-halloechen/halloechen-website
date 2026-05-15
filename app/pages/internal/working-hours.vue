@@ -10,6 +10,11 @@ import type { WorkingHour } from '~~/shared/types/working-hour';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
+const today = new Date();
+const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+const selectedMonth = ref(new Date(currentMonthStart));
+
 const users: Record<number, string> = {
   1: 'Anna Müller',
   2: 'Ben Schmidt',
@@ -258,6 +263,7 @@ const table = useVueTable({
         <PlusIcon class="size-6" />
       </IconButton>
     </div>
+    <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
 
     <div class="mb-10 overflow-x-auto bg-surface rounded-md border border-primary">
       <table class="min-w-full divide-y divide-primary">
