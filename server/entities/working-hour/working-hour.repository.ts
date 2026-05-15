@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, gte, lt } from 'drizzle-orm';
 import { db } from '#server/database';
 import { workingHours } from './working-hour.table';
 
@@ -16,6 +16,15 @@ export const workingHourRepository = {
       .from(workingHours)
       .where(eq(workingHours.id, id));
     return rows[0] ?? null;
+  },
+
+  async findByMonth(year: number, month: number) {
+    const from = new Date(year, month - 1, 1);
+    const to = new Date(year, month, 1);
+    return db
+      .select()
+      .from(workingHours)
+      .where(and(gte(workingHours.date, from), lt(workingHours.date, to)));
   },
 
   async findByUserId(userId: string) {
