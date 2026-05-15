@@ -15,7 +15,6 @@ import {
   TrashIcon,
   ChevronUpIcon,
   ChevronDownIcon,
-  ChevronUpDownIcon,
   FunnelIcon,
 } from '@heroicons/vue/24/outline';
 import type { WorkingHour } from '~~/shared/types/working-hour';
@@ -344,11 +343,10 @@ const table = useVueTable({
                   :props="header.getContext()" />
 
                 <!-- Sort toggle for date column -->
-                <UiIconButton v-if="header.column.getCanSort()" aria-label="Sortierung umschalten"
-                  class="ml-1" @click="header.column.toggleSorting()">
+                <UiIconButton v-if="header.column.getCanSort()" aria-label="Sortierung umschalten" class="ml-1"
+                  @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')">
                   <ChevronUpIcon v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
-                  <ChevronDownIcon v-else-if="header.column.getIsSorted() === 'desc'" class="size-4" />
-                  <ChevronUpDownIcon v-else class="size-4" />
+                  <ChevronDownIcon v-else class="size-4" />
                 </UiIconButton>
 
                 <!-- Filter for userId column -->
@@ -362,8 +360,8 @@ const table = useVueTable({
                   <div class="flex flex-col gap-1 min-w-40">
                     <label v-for="userId in uniqueUserIds" :key="userId"
                       class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                      <input type="checkbox" :checked="selectedUsers.includes(userId)"
-                        class="accent-primary" @change="toggleUserFilter(userId)" />
+                      <input type="checkbox" :checked="selectedUsers.includes(userId)" class="accent-primary"
+                        @change="toggleUserFilter(userId)" />
                       {{ users[userId] ?? `User ${userId}` }}
                     </label>
                   </div>
@@ -380,8 +378,8 @@ const table = useVueTable({
                   <div class="flex flex-col gap-1 min-w-40">
                     <label v-for="activity in uniqueActivities" :key="activity"
                       class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                      <input type="checkbox" :checked="selectedActivities.includes(activity)"
-                        class="accent-primary" @change="toggleActivityFilter(activity)" />
+                      <input type="checkbox" :checked="selectedActivities.includes(activity)" class="accent-primary"
+                        @change="toggleActivityFilter(activity)" />
                       {{ activity }}
                     </label>
                   </div>
