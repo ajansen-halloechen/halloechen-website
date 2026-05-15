@@ -16,7 +16,7 @@ export const workingHourSchema = z.object({
 export const workingHourCreateSchema = z.object({
   userId: z.uuid(),
   activityId: z.uuid(),
-  date: z.date(),
+  date: z.coerce.date(),
   startTime: z.iso.time(),
   endTime: z.iso.time(),
   breakInHours: z.number().min(0).default(0),
@@ -25,7 +25,7 @@ export const workingHourCreateSchema = z.object({
 
 export const workingHourPatchSchema = z.object({
   activityId: z.uuid().optional(),
-  date: z.date().optional(),
+  date: z.coerce.date().optional(),
   startTime: z.iso.time().optional(),
   endTime: z.iso.time().optional(),
   breakInHours: z.number().min(0).optional(),

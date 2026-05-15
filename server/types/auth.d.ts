@@ -1,10 +1,3 @@
-declare module '#auth-utils' {
-  interface User {
-    id: string;
-    email: string;
-  }
-}
-
 declare module 'h3' {
   interface H3EventContext {
     user?: import('#auth-utils').User;

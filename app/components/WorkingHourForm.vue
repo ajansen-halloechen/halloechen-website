@@ -1,48 +1,51 @@
 <script setup lang="ts">
-import type { WorkingHour } from '~~/shared/types/working-hour';
+export interface WorkingHourFormData {
+    date: string;
+    startTime: string;
+    endTime: string;
+    breakInHours: number;
+    plusOneDay: boolean;
+    activityName: string;
+}
 
 const props = defineProps<{
-    users: Record<number, string>;
     activities: string[];
-    initialData?: WorkingHour;
+    initialData?: WorkingHourFormData;
 }>();
 
 const emit = defineEmits<{
-    submit: [data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>];
+    submit: [data: WorkingHourFormData];
 }>();
 
 const today = new Date();
 const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
-const userId = ref(props.initialData?.userId ?? Number(Object.keys(props.users)[0]));
 const date = ref(props.initialData?.date ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '');
 const endTime = ref(props.initialData?.endTime ?? '');
 const breakInHours = ref(String(props.initialData?.breakInHours ?? 0));
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
-const activity = ref(props.initialData?.activity ?? '');
+const activity = ref(props.initialData?.activityName ?? '');
 
 watch(() => props.initialData, (data) => {
     if (data) {
-        userId.value = data.userId;
         date.value = data.date;
         startTime.value = data.startTime;
         endTime.value = data.endTime;
         breakInHours.value = String(data.breakInHours);
         plusOneDay.value = data.plusOneDay;
-        activity.value = data.activity;
+        activity.value = data.activityName;
     }
 });
 
 function handleSubmit() {
     emit('submit', {
-        userId: userId.value,
         date: date.value,
         startTime: startTime.value,
         endTime: endTime.value,
         breakInHours: Number(breakInHours.value),
         plusOneDay: plusOneDay.value,
-        activity: activity.value,
+        activityName: activity.value,
     });
 }
 </script>
