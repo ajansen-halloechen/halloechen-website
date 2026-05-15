@@ -8,6 +8,13 @@
       "when": 1778400104554,
       "tag": "0000_great_photon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778848941866,
+      "tag": "0001_bitter_gamora",
+      "breakpoints": true
     }
   ]
 }

@@ -17,6 +17,7 @@ import {
   ChevronDownIcon,
   FunnelIcon,
 } from '@heroicons/vue/24/outline';
+import type { Activity } from '~~/shared/types/activity';
 import type { WorkingHour } from '~~/shared/types/working-hour';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
@@ -31,6 +32,8 @@ const users: Record<number, string> = {
   2: 'Ben Schmidt',
   3: 'Clara Weber',
 };
+
+const { data: backendActivities } = await useFetch<Activity[]>('/api/activities');
 
 const workingHours = ref<WorkingHour[]>([
   {
@@ -243,6 +246,31 @@ const uniqueUserIds = computed(() =>
 const uniqueActivities = computed(() =>
   [...new Set(workingHours.value.map((w) => w.activity))].sort(),
 );
+const formActivities = computed(() => {
+  const localActivities = workingHours.value.map((entry) => entry.activity);
+  const persistedActivities = (backendActivities.value ?? []).map((entry) => entry.name);
+
+  return [...new Set([...persistedActivities, ...localActivities])].sort((a, b) => a.localeCompare(b, 'de'));
+});
+
+async function ensureActivityExists(activityName: string) {
+  const normalizedActivityName = activityName.trim();
+  if (!normalizedActivityName) {
+    return;
+  }
+
+  const activity = await $fetch<Activity>('/api/activities', {
+    method: 'POST',
+    body: {
+      name: normalizedActivityName,
+    },
+  });
+
+  const existingActivities = backendActivities.value ?? [];
+  if (!existingActivities.some((entry) => entry.id === activity.id)) {
+    backendActivities.value = [...existingActivities, activity];
+  }
+}
 
 function toggleUserFilter(userId: number) {
   const idx = selectedUsers.value.indexOf(userId);
@@ -327,10 +355,14 @@ function openEditModal(entry: WorkingHour) {
   showEditModal.value = true;
 }
 
-function handleCreate(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
+async function handleCreate(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
+  const activity = data.activity.trim();
+  await ensureActivityExists(activity);
+
   const now = new Date().toISOString();
   workingHours.value.push({
     ...data,
+    activity,
     id: Math.max(0, ...workingHours.value.map((w) => w.id)) + 1,
     createdAt: now,
     updatedAt: now,
@@ -338,8 +370,12 @@ function handleCreate(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>)
   showCreateModal.value = false;
 }
 
-function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
+async function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
   if (!editingEntry.value) return;
+
+  const activity = data.activity.trim();
+  await ensureActivityExists(activity);
+
   const idx = workingHours.value.findIndex((w) => w.id === editingEntry.value!.id);
   if (idx !== -1) {
     const existing = workingHours.value[idx]!;
@@ -348,6 +384,7 @@ function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
       createdAt: existing.createdAt,
       updatedAt: new Date().toISOString(),
       ...data,
+      activity,
     };
   }
   showEditModal.value = false;
@@ -365,7 +402,7 @@ function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
             <PlusIcon class="size-6" />
           </UiIconButton>
         </template>
-        <WorkingHourForm :users="users" @submit="handleCreate" />
+        <WorkingHourForm :users="users" :activities="formActivities" @submit="handleCreate" />
       </UiModal>
     </div>
     <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
@@ -456,7 +493,7 @@ function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
     </div>
 
     <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
-      <WorkingHourForm :users="users" :initial-data="editingEntry" @submit="handleEdit" />
+      <WorkingHourForm :users="users" :activities="formActivities" :initial-data="editingEntry" @submit="handleEdit" />
     </UiModal>
   </div>
 </template>

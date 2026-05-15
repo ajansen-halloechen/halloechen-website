@@ -3,6 +3,7 @@ import type { WorkingHour } from '~~/shared/types/working-hour';
 
 const props = defineProps<{
     users: Record<number, string>;
+    activities: string[];
     initialData?: WorkingHour;
 }>();
 
@@ -62,7 +63,7 @@ function handleSubmit() {
 
         <UiInputField id="wh-break" v-model="breakInHours" label="Pause (Stunden)" type="number" step="0.25" required />
 
-        <UiInputField id="wh-activity" v-model="activity" label="Aktivität" required />
+        <UiAutocompleteField id="wh-activity" v-model="activity" label="Aktivität" :options="activities" required />
 
         <div class="flex justify-end gap-2 mt-2">
             <UiButton type="submit">
