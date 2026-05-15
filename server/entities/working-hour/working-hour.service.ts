@@ -8,7 +8,10 @@ import type {
 } from '#shared/types/working-hour';
 
 export const workingHourService = {
-  async getAll() {
+  async getAll(month?: { year: number; month: number }) {
+    if (month) {
+      return workingHourRepository.findByMonth(month.year, month.month);
+    }
     return workingHourRepository.findAll();
   },
 

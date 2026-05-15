@@ -31,9 +31,19 @@ const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
 const selectedMonth = ref(new Date(currentMonthStart));
 
+const monthParam = computed(() => {
+  const d = selectedMonth.value;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+});
+
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
 const { data: backendActivities } = await useFetch<Activity[]>('/api/activities');
-const { data: workingHours, refresh: refreshWorkingHours } = await useFetch<WorkingHour[]>('/api/working-hours');
+const { data: workingHours, refresh: refreshWorkingHours } = await useFetch<WorkingHour[]>(
+  '/api/working-hours',
+  { query: { month: monthParam } },
+);
 
 const userMap = computed(() =>
   new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
