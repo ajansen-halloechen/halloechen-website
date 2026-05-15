@@ -317,15 +317,56 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
 });
+
+const showCreateModal = ref(false);
+const showEditModal = ref(false);
+const editingEntry = ref<WorkingHour | undefined>();
+
+function openEditModal(entry: WorkingHour) {
+  editingEntry.value = entry;
+  showEditModal.value = true;
+}
+
+function handleCreate(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
+  const now = new Date().toISOString();
+  workingHours.value.push({
+    ...data,
+    id: Math.max(0, ...workingHours.value.map((w) => w.id)) + 1,
+    createdAt: now,
+    updatedAt: now,
+  });
+  showCreateModal.value = false;
+}
+
+function handleEdit(data: Omit<WorkingHour, 'id' | 'createdAt' | 'updatedAt'>) {
+  if (!editingEntry.value) return;
+  const idx = workingHours.value.findIndex((w) => w.id === editingEntry.value!.id);
+  if (idx !== -1) {
+    const existing = workingHours.value[idx]!;
+    workingHours.value[idx] = {
+      id: existing.id,
+      createdAt: existing.createdAt,
+      updatedAt: new Date().toISOString(),
+      ...data,
+    };
+  }
+  showEditModal.value = false;
+  editingEntry.value = undefined;
+}
 </script>
 
 <template>
   <div class="flex flex-col w-full max-w-7xl mx-auto px-8">
     <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Zeiterfassung</h1>
     <div class="flex justify-end mb-4">
-      <UiIconButton variant="solid" aria-label="Arbeitszeit hinzufügen">
-        <PlusIcon class="size-6" />
-      </UiIconButton>
+      <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
+        <template #trigger>
+          <UiIconButton variant="solid" aria-label="Arbeitszeit hinzufügen">
+            <PlusIcon class="size-6" />
+          </UiIconButton>
+        </template>
+        <WorkingHourForm :users="users" @submit="handleCreate" />
+      </UiModal>
     </div>
     <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
 
@@ -397,7 +438,7 @@ const table = useVueTable({
               }">
               <template v-if="cell.column.id === 'actions'">
                 <div class="flex gap-1">
-                  <UiIconButton aria-label="Bearbeiten">
+                  <UiIconButton aria-label="Bearbeiten" @click="openEditModal(row.original)">
                     <PencilIcon class="size-5" />
                   </UiIconButton>
                   <UiIconButton aria-label="Löschen">
@@ -413,5 +454,9 @@ const table = useVueTable({
         </tbody>
       </table>
     </div>
+
+    <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
+      <WorkingHourForm :users="users" :initial-data="editingEntry" @submit="handleEdit" />
+    </UiModal>
   </div>
 </template>
