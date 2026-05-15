@@ -48,16 +48,6 @@ function handleSubmit() {
 
 <template>
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-        <div class="flex flex-col gap-1">
-            <label for="wh-user" class="block text-sm font-medium">Genoss*in</label>
-            <select id="wh-user" v-model="userId"
-                class="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none">
-                <option v-for="(name, id) in users" :key="id" :value="Number(id)">
-                    {{ name }}
-                </option>
-            </select>
-        </div>
-
         <UiDateInput id="wh-date" v-model="date" label="Datum" required />
 
         <div class="grid grid-cols-2 gap-4">
@@ -70,7 +60,7 @@ function handleSubmit() {
             <label for="wh-plus-one" class="text-sm">Ende am Folgetag (+1)</label>
         </div>
 
-        <UiInputField id="wh-break" v-model="breakInHours" label="Pause (Stunden)" type="number" required />
+        <UiInputField id="wh-break" v-model="breakInHours" label="Pause (Stunden)" type="number" step="0.25" required />
 
         <UiInputField id="wh-activity" v-model="activity" label="Aktivität" required />
 
