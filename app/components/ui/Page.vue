@@ -5,7 +5,8 @@ import { twMerge } from 'tailwind-merge';
 const page = tv({
     slots: {
         root: 'flex flex-col w-full mx-auto px-4 md:px-8',
-        heading: 'text-center text-2xl md:text-3xl font-bold py-8',
+        heading: 'text-center text-2xl md:text-3xl font-bold py-10 md:py-12',
+        content: 'flex flex-col gap-4 md:gap-6 pb-10 md:pb-16',
     },
     variants: {
         size: {
@@ -29,10 +30,11 @@ const props = withDefaults(
 );
 
 const slots = computed(() => {
-    const { root, heading } = page({ size: props.size });
+    const { root, heading, content } = page({ size: props.size });
     return {
         root: twMerge(root(), props.ui?.root),
         heading: twMerge(heading(), props.ui?.heading),
+        content: twMerge(content(), props.ui?.content),
     };
 });
 </script>
@@ -44,6 +46,8 @@ const slots = computed(() => {
                 {{ heading }}
             </h1>
         </slot>
-        <slot />
+        <div :class="slots.content">
+            <slot />
+        </div>
     </div>
 </template>

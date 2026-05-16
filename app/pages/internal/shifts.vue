@@ -3,8 +3,7 @@ definePageMeta({ layout: 'internal', middleware: ['auth'] });
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-10">
-    <h1 class="text-3xl font-bold mb-4">Schichten</h1>
+  <UiPage heading="Schichten" size="xl">
     <p class="text-lg text-gray-600">Hier kommt die Schichtplanung hin.</p>
-  </div>
+  </UiPage>
 </template>
