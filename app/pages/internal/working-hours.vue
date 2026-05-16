@@ -264,8 +264,7 @@ async function handleDelete(id: string) {
 </script>
 
 <template>
-  <div class="flex flex-col w-full max-w-7xl mx-auto px-8">
-    <h1 class="text-center text-2xl md:text-3xl font-bold py-8">Zeiterfassung</h1>
+  <UiPage heading="Zeiterfassung" size="xl">
     <div class="flex justify-end mb-4">
       <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
         <template #trigger>
@@ -373,5 +372,5 @@ async function handleDelete(id: string) {
     <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
       <WorkingHourForm :activities="formActivityNames" :initial-data="editingEntry" @submit="handleEdit" />
     </UiModal>
-  </div>
+  </UiPage>
 </template>
