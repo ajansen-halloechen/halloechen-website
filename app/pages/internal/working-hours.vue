@@ -285,7 +285,7 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Zeiterfassung" size="xl">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center">
       <UiSearchField v-model="globalSearch" placeholder="Suchen…" />
       <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
         <template #trigger>
@@ -296,11 +296,11 @@ async function handleDelete(id: string) {
         <WorkingHourForm :activities="formActivityNames" @submit="handleCreate" />
       </UiModal>
     </div>
-    <CalendarHeader class="mb-4" v-model="selectedMonth" allow-past-months />
+    <CalendarHeader v-model="selectedMonth" allow-past-months />
 
     <div class="mb-10 overflow-x-auto bg-surface rounded-md border border-primary">
       <table class="min-w-full divide-y divide-primary">
-        <thead class="bg-gray-300">
+        <thead class="bg-primary-100">
           <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
             <th v-for="header in headerGroup.headers" :key="header.id"
               class="px-4 py-4 text-left text-md font-semibold tracking-wider" :class="{
