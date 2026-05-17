@@ -4,7 +4,7 @@ import { twMerge } from 'tailwind-merge';
 
 const page = tv({
     slots: {
-        root: 'flex flex-col w-full mx-auto px-4 md:px-8',
+        root: 'flex flex-col w-full mx-auto px-2 md:px-8',
         heading: 'text-center text-2xl md:text-3xl font-bold py-10 md:py-12',
         content: 'flex flex-col gap-4 md:gap-6 pb-10 md:pb-16',
     },
