@@ -89,6 +89,7 @@ function toIsoDateString(date: Date | string): string {
 
 const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
 const columnFilters = ref<ColumnFiltersState>([]);
+const globalSearch = ref('');
 
 const selectedUsers = ref<string[]>([]);
 const selectedActivities = ref<string[]>([]);
@@ -162,6 +163,7 @@ const columns = [
     header: 'Datum',
     cell: (info) => formatDate(info.getValue()),
     enableSorting: true,
+    enableGlobalFilter: false,
   }),
   columnHelper.accessor('activityId', {
     header: 'Aktivität',
@@ -169,6 +171,7 @@ const columns = [
     filterFn: (row, _columnId, filterValue: string[]) =>
       filterValue.includes(row.getValue('activityId')),
     enableSorting: false,
+    enableGlobalFilter: false,
   }),
   columnHelper.display({
     id: 'hours',
@@ -190,9 +193,23 @@ const table = useVueTable({
   state: {
     get sorting() { return sorting.value; },
     get columnFilters() { return columnFilters.value; },
+    get globalFilter() { return globalSearch.value; },
   },
   onSortingChange: (updater) => {
     sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
+  },
+  globalFilterFn: (row, _columnId, filterValue: string) => {
+    const search = filterValue.toLowerCase();
+    const wh = row.original;
+    const user = userMap.value.get(wh.userId);
+    const userName = user ? getUserDisplayName(user) : wh.userId;
+    const date = formatDate(wh.date);
+    const activity = activityMap.value.get(wh.activityId);
+    const activityName = activity?.name ?? wh.activityId;
+    const hours = computeHours(wh).toFixed(1);
+    return [userName, date, activityName, hours].some((v) =>
+      v.toLowerCase().includes(search),
+    );
   },
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
@@ -268,10 +285,11 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Zeiterfassung" size="xl">
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-between items-center mb-4">
+      <UiSearchField v-model="globalSearch" placeholder="Suchen…" />
       <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
         <template #trigger>
-          <UiIconButton variant="solid" aria-label="Arbeitszeit hinzufügen">
+          <UiIconButton variant="solid" aria-label="Arbeitszeit erfassen">
             <PlusIcon class="size-6" />
           </UiIconButton>
         </template>
