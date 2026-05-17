@@ -13,9 +13,11 @@ import {
   PencilIcon,
   TrashIcon,
 } from '@heroicons/vue/24/outline';
-import type { User } from '~~/shared/types/user';
+import { UserRole, type User } from '~~/shared/types/user';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
+
+const { user: currentUser } = useUserSession();
 
 const { data: users, refresh: refreshUsers } = await useFetch<User[]>('/api/users');
 
@@ -122,7 +124,7 @@ async function handleDelete(id: string) {
   <UiPage heading="Genoss*innen" size="xl">
     <UiDataTable :table="table" v-model:global-search="globalSearch" :show-search="true">
       <template #actions>
-        <UiModal v-model:open="showCreateModal" title="Genoss*in einladen">
+        <UiModal v-if="currentUser?.role === UserRole.admin" v-model:open="showCreateModal" title="Genoss*in einladen">
           <template #trigger>
             <UiIconButton variant="solid" aria-label="Genoss*in einladen">
               <PlusIcon class="size-6" />
