@@ -1,10 +1,15 @@
 import { z } from 'zod';
 
+export const userRoleSchema = z.enum(['user', 'admin']);
+
+export type UserRole = z.infer<typeof userRoleSchema>;
+
 export const userSchema = z.object({
   id: z.uuid(),
   email: z.email(),
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
+  role: userRoleSchema,
   setupToken: z.string().nullable(),
   setupTokenExpiresAt: z.date().nullable(),
   createdAt: z.date(),
@@ -17,6 +22,7 @@ export const userInternalSchema = userSchema.extend({
 
 export const userCreateSchema = z.object({
   email: z.email(),
+  role: userRoleSchema.optional().default('user'),
 });
 
 export const userSetupSchema = z.object({
@@ -31,6 +37,7 @@ export const userPatchSchema = z
     email: z.email().optional(),
     firstName: z.string().min(1).max(255).optional(),
     lastName: z.string().min(1).max(255).optional(),
+    role: userRoleSchema.optional(),
     oldPassword: z.string().optional(),
     password: z.string().min(8).max(128).optional(),
   })

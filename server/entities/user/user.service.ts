@@ -38,6 +38,7 @@ export const userService = {
 
     const user = await userRepository.create({
       email: input.email,
+      role: input.role,
       setupToken,
       setupTokenExpiresAt,
     });

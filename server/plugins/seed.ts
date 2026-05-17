@@ -6,6 +6,7 @@ async function addUserIfNotExists(
   firstName: string,
   lastName: string,
   password: string,
+  role: 'user' | 'admin' = 'user',
 ): Promise<void> {
   const existing = await userRepository.findByEmail(email);
   if (existing) {
@@ -18,11 +19,18 @@ async function addUserIfNotExists(
     firstName,
     lastName,
     passwordHash,
+    role,
   });
-  console.log(`Seeded test user: ${email} / ${password}`);
+  console.log(`Seeded test user: ${email} / ${password} (${role})`);
 }
 
 export default defineNitroPlugin(async () => {
-  await addUserIfNotExists('test@halloechen.org', 'Test', 'User', 'test1234');
+  await addUserIfNotExists(
+    'test@halloechen.org',
+    'Test',
+    'User',
+    'test1234',
+    'admin',
+  );
   await addUserIfNotExists('test2@halloechen.org', 'Test2', 'User', 'password');
 });
