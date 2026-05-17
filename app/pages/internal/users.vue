@@ -10,8 +10,8 @@ import {
 } from '@tanstack/vue-table';
 import {
   PlusIcon,
-  PencilIcon,
   TrashIcon,
+  Cog6ToothIcon,
 } from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
 
@@ -25,13 +25,12 @@ const sorting = ref<SortingState>([]);
 const globalSearch = ref('');
 
 const showCreateModal = ref(false);
-const showEditModal = ref(false);
+const showRoleModal = ref(false);
 const editingUser = ref<User>();
 
 const newEmail = ref('');
-const editFirstName = ref('');
-const editLastName = ref('');
-const editEmail = ref('');
+const newRole = ref<'user' | 'admin'>('user');
+const editRole = ref<'user' | 'admin'>('user');
 
 const columnHelper = createColumnHelper<User>();
 
@@ -80,36 +79,31 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
 });
 
-function openEditModal(user: User) {
+function openRoleModal(user: User) {
   editingUser.value = user;
-  editFirstName.value = user.firstName ?? '';
-  editLastName.value = user.lastName ?? '';
-  editEmail.value = user.email;
-  showEditModal.value = true;
+  editRole.value = user.role;
+  showRoleModal.value = true;
 }
 
 async function handleCreate() {
   if (!newEmail.value) return;
   await $fetch('/api/users', {
     method: 'POST',
-    body: { email: newEmail.value },
+    body: { email: newEmail.value, role: newRole.value },
   });
   newEmail.value = '';
+  newRole.value = 'user';
   showCreateModal.value = false;
   await refreshUsers();
 }
 
-async function handleEdit() {
+async function handleRoleChange() {
   if (!editingUser.value) return;
   await $fetch(`/api/users/${editingUser.value.id}`, {
     method: 'PATCH',
-    body: {
-      email: editEmail.value || undefined,
-      firstName: editFirstName.value || undefined,
-      lastName: editLastName.value || undefined,
-    },
+    body: { role: editRole.value },
   });
-  showEditModal.value = false;
+  showRoleModal.value = false;
   editingUser.value = undefined;
   await refreshUsers();
 }
@@ -132,6 +126,12 @@ async function handleDelete(id: string) {
           </template>
           <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
             <UiInputField id="new-email" v-model="newEmail" label="E-Mail" type="email" required />
+            <UiInputField id="new-role" label="Rolle">
+              <select id="new-role" v-model="newRole" class="min-w-0 flex-1 bg-transparent outline-none">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </UiInputField>
             <UiButton type="submit" class="self-end">Einladen</UiButton>
           </form>
         </UiModal>
@@ -140,10 +140,12 @@ async function handleDelete(id: string) {
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
-            <UiIconButton aria-label="Bearbeiten" @click="openEditModal(row.original)">
-              <PencilIcon class="size-5" />
+            <UiIconButton v-if="currentUser?.role === UserRole.admin" aria-label="Rolle ändern"
+              @click="openRoleModal(row.original)">
+              <Cog6ToothIcon class="size-5" />
             </UiIconButton>
-            <UiIconButton aria-label="Löschen" @click="handleDelete(row.original.id)">
+            <UiIconButton v-if="currentUser?.role === UserRole.admin" aria-label="Löschen"
+              @click="handleDelete(row.original.id)">
               <TrashIcon class="size-5" />
             </UiIconButton>
           </div>
@@ -154,11 +156,18 @@ async function handleDelete(id: string) {
       </template>
     </UiDataTable>
 
-    <UiModal v-model:open="showEditModal" title="Genoss*in bearbeiten">
-      <form class="flex flex-col gap-4" @submit.prevent="handleEdit">
-        <UiInputField id="edit-first-name" v-model="editFirstName" label="Vorname" />
-        <UiInputField id="edit-last-name" v-model="editLastName" label="Nachname" />
-        <UiInputField id="edit-email" v-model="editEmail" label="E-Mail" type="email" required />
+    <UiModal v-model:open="showRoleModal" title="Rolle ändern">
+      <form class="flex flex-col gap-4" @submit.prevent="handleRoleChange">
+        <p class="text-sm text-gray-600">
+          {{ editingUser?.firstName ?? '' }} {{ editingUser?.lastName ?? '' }}
+          <span class="text-gray-400">({{ editingUser?.email }})</span>
+        </p>
+        <UiInputField id="edit-role" label="Rolle">
+          <select id="edit-role" v-model="editRole" class="min-w-0 flex-1 bg-transparent outline-none">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+          </select>
+        </UiInputField>
         <UiButton type="submit" class="self-end">Speichern</UiButton>
       </form>
     </UiModal>
