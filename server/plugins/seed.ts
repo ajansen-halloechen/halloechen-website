@@ -1,5 +1,4 @@
 import { userRepository } from '#server/entities/user/user.repository';
-import { a } from 'vue-router/dist/index-D_VEAp3P.js';
 
 async function addUserIfNotExists(
   email: string,
