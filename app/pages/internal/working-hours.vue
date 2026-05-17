@@ -13,8 +13,6 @@ import {
   PlusIcon,
   PencilIcon,
   TrashIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
 } from '@heroicons/vue/24/outline';
 import type { Activity } from '~~/shared/types/activity';
 import type { User } from '~~/shared/types/user';
@@ -285,82 +283,47 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Zeiterfassung" size="xl">
-    <div class="flex justify-between items-center">
-      <UiSearchField v-model="globalSearch" placeholder="Suchen…" />
-      <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
-        <template #trigger>
-          <UiIconButton variant="solid" aria-label="Arbeitszeit erfassen">
-            <PlusIcon class="size-6" />
-          </UiIconButton>
+    <UiDataTable :table="table" v-model:global-search="globalSearch" :show-search="true">
+      <template #actions>
+        <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
+          <template #trigger>
+            <UiIconButton variant="solid" aria-label="Arbeitszeit erfassen">
+              <PlusIcon class="size-6" />
+            </UiIconButton>
+          </template>
+          <WorkingHourForm :activities="formActivityNames" @submit="handleCreate" />
+        </UiModal>
+      </template>
+
+      <template #toolbar>
+        <CalendarHeader v-model="selectedMonth" allow-past-months />
+      </template>
+
+      <template #column-filter="{ column }">
+        <UiFilterPopover v-if="column.id === 'userId'" v-model="selectedUsers" :options="userFilterOptions"
+          aria-label="Nach Genoss*in filtern" />
+        <UiFilterPopover v-if="column.id === 'activityId'" v-model="selectedActivities" :options="activityFilterOptions"
+          aria-label="Nach Aktivität filtern" />
+      </template>
+
+      <template #cell="{ cell, row }">
+        <template v-if="cell.column.id === 'actions'">
+          <div class="flex gap-1">
+            <UiIconButton aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
+              @click="openEditModal(row.original)">
+              <PencilIcon class="size-5" />
+            </UiIconButton>
+            <UiIconButton aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
+              @click="handleDelete(row.original.id)">
+              <TrashIcon class="size-5" />
+            </UiIconButton>
+          </div>
         </template>
-        <WorkingHourForm :activities="formActivityNames" @submit="handleCreate" />
-      </UiModal>
-    </div>
-    <CalendarHeader v-model="selectedMonth" allow-past-months />
-
-    <div class="mb-10 overflow-x-auto bg-surface rounded-md border border-primary">
-      <table class="min-w-full divide-y divide-primary">
-        <thead class="bg-primary-100">
-          <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-            <th v-for="header in headerGroup.headers" :key="header.id"
-              class="px-4 py-4 text-left text-md font-semibold tracking-wider" :class="{
-                'text-right': (header.column.columnDef.meta as any)?.align === 'right',
-                'w-0': (header.column.columnDef.meta as any)?.shrink,
-              }">
-              <div class="flex items-center gap-1">
-                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
-                  :props="header.getContext()" />
-
-                <!-- Sort toggle for date column -->
-                <UiIconButton v-if="header.column.getCanSort()" aria-label="Sortierung umschalten" class="ml-1"
-                  @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')">
-                  <ChevronUpIcon v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
-                  <ChevronDownIcon v-else class="size-4" />
-                </UiIconButton>
-
-                <!-- Filter for userId column -->
-                <UiFilterPopover v-if="header.column.id === 'userId'" v-model="selectedUsers"
-                  :options="userFilterOptions" aria-label="Nach Genoss*in filtern" />
-
-                <!-- Filter for activity column -->
-                <UiFilterPopover v-if="header.column.id === 'activityId'" v-model="selectedActivities"
-                  :options="activityFilterOptions" aria-label="Nach Aktivität filtern" />
-              </div>
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr v-if="table.getRowModel().rows.length === 0">
-            <td :colspan="columns.length" class="px-4 py-8 text-center text-sm text-gray-500">
-              Keine Einträge vorhanden.
-            </td>
-          </tr>
-          <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">
-            <td v-for="cell in row.getVisibleCells()" :key="cell.id"
-              class="px-4 py-2 whitespace-nowrap text-sm text-gray-700" :class="{
-                'text-right': (cell.column.columnDef.meta as any)?.align === 'right',
-                'w-0': (cell.column.columnDef.meta as any)?.shrink,
-              }">
-              <template v-if="cell.column.id === 'actions'">
-                <div class="flex gap-1">
-                  <UiIconButton aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
-                    @click="openEditModal(row.original)">
-                    <PencilIcon class="size-5" />
-                  </UiIconButton>
-                  <UiIconButton aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
-                    @click="handleDelete(row.original.id)">
-                    <TrashIcon class="size-5" />
-                  </UiIconButton>
-                </div>
-              </template>
-              <template v-else>
-                <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
-              </template>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+        <template v-else>
+          <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+        </template>
+      </template>
+    </UiDataTable>
 
     <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
       <WorkingHourForm :activities="formActivityNames" :initial-data="editingEntry" @submit="handleEdit" />
