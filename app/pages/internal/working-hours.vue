@@ -15,7 +15,6 @@ import {
   TrashIcon,
   ChevronUpIcon,
   ChevronDownIcon,
-  FunnelIcon,
 } from '@heroicons/vue/24/outline';
 import type { Activity } from '~~/shared/types/activity';
 import type { User } from '~~/shared/types/user';
@@ -102,6 +101,34 @@ const uniqueActivityIds = computed(() =>
   [...new Set((workingHours.value ?? []).map((w) => w.activityId))].sort(),
 );
 
+watch(uniqueUserIds, (ids) => { selectedUsers.value = [...ids]; }, { immediate: true });
+watch(uniqueActivityIds, (ids) => { selectedActivities.value = [...ids]; }, { immediate: true });
+
+const userFilterOptions = computed(() =>
+  uniqueUserIds.value.map((id) => ({
+    value: id,
+    label: userMap.value.get(id) ? getUserDisplayName(userMap.value.get(id)!) : id,
+  })),
+);
+
+const activityFilterOptions = computed(() =>
+  uniqueActivityIds.value.map((id) => ({
+    value: id,
+    label: activityMap.value.get(id)?.name ?? id,
+  })),
+);
+
+watch([selectedUsers, selectedActivities], () => {
+  const filters: ColumnFiltersState = [];
+  if (selectedUsers.value.length < uniqueUserIds.value.length) {
+    filters.push({ id: 'userId', value: [...selectedUsers.value] });
+  }
+  if (selectedActivities.value.length < uniqueActivityIds.value.length) {
+    filters.push({ id: 'activityId', value: [...selectedActivities.value] });
+  }
+  columnFilters.value = filters;
+});
+
 async function ensureActivityExists(activityName: string): Promise<string> {
   const normalized = activityName.trim();
   const existing = (backendActivities.value ?? []).find(
@@ -116,27 +143,6 @@ async function ensureActivityExists(activityName: string): Promise<string> {
 
   backendActivities.value = [...(backendActivities.value ?? []), activity];
   return activity.id;
-}
-
-function toggleUserFilter(userId: string) {
-  const idx = selectedUsers.value.indexOf(userId);
-  if (idx === -1) selectedUsers.value.push(userId);
-  else selectedUsers.value.splice(idx, 1);
-  applyFilters();
-}
-
-function toggleActivityFilter(activityId: string) {
-  const idx = selectedActivities.value.indexOf(activityId);
-  if (idx === -1) selectedActivities.value.push(activityId);
-  else selectedActivities.value.splice(idx, 1);
-  applyFilters();
-}
-
-function applyFilters() {
-  const filters: ColumnFiltersState = [];
-  if (selectedUsers.value.length) filters.push({ id: 'userId', value: selectedUsers.value });
-  if (selectedActivities.value.length) filters.push({ id: 'activityId', value: selectedActivities.value });
-  columnFilters.value = filters;
 }
 
 const columnHelper = createColumnHelper<WorkingHour>();
@@ -187,9 +193,6 @@ const table = useVueTable({
   },
   onSortingChange: (updater) => {
     sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
-  },
-  onColumnFiltersChange: (updater) => {
-    columnFilters.value = typeof updater === 'function' ? updater(columnFilters.value) : updater;
   },
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
@@ -298,40 +301,12 @@ async function handleDelete(id: string) {
                 </UiIconButton>
 
                 <!-- Filter for userId column -->
-                <UiPopover v-if="header.column.id === 'userId'">
-                  <template #trigger>
-                    <UiIconButton aria-label="Nach Genoss*in filtern" class="ml-1"
-                      :class="{ 'text-accent': selectedUsers.length > 0 }">
-                      <FunnelIcon class="size-4" />
-                    </UiIconButton>
-                  </template>
-                  <div class="flex flex-col gap-1 min-w-40">
-                    <label v-for="userId in uniqueUserIds" :key="userId"
-                      class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                      <input type="checkbox" :checked="selectedUsers.includes(userId)" class="accent-primary"
-                        @change="toggleUserFilter(userId)" />
-                      {{ userMap.get(userId) ? getUserDisplayName(userMap.get(userId)!) : userId }}
-                    </label>
-                  </div>
-                </UiPopover>
+                <UiFilterPopover v-if="header.column.id === 'userId'" v-model="selectedUsers"
+                  :options="userFilterOptions" aria-label="Nach Genoss*in filtern" />
 
                 <!-- Filter for activity column -->
-                <UiPopover v-if="header.column.id === 'activityId'">
-                  <template #trigger>
-                    <UiIconButton aria-label="Nach Aktivität filtern" class="ml-1"
-                      :class="{ 'text-accent': selectedActivities.length > 0 }">
-                      <FunnelIcon class="size-4" />
-                    </UiIconButton>
-                  </template>
-                  <div class="flex flex-col gap-1 min-w-40">
-                    <label v-for="activityId in uniqueActivityIds" :key="activityId"
-                      class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                      <input type="checkbox" :checked="selectedActivities.includes(activityId)" class="accent-primary"
-                        @change="toggleActivityFilter(activityId)" />
-                      {{ activityMap.get(activityId)?.name ?? activityId }}
-                    </label>
-                  </div>
-                </UiPopover>
+                <UiFilterPopover v-if="header.column.id === 'activityId'" v-model="selectedActivities"
+                  :options="activityFilterOptions" aria-label="Nach Aktivität filtern" />
               </div>
             </th>
           </tr>
@@ -339,7 +314,7 @@ async function handleDelete(id: string) {
         <tbody class="divide-y divide-gray-200">
           <tr v-if="table.getRowModel().rows.length === 0">
             <td :colspan="columns.length" class="px-4 py-8 text-center text-sm text-gray-500">
-              Keine Einträge für diesen Monat vorhanden.
+              Keine Einträge vorhanden.
             </td>
           </tr>
           <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { tv, type VariantProps } from 'tailwind-variants';
 
+defineOptions({ inheritAttrs: false });
+
 const iconButton = tv({
   base: 'inline-flex items-center justify-center p-2 rounded-md transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed',
   variants: {
@@ -17,7 +19,7 @@ const iconButton = tv({
 
 type IconButtonVariants = VariantProps<typeof iconButton>;
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     variant?: IconButtonVariants['variant'];
   }>(),
@@ -25,10 +27,21 @@ withDefaults(
     variant: 'plain',
   },
 );
+
+const attrs = useAttrs();
+
+const buttonClass = computed(() =>
+  iconButton({ variant: props.variant, class: attrs.class as string }),
+);
+
+const buttonAttrs = computed(() => {
+  const { class: _, ...rest } = attrs;
+  return rest;
+});
 </script>
 
 <template>
-  <button type="button" :class="iconButton({ variant })">
+  <button type="button" v-bind="buttonAttrs" :class="buttonClass">
     <slot />
   </button>
 </template>
