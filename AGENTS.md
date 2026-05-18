@@ -61,12 +61,22 @@ lives under `server/entities/<entity>/` with four files:
 2. **Repositories are thin.** They contain only database queries (select,
    insert, update, delete). No HTTP concerns, no business rules.
 3. **Services own business logic.** They call repositories, apply domain rules,
-   and throw H3 errors for API-level error handling.
-4. **API route handlers stay slim.** Read input, validate with Zod, call the
-   service, return the result.
-5. **Shared types** (`shared/types/`) are plain TypeScript interfaces used by
+   and enforce authorization (e.g. role checks). Services must **never** throw
+   HTTP-specific errors directly. Instead they throw domain error classes (see
+   below).
+4. **Domain errors over HTTP errors.** Services raise domain-specific error
+   classes (e.g. `ForbiddenError`, `NotFoundError`, `ConflictError`). API route
+   handlers catch these and map them to the appropriate HTTP responses (status
+   codes, messages). This keeps the service layer free of HTTP concerns.
+5. **API route handlers stay slim.** Read input, validate with Zod, call the
+   service, map domain errors to HTTP responses, return the result.
+6. **Shared types** (`shared/types/`) are plain TypeScript interfaces used by
    both frontend and backend. They should stay in sync with the Zod schemas but
    must not import Zod themselves (to keep the shared layer dependency-free).
+7. **Repositories are internal to their entity package.** A repository must only
+   be imported by its own entity's service. Cross-entity data access goes
+   through the other entity's service. This is enforced via ESLint
+   (`no-restricted-imports`).
 
 ---
 
