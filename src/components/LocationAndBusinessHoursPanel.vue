@@ -18,7 +18,7 @@ import GoogleMapEmbed from './GoogleMapEmbed.vue';
       <div
         class="px-4 py-2 bg-secondary text-on-secondary font-semibold rounded-md flex justify-center items-center"
       >
-        Momentan wegen Umbau nur zu Veranstaltungen geöffnet!
+        Ab 30. Mai!
       </div>
       <table class="border-collapse max-w-xs gap-1">
         <tbody>

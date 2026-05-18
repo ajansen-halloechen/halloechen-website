@@ -104,12 +104,12 @@ onClickOutside(topBarRef, () => {
       <div v-for="i in 4" :key="i">
         <span class="p-8">#######</span>
         <span>
-          Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist im
-          Mai geplant!!!&nbsp;
+          Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist am 30.
+          Mai!!!&nbsp;
         </span>
         <span class="p-8">#######</span>
         <span>
-          Coming soon - schaut auch auf
+          Schaut auch auf
           <a
             class="underline"
             href="https://www.instagram.com/halloechen_moabit/"
@@ -118,7 +118,7 @@ onClickOutside(topBarRef, () => {
             aria-label="Instagram"
             >Instagram</a
           >
-          für Updates!&nbsp;
+          vorbei!&nbsp;
         </span>
       </div>
     </div>
