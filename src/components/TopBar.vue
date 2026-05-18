@@ -104,8 +104,8 @@ onClickOutside(topBarRef, () => {
       <div v-for="i in 4" :key="i">
         <span class="p-8">#######</span>
         <span>
-          Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist am 30.
-          Mai!!!&nbsp;
+          Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist am
+          30. Mai!!!&nbsp;
         </span>
         <span class="p-8">#######</span>
         <span>
