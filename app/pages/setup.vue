@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  PASSWORD_REQUIREMENTS_HINT,
+  passwordValidationMessage,
+  validatePassword,
+} from '~~/shared/password';
+
 const route = useRoute();
 
 const token = computed(() => {
@@ -11,12 +17,21 @@ const firstName = ref('');
 const lastName = ref('');
 const phoneNumber = ref('');
 const error = ref('');
+const passwordError = ref('');
 const loading = ref(false);
 
 const tokenMissing = computed(() => !token.value);
 
 async function handleSetup() {
   error.value = '';
+  passwordError.value = '';
+
+  const validationError = validatePassword(password.value);
+  if (validationError) {
+    passwordError.value = passwordValidationMessage(validationError);
+    return;
+  }
+
   loading.value = true;
 
   try {
@@ -58,14 +73,22 @@ async function handleSetup() {
       <div v-if="error" class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md">
         {{ error }}
       </div>
-      <UiInputField
-        id="password"
-        v-model="password"
-        label="Passwort"
-        type="password"
-        required
-        autocomplete="new-password"
-      />
+      <div class="flex flex-col gap-1">
+        <UiInputField
+          id="password"
+          v-model="password"
+          label="Passwort"
+          type="password"
+          required
+          autocomplete="new-password"
+        />
+        <p class="text-sm text-on-surface/70">
+          {{ PASSWORD_REQUIREMENTS_HINT }}
+        </p>
+        <p v-if="passwordError" class="text-sm text-red-600">
+          {{ passwordError }}
+        </p>
+      </div>
       <UiInputField id="first-name" v-model="firstName" label="Vorname" autocomplete="given-name" />
       <UiInputField id="last-name" v-model="lastName" label="Nachname" autocomplete="family-name" />
       <UiInputField

@@ -1,4 +1,18 @@
 import { z } from 'zod';
+import {
+  passwordValidationMessage,
+  validatePassword,
+} from '#shared/password';
+
+export const passwordSchema = z.string().superRefine((value, ctx) => {
+  const error = validatePassword(value);
+  if (error) {
+    ctx.addIssue({
+      code: 'custom',
+      message: passwordValidationMessage(error),
+    });
+  }
+});
 
 export const userRoleSchema = z.enum(['user', 'admin']);
 
@@ -26,7 +40,7 @@ export const userCreateSchema = z.object({
 
 export const userSetupSchema = z.object({
   token: z.string(),
-  password: z.string().min(8).max(128),
+  password: passwordSchema,
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   phoneNumber: z.string().min(1).max(50).optional(),
@@ -40,7 +54,7 @@ export const userPatchSchema = z
     phoneNumber: z.string().min(1).max(50).nullable().optional(),
     role: userRoleSchema.optional(),
     oldPassword: z.string().optional(),
-    password: z.string().min(8).max(128).optional(),
+    password: passwordSchema.optional(),
   })
   .refine((data) => !data.password || data.oldPassword, {
     message: 'Old password is required when setting a new password',
