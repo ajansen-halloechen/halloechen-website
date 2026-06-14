@@ -11,7 +11,8 @@ import {
         <PopoverTrigger as-child>
             <slot name="trigger" />
         </PopoverTrigger>
-        <PopoverContent side="bottom" :side-offset="4" align="start"
+        <PopoverContent
+side="bottom" :side-offset="4" align="start"
             class="z-40 rounded-md border border-primary bg-surface p-3 shadow-md">
             <slot />
         </PopoverContent>

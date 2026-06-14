@@ -16,4 +16,24 @@ export default withNuxt(
       "**/src/clients.gen/**",
     ],
   },
+
+  {
+    name: "app/no-direct-repository-imports",
+    files: ["**/*.{ts,mts,tsx,vue}"],
+    ignores: ["server/entities/**/*.service.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["*/*.repository", "*/*.repository.ts"],
+              message:
+                "Repositories are internal to their entity. Import the entity's service instead.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 );

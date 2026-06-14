@@ -37,7 +37,8 @@ async function handleLogin() {
                 {{ error }}
             </div>
             <UiInputField id="email" v-model="email" label="E-Mail" type="email" required autocomplete="email" />
-            <UiInputField id="password" v-model="password" label="Passwort" type="password" required
+            <UiInputField
+id="password" v-model="password" label="Passwort" type="password" required
                 autocomplete="current-password" />
 
             <UiButton type="submit" :disabled="loading" class="w-full">

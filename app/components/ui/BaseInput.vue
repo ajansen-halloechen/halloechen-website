@@ -23,5 +23,5 @@ const forwardedAttrs = computed(() => {
     <div v-if="$slots.default" v-bind="forwardedAttrs" :class="containerClasses">
         <slot />
     </div>
-    <input v-else v-model="model" v-bind="forwardedAttrs" :class="inputClasses" />
+    <input v-else v-model="model" v-bind="forwardedAttrs" :class="inputClasses" >
 </template>

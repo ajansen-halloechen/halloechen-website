@@ -46,15 +46,17 @@ function toggleOption(value: string) {
             </UiIconButton>
         </template>
         <div class="flex flex-col gap-1 min-w-40">
-            <label v-for="option in options" :key="option.value"
+            <label
+v-for="option in options" :key="option.value"
                 class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                <input type="checkbox" :checked="model.includes(option.value)" class="accent-primary"
-                    @change="toggleOption(option.value)" />
+                <input
+type="checkbox" :checked="model.includes(option.value)" class="accent-primary"
+                    @change="toggleOption(option.value)" >
                 {{ option.label }}
             </label>
-            <hr class="border-primary my-1" />
+            <hr class="border-primary my-1" >
             <label class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm">
-                <input type="checkbox" :checked="allSelected" class="accent-primary" @change="toggleAll" />
+                <input type="checkbox" :checked="allSelected" class="accent-primary" @change="toggleAll" >
                 Alle
             </label>
         </div>
