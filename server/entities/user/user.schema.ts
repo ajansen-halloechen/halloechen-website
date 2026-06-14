@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import {
-  passwordValidationMessage,
-  validatePassword,
-} from '#shared/password';
+import { passwordValidationMessage, validatePassword } from '#shared/password';
 
 export const passwordSchema = z.string().superRefine((value, ctx) => {
   const error = validatePassword(value);

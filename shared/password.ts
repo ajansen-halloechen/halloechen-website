@@ -15,7 +15,9 @@ export type PasswordValidationError =
   | 'missing_number'
   | 'missing_special';
 
-export function validatePassword(password: string): PasswordValidationError | null {
+export function validatePassword(
+  password: string,
+): PasswordValidationError | null {
   if (password.length < PASSWORD_MIN_LENGTH) {
     return 'too_short';
   }
@@ -34,7 +36,9 @@ export function validatePassword(password: string): PasswordValidationError | nu
   return null;
 }
 
-export function passwordValidationMessage(error: PasswordValidationError): string {
+export function passwordValidationMessage(
+  error: PasswordValidationError,
+): string {
   switch (error) {
     case 'too_short':
       return 'Das Passwort muss mindestens 8 Zeichen lang sein.';

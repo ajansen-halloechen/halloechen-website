@@ -71,24 +71,37 @@ onClickOutside(topBarRef, () => {
         <NuxtLink to="/">
           <!-- eslint-disable vue/no-v-html -->
           <span
-class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" aria-label="Hällöchen logo"
-            v-html="logo" />
+            class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full"
+            aria-label="Hällöchen logo"
+            v-html="logo"
+          />
           <!-- eslint-enable vue/no-v-html -->
         </NuxtLink>
       </slot>
 
       <div class="ml-auto flex items-center gap-2">
         <!-- Desktop Nav (hidden entirely when showDesktopMenu is false) -->
-        <nav v-if="items.length" class="space-x-6 items-center" :class="desktopNavClass">
+        <nav
+          v-if="items.length"
+          class="space-x-6 items-center"
+          :class="desktopNavClass"
+        >
           <template v-for="item in items" :key="item.id">
             <NuxtLink
-v-if="item.icon" :to="item.to" :title="item.tooltip"
-              class="inline-flex items-center hover:text-accent" :class="{ 'text-accent': activeItem === item.id }">
+              v-if="item.icon"
+              :to="item.to"
+              :title="item.tooltip"
+              class="inline-flex items-center hover:text-accent"
+              :class="{ 'text-accent': activeItem === item.id }"
+            >
               <component :is="item.icon" class="h-6 w-6" />
             </NuxtLink>
             <NuxtLink
-v-else :to="item.to" class="text-xl hover:text-accent hover:font-bold"
-              :class="{ 'font-bold text-accent': activeItem === item.id }">
+              v-else
+              :to="item.to"
+              class="text-xl hover:text-accent hover:font-bold"
+              :class="{ 'font-bold text-accent': activeItem === item.id }"
+            >
               {{ item.label }}
             </NuxtLink>
           </template>
@@ -96,8 +109,11 @@ v-else :to="item.to" class="text-xl hover:text-accent hover:font-bold"
 
         <!-- Burger button (always visible when showDesktopMenu is false) -->
         <UiIconButton
-v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
-          @click="toggleMobileMenu">
+          v-if="items.length"
+          :class="mobileMenuHiddenClass"
+          aria-label="Toggle navigation menu"
+          @click="toggleMobileMenu"
+        >
           <span class="sr-only">Toggle navigation menu</span>
           <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
           <XMarkIcon v-else class="h-8 w-8" />
@@ -107,13 +123,19 @@ v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation
 
     <!-- Mobile / popover menu -->
     <div
-v-if="isMobileMenuOpen" :class="mobileMenuHiddenClass"
-      class="absolute right-4 lg:right-8 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
+      v-if="isMobileMenuOpen"
+      :class="mobileMenuHiddenClass"
+      class="absolute right-4 lg:right-8 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl"
+    >
       <nav class="flex flex-col py-2">
         <NuxtLink
-v-for="item in items" :key="item.id" :to="item.to"
+          v-for="item in items"
+          :key="item.id"
+          :to="item.to"
           class="px-4 py-2 text-md hover:text-accent hover:font-bold"
-          :class="{ 'font-bold text-accent': activeItem === item.id }" @click="closeMobileMenu">
+          :class="{ 'font-bold text-accent': activeItem === item.id }"
+          @click="closeMobileMenu"
+        >
           <span class="inline-flex items-center gap-2">
             <component :is="item.icon" v-if="item.icon" class="h-5 w-5" />
             {{ item.label || item.tooltip }}
@@ -136,8 +158,13 @@ v-for="item in items" :key="item.id" :to="item.to"
           <span>
             Coming soon - schaut auch auf
             <a
-class="underline" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
-              rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
+              class="underline"
+              href="https://www.instagram.com/halloechen_moabit/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              >Instagram</a
+            >
             für Updates!&nbsp;
           </span>
         </div>

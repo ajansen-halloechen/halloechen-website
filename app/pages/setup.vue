@@ -48,10 +48,10 @@ async function handleSetup() {
     await navigateTo('/login');
   } catch (e: unknown) {
     if (
-      typeof e === 'object'
-      && e !== null
-      && 'statusCode' in e
-      && (e as { statusCode: unknown }).statusCode === 400
+      typeof e === 'object' &&
+      e !== null &&
+      'statusCode' in e &&
+      (e as { statusCode: unknown }).statusCode === 400
     ) {
       error.value = 'Der Einladungslink ist ungültig oder abgelaufen.';
     } else {
@@ -66,11 +66,18 @@ async function handleSetup() {
 <template>
   <UiAuthPanel>
     <template #heading>Konto einrichten</template>
-    <div v-if="tokenMissing" class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md">
-      Kein gültiger Einladungslink. Bitte verwende den Link aus deiner Einladungs-E-Mail.
+    <div
+      v-if="tokenMissing"
+      class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+    >
+      Kein gültiger Einladungslink. Bitte verwende den Link aus deiner
+      Einladungs-E-Mail.
     </div>
     <form v-else class="flex flex-col gap-4" @submit.prevent="handleSetup">
-      <div v-if="error" class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md">
+      <div
+        v-if="error"
+        class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+      >
         {{ error }}
       </div>
       <div class="flex flex-col gap-1">
@@ -89,8 +96,18 @@ async function handleSetup() {
           {{ passwordError }}
         </p>
       </div>
-      <UiInputField id="first-name" v-model="firstName" label="Vorname" autocomplete="given-name" />
-      <UiInputField id="last-name" v-model="lastName" label="Nachname" autocomplete="family-name" />
+      <UiInputField
+        id="first-name"
+        v-model="firstName"
+        label="Vorname"
+        autocomplete="given-name"
+      />
+      <UiInputField
+        id="last-name"
+        v-model="lastName"
+        label="Nachname"
+        autocomplete="family-name"
+      />
       <UiInputField
         id="phone-number"
         v-model="phoneNumber"

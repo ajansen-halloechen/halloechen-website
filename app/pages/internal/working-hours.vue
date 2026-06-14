@@ -9,11 +9,7 @@ import {
   type SortingState,
   type ColumnFiltersState,
 } from '@tanstack/vue-table';
-import {
-  PlusIcon,
-  PencilIcon,
-  TrashIcon,
-} from '@heroicons/vue/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import type { Activity } from '~~/shared/types/activity';
 import type { User } from '~~/shared/types/user';
 import type { WorkingHour } from '~~/shared/types/working-hour';
@@ -36,18 +32,18 @@ const monthParam = computed(() => {
 });
 
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
-const { data: backendActivities } = await useFetch<Activity[]>('/api/activities');
-const { data: workingHours, refresh: refreshWorkingHours } = await useFetch<WorkingHour[]>(
-  '/api/working-hours',
-  { query: { month: monthParam } },
+const { data: backendActivities } =
+  await useFetch<Activity[]>('/api/activities');
+const { data: workingHours, refresh: refreshWorkingHours } = await useFetch<
+  WorkingHour[]
+>('/api/working-hours', { query: { month: monthParam } });
+
+const userMap = computed(
+  () => new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
 );
 
-const userMap = computed(() =>
-  new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
-);
-
-const activityMap = computed(() =>
-  new Map((backendActivities.value ?? []).map((a) => [a.id, a])),
+const activityMap = computed(
+  () => new Map((backendActivities.value ?? []).map((a) => [a.id, a])),
 );
 
 function getUserDisplayName(user: User): string {
@@ -68,7 +64,7 @@ function computeHours(row: WorkingHour): number {
   const [eh = 0, em = 0] = row.endTime.split(':').map(Number);
   let diff = eh * 60 + em - (sh * 60 + sm);
   if (row.plusOneDay) diff += 24 * 60;
-  return Math.max(0, (diff / 60) - row.breakInHours);
+  return Math.max(0, diff / 60 - row.breakInHours);
 }
 
 function formatDate(date: Date | string): string {
@@ -100,13 +96,27 @@ const uniqueActivityIds = computed(() =>
   [...new Set((workingHours.value ?? []).map((w) => w.activityId))].sort(),
 );
 
-watch(uniqueUserIds, (ids) => { selectedUsers.value = [...ids]; }, { immediate: true });
-watch(uniqueActivityIds, (ids) => { selectedActivities.value = [...ids]; }, { immediate: true });
+watch(
+  uniqueUserIds,
+  (ids) => {
+    selectedUsers.value = [...ids];
+  },
+  { immediate: true },
+);
+watch(
+  uniqueActivityIds,
+  (ids) => {
+    selectedActivities.value = [...ids];
+  },
+  { immediate: true },
+);
 
 const userFilterOptions = computed(() =>
   uniqueUserIds.value.map((id) => ({
     value: id,
-    label: userMap.value.get(id) ? getUserDisplayName(userMap.value.get(id)!) : id,
+    label: userMap.value.get(id)
+      ? getUserDisplayName(userMap.value.get(id)!)
+      : id,
   })),
 );
 
@@ -165,7 +175,8 @@ const columns = [
   }),
   columnHelper.accessor('activityId', {
     header: 'Aktivität',
-    cell: (info) => activityMap.value.get(info.getValue())?.name ?? info.getValue(),
+    cell: (info) =>
+      activityMap.value.get(info.getValue())?.name ?? info.getValue(),
     filterFn: (row, _columnId, filterValue: string[]) =>
       filterValue.includes(row.getValue('activityId')),
     enableSorting: false,
@@ -189,12 +200,19 @@ const table = useVueTable({
   },
   columns,
   state: {
-    get sorting() { return sorting.value; },
-    get columnFilters() { return columnFilters.value; },
-    get globalFilter() { return globalSearch.value; },
+    get sorting() {
+      return sorting.value;
+    },
+    get columnFilters() {
+      return columnFilters.value;
+    },
+    get globalFilter() {
+      return globalSearch.value;
+    },
   },
   onSortingChange: (updater) => {
-    sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
+    sorting.value =
+      typeof updater === 'function' ? updater(sorting.value) : updater;
   },
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
@@ -283,7 +301,11 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Zeiterfassung" size="xl">
-    <UiDataTable v-model:global-search="globalSearch" :table="table" :show-search="true">
+    <UiDataTable
+      v-model:global-search="globalSearch"
+      :table="table"
+      :show-search="true"
+    >
       <template #actions>
         <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
           <template #trigger>
@@ -291,7 +313,10 @@ async function handleDelete(id: string) {
               <PlusIcon class="size-6" />
             </UiIconButton>
           </template>
-          <WorkingHourForm :activities="formActivityNames" @submit="handleCreate" />
+          <WorkingHourForm
+            :activities="formActivityNames"
+            @submit="handleCreate"
+          />
         </UiModal>
       </template>
 
@@ -301,36 +326,53 @@ async function handleDelete(id: string) {
 
       <template #column-filter="{ column }">
         <UiFilterPopover
-v-if="column.id === 'userId'" v-model="selectedUsers" :options="userFilterOptions"
-          aria-label="Nach Genoss*in filtern" />
+          v-if="column.id === 'userId'"
+          v-model="selectedUsers"
+          :options="userFilterOptions"
+          aria-label="Nach Genoss*in filtern"
+        />
         <UiFilterPopover
-v-if="column.id === 'activityId'" v-model="selectedActivities" :options="activityFilterOptions"
-          aria-label="Nach Aktivität filtern" />
+          v-if="column.id === 'activityId'"
+          v-model="selectedActivities"
+          :options="activityFilterOptions"
+          aria-label="Nach Aktivität filtern"
+        />
       </template>
 
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
             <UiIconButton
-aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
-              @click="openEditModal(row.original)">
+              aria-label="Bearbeiten"
+              :disabled="row.original.userId !== currentUser?.id"
+              @click="openEditModal(row.original)"
+            >
               <PencilIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
-aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
-              @click="handleDelete(row.original.id)">
+              aria-label="Löschen"
+              :disabled="row.original.userId !== currentUser?.id"
+              @click="handleDelete(row.original.id)"
+            >
               <TrashIcon class="size-5" />
             </UiIconButton>
           </div>
         </template>
         <template v-else>
-          <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+          <FlexRender
+            :render="cell.column.columnDef.cell"
+            :props="cell.getContext()"
+          />
         </template>
       </template>
     </UiDataTable>
 
     <UiModal v-model:open="showEditModal" title="Arbeitszeit bearbeiten">
-      <WorkingHourForm :activities="formActivityNames" :initial-data="editingEntry" @submit="handleEdit" />
+      <WorkingHourForm
+        :activities="formActivityNames"
+        :initial-data="editingEntry"
+        @submit="handleEdit"
+      />
     </UiModal>
   </UiPage>
 </template>
