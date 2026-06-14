@@ -1,7 +1,7 @@
 import { createError } from 'h3';
 import { workingHourRepository } from './working-hour.repository';
-import { userRepository } from '../user/user.repository';
-import { activityRepository } from '../activity/activity.repository';
+import { userService } from '../user/user.service';
+import { activityService } from '../activity/activity.service';
 import type {
   WorkingHourCreate,
   WorkingHourPatch,
@@ -31,21 +31,8 @@ export const workingHourService = {
   },
 
   async create(input: WorkingHourCreate) {
-    const user = await userRepository.findById(input.userId);
-    if (!user) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'User not found',
-      });
-    }
-
-    const activity = await activityRepository.findById(input.activityId);
-    if (!activity) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Activity not found',
-      });
-    }
+    await userService.getById(input.userId);
+    await activityService.getById(input.activityId);
 
     return workingHourRepository.create(input);
   },
@@ -67,13 +54,7 @@ export const workingHourService = {
     }
 
     if (input.activityId) {
-      const activity = await activityRepository.findById(input.activityId);
-      if (!activity) {
-        throw createError({
-          statusCode: 404,
-          statusMessage: 'Activity not found',
-        });
-      }
+      await activityService.getById(input.activityId);
     }
 
     const workingHour = await workingHourRepository.update(id, input);

@@ -146,4 +146,27 @@ export const userService = {
     }
     return stripPasswordHash(user);
   },
+
+  async seedIfNotExists(
+    email: string,
+    firstName: string,
+    lastName: string,
+    password: string,
+    role: 'user' | 'admin' = 'user',
+  ): Promise<boolean> {
+    const existing = await userRepository.findByEmail(email);
+    if (existing) {
+      return false;
+    }
+
+    const passwordHash = await hashPassword(password);
+    await userRepository.create({
+      email,
+      firstName,
+      lastName,
+      passwordHash,
+      role,
+    });
+    return true;
+  },
 };

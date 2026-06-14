@@ -1,4 +1,4 @@
-import { userRepository } from '#server/entities/user/user.repository';
+import { userService } from '#server/entities/user/user.service';
 
 async function addUserIfNotExists(
   email: string,
@@ -7,20 +7,16 @@ async function addUserIfNotExists(
   password: string,
   role: 'user' | 'admin' = 'user',
 ): Promise<void> {
-  const existing = await userRepository.findByEmail(email);
-  if (existing) {
-    return;
-  }
-
-  const passwordHash = await hashPassword(password);
-  await userRepository.create({
+  const created = await userService.seedIfNotExists(
     email,
     firstName,
     lastName,
-    passwordHash,
+    password,
     role,
-  });
-  console.log(`Seeded test user: ${email} / ${password} (${role})`);
+  );
+  if (created) {
+    console.log(`Seeded test user: ${email} / ${password} (${role})`);
+  }
 }
 
 export default defineNitroPlugin(async () => {

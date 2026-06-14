@@ -1,5 +1,6 @@
 // @ts-check
 import withNuxt from "./.nuxt/eslint.config.mjs";
+import halloechen from "./eslint/plugin.mjs";
 
 export default withNuxt(
   {
@@ -18,22 +19,13 @@ export default withNuxt(
   },
 
   {
-    name: "app/no-direct-repository-imports",
+    name: "app/no-external-repository-imports",
     files: ["**/*.{ts,mts,tsx,vue}"],
-    ignores: ["server/entities/**/*.service.ts"],
+    plugins: {
+      halloechen,
+    },
     rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          patterns: [
-            {
-              group: ["*/*.repository", "*/*.repository.ts"],
-              message:
-                "Repositories are internal to their entity. Import the entity's service instead.",
-            },
-          ],
-        },
-      ],
+      "halloechen/no-external-repository-imports": "error",
     },
   },
 );
