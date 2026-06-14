@@ -7,6 +7,7 @@ import {
   getFilteredRowModel,
   useVueTable,
   type SortingState,
+  type ColumnDef,
 } from '@tanstack/vue-table';
 import {
   PlusIcon,
@@ -32,34 +33,53 @@ const newEmail = ref('');
 const newRole = ref<'user' | 'admin'>('user');
 const editRole = ref<'user' | 'admin'>('user');
 
+const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
+
+function getUserDisplayName(user: User): string {
+  if (user.firstName || user.lastName) {
+    return [user.firstName, user.lastName].filter(Boolean).join(' ');
+  }
+  return user.email;
+}
+
 const columnHelper = createColumnHelper<User>();
 
-const columns = [
-  columnHelper.accessor('firstName', {
-    header: 'Vorname',
-    cell: (info) => info.getValue() ?? '—',
-    enableSorting: true,
-  }),
-  columnHelper.accessor('lastName', {
-    header: 'Nachname',
-    cell: (info) => info.getValue() ?? '—',
-    enableSorting: true,
-  }),
-  columnHelper.accessor('email', {
-    header: 'E-Mail',
-    enableSorting: true,
-  }),
-  columnHelper.display({
-    id: 'actions',
-    header: 'Aktionen',
-  }),
-];
+const columns = computed((): ColumnDef<User>[] => {
+  const cols: ColumnDef<User>[] = [
+    columnHelper.accessor((row) => getUserDisplayName(row), {
+      id: 'displayName',
+      header: 'Genoss*in',
+      cell: (info) => info.getValue(),
+      enableSorting: true,
+    }),
+    columnHelper.accessor('email', {
+      header: 'E-Mail',
+      enableSorting: true,
+    }),
+    columnHelper.accessor('phoneNumber', {
+      header: 'Telefon',
+      cell: (info) => info.getValue() ?? '—',
+      enableSorting: true,
+    }),
+  ];
+
+  if (isAdmin.value) {
+    cols.push(columnHelper.display({
+      id: 'actions',
+      header: 'Aktionen',
+    }));
+  }
+
+  return cols;
+});
 
 const table = useVueTable({
   get data() {
     return users.value ?? [];
   },
-  columns,
+  get columns() {
+    return columns.value;
+  },
   state: {
     get sorting() { return sorting.value; },
     get globalFilter() { return globalSearch.value; },
@@ -70,7 +90,7 @@ const table = useVueTable({
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
     const u = row.original;
-    return [u.firstName, u.lastName, u.email]
+    return [getUserDisplayName(u), u.email, u.phoneNumber]
       .filter(Boolean)
       .some((v) => v!.toLowerCase().includes(search));
   },
@@ -118,7 +138,7 @@ async function handleDelete(id: string) {
   <UiPage heading="Genoss*innen" size="xl">
     <UiDataTable v-model:global-search="globalSearch" :table="table" :show-search="true">
       <template #actions>
-        <UiModal v-if="currentUser?.role === UserRole.admin" v-model:open="showCreateModal" title="Genoss*in einladen">
+        <UiModal v-if="isAdmin" v-model:open="showCreateModal" title="Genoss*in einladen">
           <template #trigger>
             <UiIconButton variant="solid" aria-label="Genoss*in einladen">
               <PlusIcon class="size-6" />
@@ -140,17 +160,28 @@ async function handleDelete(id: string) {
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
-            <UiIconButton
-v-if="currentUser?.role === UserRole.admin" aria-label="Rolle ändern"
-              @click="openRoleModal(row.original)">
+            <UiIconButton aria-label="Rolle ändern" @click="openRoleModal(row.original)">
               <Cog6ToothIcon class="size-5" />
             </UiIconButton>
-            <UiIconButton
-v-if="currentUser?.role === UserRole.admin" aria-label="Löschen"
-              @click="handleDelete(row.original.id)">
+            <UiIconButton aria-label="Löschen" @click="handleDelete(row.original.id)">
               <TrashIcon class="size-5" />
             </UiIconButton>
           </div>
+        </template>
+        <template v-else-if="cell.column.id === 'email'">
+          <a :href="`mailto:${row.original.email}`" class="text-primary hover:underline">
+            {{ row.original.email }}
+          </a>
+        </template>
+        <template v-else-if="cell.column.id === 'phoneNumber'">
+          <a
+            v-if="row.original.phoneNumber"
+            :href="`tel:${row.original.phoneNumber.replace(/\s/g, '')}`"
+            class="text-primary hover:underline"
+          >
+            {{ row.original.phoneNumber }}
+          </a>
+          <span v-else>—</span>
         </template>
         <template v-else>
           <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
@@ -161,7 +192,7 @@ v-if="currentUser?.role === UserRole.admin" aria-label="Löschen"
     <UiModal v-model:open="showRoleModal" title="Rolle ändern">
       <form class="flex flex-col gap-4" @submit.prevent="handleRoleChange">
         <p class="text-sm text-gray-600">
-          {{ editingUser?.firstName ?? '' }} {{ editingUser?.lastName ?? '' }}
+          {{ editingUser ? getUserDisplayName(editingUser) : '' }}
           <span class="text-gray-400">({{ editingUser?.email }})</span>
         </p>
         <UiInputField id="edit-role" label="Rolle">

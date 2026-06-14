@@ -7,6 +7,7 @@ export const userSchema = z.object({
   email: z.email(),
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
+  phoneNumber: z.string().max(50).nullable(),
   role: userRoleSchema,
   setupToken: z.string().nullable(),
   setupTokenExpiresAt: z.date().nullable(),
@@ -28,6 +29,7 @@ export const userSetupSchema = z.object({
   password: z.string().min(8).max(128),
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
+  phoneNumber: z.string().min(1).max(50).optional(),
 });
 
 export const userPatchSchema = z
@@ -35,6 +37,7 @@ export const userPatchSchema = z
     email: z.email().optional(),
     firstName: z.string().min(1).max(255).optional(),
     lastName: z.string().min(1).max(255).optional(),
+    phoneNumber: z.string().min(1).max(50).nullable().optional(),
     role: userRoleSchema.optional(),
     oldPassword: z.string().optional(),
     password: z.string().min(8).max(128).optional(),

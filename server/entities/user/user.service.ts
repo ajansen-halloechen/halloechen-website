@@ -71,6 +71,7 @@ export const userService = {
       passwordHash,
       firstName: input.firstName ?? user.firstName,
       lastName: input.lastName ?? user.lastName,
+      phoneNumber: input.phoneNumber ?? user.phoneNumber,
       setupToken: null,
       setupTokenExpiresAt: null,
     });
