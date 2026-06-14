@@ -20,15 +20,29 @@ export const userSchema = z.object({
   lastName: z.string().nullable(),
   phoneNumber: z.string().max(50).nullable(),
   role: userRoleSchema,
-  setupToken: z.string().nullable(),
-  setupTokenExpiresAt: z.date().nullable(),
+  isPending: z.boolean(),
   createdAt: z.date(),
   updatedAt: z.date(),
 });
 
-export const userInternalSchema = userSchema.extend({
+export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
   passwordHash: z.string().nullable(),
+  setupToken: z.string().nullable(),
+  setupTokenExpiresAt: z.date().nullable(),
 });
+
+export const toPublicUserSchema = userInternalSchema
+  .transform(({ passwordHash, setupToken, setupTokenExpiresAt, ...publicFields }) => ({
+    ...publicFields,
+    isPending: !passwordHash,
+  }))
+  .pipe(userSchema);
+
+export function toPublicUser(
+  user: z.infer<typeof userInternalSchema>,
+): z.infer<typeof userSchema> {
+  return toPublicUserSchema.parse(user);
+}
 
 export const userCreateSchema = z.object({
   email: z.email(),

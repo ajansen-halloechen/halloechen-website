@@ -24,6 +24,7 @@
     "@vueuse/gesture": "^2.0.0",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "nodemailer": "^8.0.11",
     "nuxt": "^4.4.4",
     "nuxt-auth-utils": "0.5.29",
     "pg": "^8.20.0",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@nuxt/eslint": "1.15.2",
+    "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.0",
     "@vue/language-core": "^3.2.8",
     "drizzle-kit": "^0.31.10",

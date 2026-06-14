@@ -1,19 +1,34 @@
 import { randomUUID } from 'node:crypto';
 import { createError } from 'h3';
+import { sendInvitationEmail } from '#server/mail/invitation.mail';
+import { toPublicUser } from './user.schema';
 import { userRepository } from './user.repository';
 import type { UserCreate, UserSetup, UserPatch } from '#shared/types/user';
 
-function stripPasswordHash<T extends { passwordHash?: unknown }>(
-  user: T,
-): Omit<T, 'passwordHash'> {
-  const { passwordHash: _, ...rest } = user;
-  return rest;
+const SETUP_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
+function createSetupToken() {
+  return {
+    setupToken: randomUUID(),
+    setupTokenExpiresAt: new Date(Date.now() + SETUP_TOKEN_TTL_MS),
+  };
+}
+
+async function deliverInvitation(email: string, token: string) {
+  try {
+    await sendInvitationEmail(email, token);
+  } catch {
+    throw createError({
+      statusCode: 502,
+      statusMessage: 'Failed to send invitation email',
+    });
+  }
 }
 
 export const userService = {
   async getAll() {
     const users = await userRepository.findAll();
-    return users.map(stripPasswordHash);
+    return users.map(toPublicUser);
   },
 
   async getById(id: string) {
@@ -21,7 +36,7 @@ export const userService = {
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
     }
-    return stripPasswordHash(user);
+    return toPublicUser(user);
   },
 
   async create(input: UserCreate) {
@@ -33,8 +48,7 @@ export const userService = {
       });
     }
 
-    const setupToken = randomUUID();
-    const setupTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const { setupToken, setupTokenExpiresAt } = createSetupToken();
 
     const user = await userRepository.create({
       email: input.email,
@@ -43,7 +57,34 @@ export const userService = {
       setupTokenExpiresAt,
     });
 
-    return stripPasswordHash(user);
+    await deliverInvitation(user.email, setupToken);
+
+    return toPublicUser(user);
+  },
+
+  async resendInvitation(id: string) {
+    const user = await userRepository.findById(id);
+    if (!user) {
+      throw createError({ statusCode: 404, statusMessage: 'User not found' });
+    }
+
+    if (user.passwordHash) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'User is already registered',
+      });
+    }
+
+    const { setupToken, setupTokenExpiresAt } = createSetupToken();
+
+    const updated = await userRepository.update(id, {
+      setupToken,
+      setupTokenExpiresAt,
+    });
+
+    await deliverInvitation(user.email, setupToken);
+
+    return toPublicUser(updated!);
   },
 
   async setup(input: UserSetup) {
@@ -76,7 +117,7 @@ export const userService = {
       setupTokenExpiresAt: null,
     });
 
-    return stripPasswordHash(updated!);
+    return toPublicUser(updated!);
   },
 
   async patch(id: string, input: UserPatch) {
@@ -117,7 +158,7 @@ export const userService = {
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
     }
-    return stripPasswordHash(user);
+    return toPublicUser(user);
   },
 
   async login(email: string, password: string) {
@@ -137,7 +178,7 @@ export const userService = {
       });
     }
 
-    return stripPasswordHash(user);
+    return toPublicUser(user);
   },
 
   async remove(id: string) {
@@ -145,7 +186,7 @@ export const userService = {
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
     }
-    return stripPasswordHash(user);
+    return toPublicUser(user);
   },
 
   async seedIfNotExists(
