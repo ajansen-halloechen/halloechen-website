@@ -9,18 +9,15 @@ import {
   type SortingState,
   type ColumnDef,
 } from '@tanstack/vue-table';
-import {
-  PlusIcon,
-  TrashIcon,
-  Cog6ToothIcon,
-} from '@heroicons/vue/24/outline';
+import { PlusIcon, TrashIcon, Cog6ToothIcon } from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
 const { user: currentUser } = useUserSession();
 
-const { data: users, refresh: refreshUsers } = await useFetch<User[]>('/api/users');
+const { data: users, refresh: refreshUsers } =
+  await useFetch<User[]>('/api/users');
 
 const sorting = ref<SortingState>([]);
 const globalSearch = ref('');
@@ -35,11 +32,11 @@ const editRole = ref<'user' | 'admin'>('user');
 
 const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
 
-function getUserDisplayName(user: User): string {
+function getUserDisplayName(user: User): string | null {
   if (user.firstName || user.lastName) {
     return [user.firstName, user.lastName].filter(Boolean).join(' ');
   }
-  return user.email;
+  return null;
 }
 
 const columnHelper = createColumnHelper<User>();
@@ -54,20 +51,20 @@ const columns = computed((): ColumnDef<User>[] => {
     }),
     columnHelper.accessor('email', {
       header: 'E-Mail',
-      enableSorting: true,
     }),
     columnHelper.accessor('phoneNumber', {
       header: 'Telefon',
-      cell: (info) => info.getValue() ?? '—',
-      enableSorting: true,
+      cell: (info) => info.getValue(),
     }),
   ];
 
   if (isAdmin.value) {
-    cols.push(columnHelper.display({
-      id: 'actions',
-      header: 'Aktionen',
-    }));
+    cols.push(
+      columnHelper.display({
+        id: 'actions',
+        header: 'Aktionen',
+      }),
+    );
   }
 
   return cols;
@@ -81,11 +78,16 @@ const table = useVueTable({
     return columns.value;
   },
   state: {
-    get sorting() { return sorting.value; },
-    get globalFilter() { return globalSearch.value; },
+    get sorting() {
+      return sorting.value;
+    },
+    get globalFilter() {
+      return globalSearch.value;
+    },
   },
   onSortingChange: (updater) => {
-    sorting.value = typeof updater === 'function' ? updater(sorting.value) : updater;
+    sorting.value =
+      typeof updater === 'function' ? updater(sorting.value) : updater;
   },
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
@@ -136,18 +138,36 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Genoss*innen" size="xl">
-    <UiDataTable v-model:global-search="globalSearch" :table="table" :show-search="true">
+    <UiDataTable
+      v-model:global-search="globalSearch"
+      :table="table"
+      :show-search="true"
+    >
       <template #actions>
-        <UiModal v-if="isAdmin" v-model:open="showCreateModal" title="Genoss*in einladen">
+        <UiModal
+          v-if="isAdmin"
+          v-model:open="showCreateModal"
+          title="Genoss*in einladen"
+        >
           <template #trigger>
             <UiIconButton variant="solid" aria-label="Genoss*in einladen">
               <PlusIcon class="size-6" />
             </UiIconButton>
           </template>
           <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-            <UiInputField id="new-email" v-model="newEmail" label="E-Mail" type="email" required />
+            <UiInputField
+              id="new-email"
+              v-model="newEmail"
+              label="E-Mail"
+              type="email"
+              required
+            />
             <UiInputField id="new-role" label="Rolle">
-              <select id="new-role" v-model="newRole" class="min-w-0 flex-1 bg-transparent outline-none">
+              <select
+                id="new-role"
+                v-model="newRole"
+                class="min-w-0 flex-1 bg-transparent outline-none"
+              >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
               </select>
@@ -160,16 +180,25 @@ async function handleDelete(id: string) {
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
-            <UiIconButton aria-label="Rolle ändern" @click="openRoleModal(row.original)">
+            <UiIconButton
+              aria-label="Rolle ändern"
+              @click="openRoleModal(row.original)"
+            >
               <Cog6ToothIcon class="size-5" />
             </UiIconButton>
-            <UiIconButton aria-label="Löschen" @click="handleDelete(row.original.id)">
+            <UiIconButton
+              aria-label="Löschen"
+              @click="handleDelete(row.original.id)"
+            >
               <TrashIcon class="size-5" />
             </UiIconButton>
           </div>
         </template>
         <template v-else-if="cell.column.id === 'email'">
-          <a :href="`mailto:${row.original.email}`" class="text-primary hover:underline">
+          <a
+            :href="`mailto:${row.original.email}`"
+            class="text-primary hover:underline"
+          >
             {{ row.original.email }}
           </a>
         </template>
@@ -181,10 +210,12 @@ async function handleDelete(id: string) {
           >
             {{ row.original.phoneNumber }}
           </a>
-          <span v-else>—</span>
         </template>
         <template v-else>
-          <FlexRender :render="cell.column.columnDef.cell" :props="cell.getContext()" />
+          <FlexRender
+            :render="cell.column.columnDef.cell"
+            :props="cell.getContext()"
+          />
         </template>
       </template>
     </UiDataTable>
@@ -196,7 +227,11 @@ async function handleDelete(id: string) {
           <span class="text-gray-400">({{ editingUser?.email }})</span>
         </p>
         <UiInputField id="edit-role" label="Rolle">
-          <select id="edit-role" v-model="editRole" class="min-w-0 flex-1 bg-transparent outline-none">
+          <select
+            id="edit-role"
+            v-model="editRole"
+            class="min-w-0 flex-1 bg-transparent outline-none"
+          >
             <option value="user">User</option>
             <option value="admin">Admin</option>
           </select>

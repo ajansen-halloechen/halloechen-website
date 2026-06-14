@@ -1,17 +1,21 @@
 <template>
   <UiPage heading="Datenschutz">
-
     <section class="space-y-3">
       <h2 class="text-xl font-bold">1. Verantwortlicher</h2>
       <p>
         Verantwortlich für die Datenverarbeitung auf dieser Website ist der
         Websitebetreiber (siehe
-        <NuxtLink class="text-primary underline" to="/legal" target="_blank" rel="noopener noreferrer">Impressum
-        </NuxtLink>).
+        <NuxtLink
+          class="text-primary underline"
+          to="/legal"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Impressum </NuxtLink
+        >).
       </p>
       <p>
-        Moabiter Trinkgenossenschaft eG<br >
-        Waldstr. 44a<br >
+        Moabiter Trinkgenossenschaft eG<br />
+        Waldstr. 44a<br />
         10551 Berlin
       </p>
     </section>
@@ -80,16 +84,22 @@
       <p>
         Google-Maps-Nutzungsbedingungen:
         <a
-class="text-primary underline" href="https://www.google.com/intl/de_DE/help/terms_maps/" target="_blank"
-          rel="noopener noreferrer">
+          class="text-primary underline"
+          href="https://www.google.com/intl/de_DE/help/terms_maps/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://www.google.com/intl/de_DE/help/terms_maps/
         </a>
       </p>
       <p>
         Google-Datenschutzerklärung:
         <a
-class="text-primary underline" href="https://policies.google.com/privacy?hl=de" target="_blank"
-          rel="noopener noreferrer">
+          class="text-primary underline"
+          href="https://policies.google.com/privacy?hl=de"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           https://policies.google.com/privacy?hl=de
         </a>
       </p>

@@ -1,8 +1,8 @@
 <template>
   <UiPage :heading="'Impressum'">
     <p>
-      Moabiter Trinkgenossenschaft eG<br >
-      Waldstr. 44a<br >
+      Moabiter Trinkgenossenschaft eG<br />
+      Waldstr. 44a<br />
       10551 Berlin
     </p>
     <p>E-Mail: info@halloechen.org</p>
