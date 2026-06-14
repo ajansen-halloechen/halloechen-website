@@ -1,6 +1,7 @@
 import type { z } from 'zod';
 import type {
   userCreateSchema,
+  userInternalSchema,
   userLoginSchema,
   userPatchSchema,
   userRoleSchema,
@@ -9,6 +10,7 @@ import type {
 } from '#server/entities/user/user.schema';
 
 export type User = z.infer<typeof userSchema>;
+export type UserInternal = z.infer<typeof userInternalSchema>;
 export type UserCreate = z.infer<typeof userCreateSchema>;
 export type UserSetup = z.infer<typeof userSetupSchema>;
 export type UserPatch = z.infer<typeof userPatchSchema>;

@@ -9,7 +9,12 @@ import {
   type SortingState,
   type ColumnDef,
 } from '@tanstack/vue-table';
-import { PlusIcon, TrashIcon, Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import {
+  PlusIcon,
+  TrashIcon,
+  Cog6ToothIcon,
+  PaperAirplaneIcon,
+} from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
@@ -29,6 +34,10 @@ const editingUser = ref<User>();
 const newEmail = ref('');
 const newRole = ref<'user' | 'admin'>('user');
 const editRole = ref<'user' | 'admin'>('user');
+const createError = ref('');
+const createSuccess = ref('');
+const resendLoadingId = ref<string | null>(null);
+const resendFeedback = ref<{ userId: string; message: string } | null>(null);
 
 const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
 
@@ -37,6 +46,10 @@ function getUserDisplayName(user: User): string | null {
     return [user.firstName, user.lastName].filter(Boolean).join(' ');
   }
   return null;
+}
+
+function getUserStatus(user: User): string {
+  return user.isPending ? 'Eingeladen' : 'Aktiv';
 }
 
 const columnHelper = createColumnHelper<User>();
@@ -55,6 +68,11 @@ const columns = computed((): ColumnDef<User>[] => {
     columnHelper.accessor('phoneNumber', {
       header: 'Telefon',
       cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor((row) => getUserStatus(row), {
+      id: 'status',
+      header: 'Status',
+      enableSorting: true,
     }),
   ];
 
@@ -92,7 +110,7 @@ const table = useVueTable({
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
     const u = row.original;
-    return [getUserDisplayName(u), u.email, u.phoneNumber]
+    return [getUserDisplayName(u), u.email, u.phoneNumber, getUserStatus(u)]
       .filter(Boolean)
       .some((v) => v!.toLowerCase().includes(search));
   },
@@ -107,16 +125,87 @@ function openRoleModal(user: User) {
   showRoleModal.value = true;
 }
 
+function resetCreateFeedback() {
+  createError.value = '';
+  createSuccess.value = '';
+}
+
+watch(showCreateModal, (open) => {
+  if (open) resetCreateFeedback();
+});
+
 async function handleCreate() {
   if (!newEmail.value) return;
-  await $fetch('/api/users', {
-    method: 'POST',
-    body: { email: newEmail.value, role: newRole.value },
-  });
-  newEmail.value = '';
-  newRole.value = 'user';
-  showCreateModal.value = false;
-  await refreshUsers();
+  createError.value = '';
+  createSuccess.value = '';
+
+  try {
+    await $fetch('/api/users', {
+      method: 'POST',
+      body: { email: newEmail.value, role: newRole.value },
+    });
+    createSuccess.value = 'Einladung wurde versendet.';
+    newEmail.value = '';
+    newRole.value = 'user';
+    await refreshUsers();
+    showCreateModal.value = false;
+  } catch (e: unknown) {
+    if (
+      typeof e === 'object' &&
+      e !== null &&
+      'statusCode' in e &&
+      (e as { statusCode: unknown }).statusCode === 409
+    ) {
+      createError.value = 'Diese E-Mail-Adresse ist bereits registriert.';
+    } else if (
+      typeof e === 'object' &&
+      e !== null &&
+      'statusCode' in e &&
+      (e as { statusCode: unknown }).statusCode === 502
+    ) {
+      createError.value =
+        'Die Genoss*in wurde angelegt, aber die E-Mail konnte nicht versendet werden. Bitte „Einladung erneut senden“ verwenden.';
+      await refreshUsers();
+    } else {
+      createError.value =
+        'Ein Fehler ist aufgetreten. Bitte versuche es erneut.';
+    }
+  }
+}
+
+async function handleResendInvitation(user: User) {
+  resendFeedback.value = null;
+  resendLoadingId.value = user.id;
+
+  try {
+    await $fetch(`/api/users/${user.id}/resend-invitation`, {
+      method: 'POST',
+    });
+    resendFeedback.value = {
+      userId: user.id,
+      message: 'Einladung wurde erneut versendet.',
+    };
+    await refreshUsers();
+  } catch (e: unknown) {
+    if (
+      typeof e === 'object' &&
+      e !== null &&
+      'statusCode' in e &&
+      (e as { statusCode: unknown }).statusCode === 502
+    ) {
+      resendFeedback.value = {
+        userId: user.id,
+        message: 'Die E-Mail konnte nicht versendet werden.',
+      };
+    } else {
+      resendFeedback.value = {
+        userId: user.id,
+        message: 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.',
+      };
+    }
+  } finally {
+    resendLoadingId.value = null;
+  }
 }
 
 async function handleRoleChange() {
@@ -155,6 +244,18 @@ async function handleDelete(id: string) {
             </UiIconButton>
           </template>
           <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
+            <div
+              v-if="createError"
+              class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+            >
+              {{ createError }}
+            </div>
+            <div
+              v-if="createSuccess"
+              class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+            >
+              {{ createSuccess }}
+            </div>
             <UiInputField
               id="new-email"
               v-model="newEmail"
@@ -179,19 +280,35 @@ async function handleDelete(id: string) {
 
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
-          <div class="flex gap-1">
-            <UiIconButton
-              aria-label="Rolle ändern"
-              @click="openRoleModal(row.original)"
+          <div class="flex flex-col gap-1">
+            <div class="flex gap-1">
+              <UiIconButton
+                v-if="row.original.isPending"
+                aria-label="Einladung erneut senden"
+                :disabled="resendLoadingId === row.original.id"
+                @click="handleResendInvitation(row.original)"
+              >
+                <PaperAirplaneIcon class="size-5" />
+              </UiIconButton>
+              <UiIconButton
+                aria-label="Rolle ändern"
+                @click="openRoleModal(row.original)"
+              >
+                <Cog6ToothIcon class="size-5" />
+              </UiIconButton>
+              <UiIconButton
+                aria-label="Löschen"
+                @click="handleDelete(row.original.id)"
+              >
+                <TrashIcon class="size-5" />
+              </UiIconButton>
+            </div>
+            <p
+              v-if="resendFeedback?.userId === row.original.id"
+              class="text-xs text-on-surface/70"
             >
-              <Cog6ToothIcon class="size-5" />
-            </UiIconButton>
-            <UiIconButton
-              aria-label="Löschen"
-              @click="handleDelete(row.original.id)"
-            >
-              <TrashIcon class="size-5" />
-            </UiIconButton>
+              {{ resendFeedback.message }}
+            </p>
           </div>
         </template>
         <template v-else-if="cell.column.id === 'email'">

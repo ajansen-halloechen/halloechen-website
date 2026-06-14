@@ -62,10 +62,10 @@ function toggleOption(value: string) {
           :checked="model.includes(option.value)"
           class="accent-primary"
           @change="toggleOption(option.value)"
-        />
+        >
         {{ option.label }}
       </label>
-      <hr class="border-primary my-1" />
+      <hr class="border-primary my-1" >
       <label
         class="flex items-center gap-2 cursor-pointer rounded px-2 py-1 hover:bg-primary/10 text-sm"
       >
@@ -74,7 +74,7 @@ function toggleOption(value: string) {
           :checked="allSelected"
           class="accent-primary"
           @change="toggleAll"
-        />
+        >
         Alle
       </label>
     </div>
