@@ -1,11 +1,11 @@
 import type { z } from 'zod';
-import {
+import type {
+  userCreateSchema,
+  userLoginSchema,
+  userPatchSchema,
   userRoleSchema,
-  type userCreateSchema,
-  type userLoginSchema,
-  type userPatchSchema,
-  type userSchema,
-  type userSetupSchema,
+  userSchema,
+  userSetupSchema,
 } from '#server/entities/user/user.schema';
 
 export type User = z.infer<typeof userSchema>;
@@ -13,5 +13,6 @@ export type UserCreate = z.infer<typeof userCreateSchema>;
 export type UserSetup = z.infer<typeof userSetupSchema>;
 export type UserPatch = z.infer<typeof userPatchSchema>;
 export type UserLogin = z.infer<typeof userLoginSchema>;
+export type UserRole = z.infer<typeof userRoleSchema>;
 
-export const UserRole = userRoleSchema.enum;
+export const UserRole = { user: 'user', admin: 'admin' } as const;

@@ -27,7 +27,8 @@ withDefaults(
         <UiBaseInput v-if="$slots.default">
             <slot />
         </UiBaseInput>
-        <UiBaseInput v-else :id="id" v-model="model" :type="type" :required="required" :autocomplete="autocomplete"
+        <UiBaseInput
+v-else :id="id" v-model="model" :type="type" :required="required" :autocomplete="autocomplete"
             :step="step" />
     </div>
 </template>

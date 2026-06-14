@@ -283,7 +283,7 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Zeiterfassung" size="xl">
-    <UiDataTable :table="table" v-model:global-search="globalSearch" :show-search="true">
+    <UiDataTable v-model:global-search="globalSearch" :table="table" :show-search="true">
       <template #actions>
         <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
           <template #trigger>
@@ -300,20 +300,24 @@ async function handleDelete(id: string) {
       </template>
 
       <template #column-filter="{ column }">
-        <UiFilterPopover v-if="column.id === 'userId'" v-model="selectedUsers" :options="userFilterOptions"
+        <UiFilterPopover
+v-if="column.id === 'userId'" v-model="selectedUsers" :options="userFilterOptions"
           aria-label="Nach Genoss*in filtern" />
-        <UiFilterPopover v-if="column.id === 'activityId'" v-model="selectedActivities" :options="activityFilterOptions"
+        <UiFilterPopover
+v-if="column.id === 'activityId'" v-model="selectedActivities" :options="activityFilterOptions"
           aria-label="Nach Aktivität filtern" />
       </template>
 
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
-            <UiIconButton aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
+            <UiIconButton
+aria-label="Bearbeiten" :disabled="row.original.userId !== currentUser?.id"
               @click="openEditModal(row.original)">
               <PencilIcon class="size-5" />
             </UiIconButton>
-            <UiIconButton aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
+            <UiIconButton
+aria-label="Löschen" :disabled="row.original.userId !== currentUser?.id"
               @click="handleDelete(row.original.id)">
               <TrashIcon class="size-5" />
             </UiIconButton>

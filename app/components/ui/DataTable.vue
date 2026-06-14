@@ -33,16 +33,19 @@ const globalSearch = defineModel<string>('globalSearch', { default: '' });
             <table class="min-w-full divide-y divide-primary">
                 <thead class="bg-primary-100">
                     <tr v-for="headerGroup in table.getHeaderGroups()" :key="headerGroup.id">
-                        <th v-for="header in headerGroup.headers" :key="header.id"
+                        <th
+v-for="header in headerGroup.headers" :key="header.id"
                             class="px-4 py-4 text-left text-md font-semibold tracking-wider" :class="{
                                 'text-right': (header.column.columnDef.meta as any)?.align === 'right',
                                 'w-0': (header.column.columnDef.meta as any)?.shrink,
                             }">
                             <div class="flex items-center gap-1">
-                                <FlexRender v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
+                                <FlexRender
+v-if="!header.isPlaceholder" :render="header.column.columnDef.header"
                                     :props="header.getContext()" />
 
-                                <UiIconButton v-if="header.column.getCanSort()" aria-label="Sortierung umschalten"
+                                <UiIconButton
+v-if="header.column.getCanSort()" aria-label="Sortierung umschalten"
                                     class="ml-1"
                                     @click="header.column.toggleSorting(header.column.getIsSorted() === 'asc')">
                                     <ChevronUpIcon v-if="header.column.getIsSorted() === 'asc'" class="size-4" />
@@ -63,7 +66,8 @@ const globalSearch = defineModel<string>('globalSearch', { default: '' });
                         </td>
                     </tr>
                     <tr v-for="row in table.getRowModel().rows" :key="row.id" class="hover:bg-primary/10">
-                        <td v-for="cell in row.getVisibleCells()" :key="cell.id"
+                        <td
+v-for="cell in row.getVisibleCells()" :key="cell.id"
                             class="px-4 py-2 whitespace-nowrap text-sm text-gray-700" :class="{
                                 'text-right': (cell.column.columnDef.meta as any)?.align === 'right',
                                 'w-0': (cell.column.columnDef.meta as any)?.shrink,

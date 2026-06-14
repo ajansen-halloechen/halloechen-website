@@ -70,7 +70,8 @@ onClickOutside(topBarRef, () => {
       <slot name="logo">
         <NuxtLink to="/">
           <!-- eslint-disable vue/no-v-html -->
-          <span class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" aria-label="Hällöchen logo"
+          <span
+class="inline-block h-20 w-auto text-accent [&>svg]:h-auto [&>svg]:w-full" aria-label="Hällöchen logo"
             v-html="logo" />
           <!-- eslint-enable vue/no-v-html -->
         </NuxtLink>
@@ -80,11 +81,13 @@ onClickOutside(topBarRef, () => {
         <!-- Desktop Nav (hidden entirely when showDesktopMenu is false) -->
         <nav v-if="items.length" class="space-x-6 items-center" :class="desktopNavClass">
           <template v-for="item in items" :key="item.id">
-            <NuxtLink v-if="item.icon" :to="item.to" :title="item.tooltip"
+            <NuxtLink
+v-if="item.icon" :to="item.to" :title="item.tooltip"
               class="inline-flex items-center hover:text-accent" :class="{ 'text-accent': activeItem === item.id }">
               <component :is="item.icon" class="h-6 w-6" />
             </NuxtLink>
-            <NuxtLink v-else :to="item.to" class="text-xl hover:text-accent hover:font-bold"
+            <NuxtLink
+v-else :to="item.to" class="text-xl hover:text-accent hover:font-bold"
               :class="{ 'font-bold text-accent': activeItem === item.id }">
               {{ item.label }}
             </NuxtLink>
@@ -92,7 +95,8 @@ onClickOutside(topBarRef, () => {
         </nav>
 
         <!-- Burger button (always visible when showDesktopMenu is false) -->
-        <UiIconButton v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
+        <UiIconButton
+v-if="items.length" :class="mobileMenuHiddenClass" aria-label="Toggle navigation menu"
           @click="toggleMobileMenu">
           <span class="sr-only">Toggle navigation menu</span>
           <Bars3Icon v-if="!isMobileMenuOpen" class="h-8 w-8" />
@@ -102,10 +106,12 @@ onClickOutside(topBarRef, () => {
     </div>
 
     <!-- Mobile / popover menu -->
-    <div v-if="isMobileMenuOpen" :class="mobileMenuHiddenClass"
+    <div
+v-if="isMobileMenuOpen" :class="mobileMenuHiddenClass"
       class="absolute right-4 lg:right-8 top-26 w-48 border-2 border-primary z-50 bg-background/90 backdrop-blur-3xl">
       <nav class="flex flex-col py-2">
-        <NuxtLink v-for="item in items" :key="item.id" :to="item.to"
+        <NuxtLink
+v-for="item in items" :key="item.id" :to="item.to"
           class="px-4 py-2 text-md hover:text-accent hover:font-bold"
           :class="{ 'font-bold text-accent': activeItem === item.id }" @click="closeMobileMenu">
           <span class="inline-flex items-center gap-2">
@@ -129,7 +135,8 @@ onClickOutside(topBarRef, () => {
           <span class="p-8">#######</span>
           <span>
             Coming soon - schaut auch auf
-            <a class="underline" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
+            <a
+class="underline" href="https://www.instagram.com/halloechen_moabit/" target="_blank"
               rel="noopener noreferrer" aria-label="Instagram">Instagram</a>
             für Updates!&nbsp;
           </span>

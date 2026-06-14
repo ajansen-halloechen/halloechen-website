@@ -60,7 +60,7 @@ function handleSubmit() {
         </div>
 
         <div class="flex items-center gap-2">
-            <input id="wh-plus-one" v-model="plusOneDay" type="checkbox" class="accent-primary" />
+            <input id="wh-plus-one" v-model="plusOneDay" type="checkbox" class="accent-primary" >
             <label for="wh-plus-one" class="text-sm">Ende am Folgetag (+1)</label>
         </div>
 

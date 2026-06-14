@@ -116,7 +116,7 @@ async function handleDelete(id: string) {
 
 <template>
   <UiPage heading="Genoss*innen" size="xl">
-    <UiDataTable :table="table" v-model:global-search="globalSearch" :show-search="true">
+    <UiDataTable v-model:global-search="globalSearch" :table="table" :show-search="true">
       <template #actions>
         <UiModal v-if="currentUser?.role === UserRole.admin" v-model:open="showCreateModal" title="Genoss*in einladen">
           <template #trigger>
@@ -140,11 +140,13 @@ async function handleDelete(id: string) {
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
-            <UiIconButton v-if="currentUser?.role === UserRole.admin" aria-label="Rolle ändern"
+            <UiIconButton
+v-if="currentUser?.role === UserRole.admin" aria-label="Rolle ändern"
               @click="openRoleModal(row.original)">
               <Cog6ToothIcon class="size-5" />
             </UiIconButton>
-            <UiIconButton v-if="currentUser?.role === UserRole.admin" aria-label="Löschen"
+            <UiIconButton
+v-if="currentUser?.role === UserRole.admin" aria-label="Löschen"
               @click="handleDelete(row.original.id)">
               <TrashIcon class="size-5" />
             </UiIconButton>

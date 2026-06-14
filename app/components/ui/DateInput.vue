@@ -60,25 +60,28 @@ watch(pickerValue, (v) => {
 <template>
     <UiInputField :id="id" :label="label" :required="required">
         <DatePickerRoot v-model="pickerValue" locale="de-DE" :week-starts-on="1" close-on-select>
-            <DatePickerField v-slot="{ segments }" :id="id" class="flex items-center w-full">
+            <DatePickerField :id="id" v-slot="{ segments }" class="flex items-center w-full">
                 <template v-for="item in segments" :key="item.part">
                     <DatePickerInput v-if="item.part === 'literal'" :part="item.part">
                         <span class="text-gray-400">{{ item.value }}</span>
                     </DatePickerInput>
-                    <DatePickerInput v-else :part="item.part"
+                    <DatePickerInput
+v-else :part="item.part"
                         class="rounded px-1 text-center outline-none data-[placeholder]:text-gray-400 focus:bg-primary/10">
                         {{ item.value }}
                     </DatePickerInput>
                 </template>
                 <DatePickerTrigger as-child>
-                    <button type="button" class="ml-auto cursor-pointer text-primary hover:text-primary-600"
+                    <button
+type="button" class="ml-auto cursor-pointer text-primary hover:text-primary-600"
                         aria-label="Kalender öffnen">
                         <CalendarIcon class="size-4" />
                     </button>
                 </DatePickerTrigger>
             </DatePickerField>
 
-            <DatePickerContent side="bottom" :side-offset="4"
+            <DatePickerContent
+side="bottom" :side-offset="4"
                 class="z-[60] rounded-md border border-primary bg-surface p-3 shadow-md">
                 <DatePickerCalendar v-slot="{ weekDays, grid }">
                     <DatePickerHeader class="flex items-center justify-between mb-2">
@@ -95,18 +98,21 @@ watch(pickerValue, (v) => {
                         </DatePickerNext>
                     </DatePickerHeader>
 
-                    <DatePickerGrid v-for="month in grid" :key="month.value.toString()"
+                    <DatePickerGrid
+v-for="month in grid" :key="month.value.toString()"
                         class="w-full border-collapse select-none">
                         <DatePickerGridHead>
                             <DatePickerGridRow class="flex">
-                                <DatePickerHeadCell v-for="day in weekDays" :key="day"
+                                <DatePickerHeadCell
+v-for="day in weekDays" :key="day"
                                     class="w-8 text-center text-xs font-medium text-gray-500" />
                             </DatePickerGridRow>
                         </DatePickerGridHead>
                         <DatePickerGridBody>
                             <DatePickerGridRow v-for="(week, idx) in month.rows" :key="idx" class="flex">
                                 <DatePickerCell v-for="day in week" :key="day.toString()" :date="day" class="p-0">
-                                    <DatePickerCellTrigger :day="day" :month="month.value" class="flex size-8 items-center justify-center rounded text-sm cursor-pointer
+                                    <DatePickerCellTrigger
+:day="day" :month="month.value" class="flex size-8 items-center justify-center rounded text-sm cursor-pointer
                                         hover:bg-primary/10
                                         data-[selected]:bg-primary data-[selected]:text-on-primary
                                         data-[today]:font-bold

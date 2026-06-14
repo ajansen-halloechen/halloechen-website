@@ -101,18 +101,21 @@ onMounted(() => {
 </script>
 
 <template>
-  <div ref="containerRef" class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y" role="region"
+  <div
+ref="containerRef" class="relative w-full aspect-4/3 overflow-hidden select-none touch-pan-y" role="region"
     aria-roledescription="carousel" aria-label="Image carousel">
     <!-- Track -->
     <div class="flex h-full w-full" :style="trackStyle">
-      <div v-for="(src, i) in images" :key="i" class="min-w-full h-full" role="group" :aria-roledescription="'slide'"
+      <div
+v-for="(src, i) in images" :key="i" class="min-w-full h-full" role="group" :aria-roledescription="'slide'"
         :aria-label="`Slide ${i + 1} of ${images.length}`" :aria-hidden="i !== currentIndex">
-        <img :src="src" :alt="`Carousel image ${i + 1}`" class="object-cover h-full w-full" />
+        <img :src="src" :alt="`Carousel image ${i + 1}`" class="object-cover h-full w-full" >
       </div>
     </div>
 
     <!-- Arrows -->
-    <UiIconButton class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Previous slide"
+    <UiIconButton
+class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/40" aria-label="Previous slide"
       @click="prev">
       <ChevronLeftIcon class="h-4 w-4" />
     </UiIconButton>
@@ -122,7 +125,8 @@ onMounted(() => {
 
     <!-- Dots -->
     <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2" role="tablist" aria-label="Slide navigation">
-      <button v-for="(_, i) in images" :key="i" class="h-3 w-3 rounded-full transition-colors" :class="i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-primary/70'
+      <button
+v-for="(_, i) in images" :key="i" class="h-3 w-3 rounded-full transition-colors" :class="i === currentIndex ? 'bg-primary' : 'bg-white/50 hover:bg-primary/70'
         " :aria-label="`Go to slide ${i + 1}`" :aria-selected="i === currentIndex" role="tab" @click="goTo(i)" />
     </div>
 

@@ -26,7 +26,7 @@ const eventsForMonth = computed<CalendarEvent[]>(() => {
 
 <template>
   <div class="max-h-[75dvh] rounded-lg md:px-6 flex flex-col gap-1">
-    <CalendarHeader class="border-b-3 border-primary pb-2" v-model="selectedMonth" />
+    <CalendarHeader v-model="selectedMonth" class="border-b-3 border-primary pb-2" />
 
     <div v-if="eventsForMonth.length" class="flex-1 overflow-y-auto">
       <div v-for="event in eventsForMonth" :key="event.id" class="py-2 border-b border-primary">
