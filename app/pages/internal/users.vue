@@ -17,7 +17,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
 
-const { success, warning, error } = useToast();
+const { success, error } = useToast();
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
@@ -51,11 +51,10 @@ watch([selectedStatuses], () => {
 
 const showCreateModal = ref(false);
 const showRoleModal = ref(false);
+const showDeleteModal = ref(false);
 const editingUser = ref<User>();
+const deletingUser = ref<User>();
 
-const newEmail = ref('');
-const newRole = ref<'user' | 'admin'>('user');
-const editRole = ref<'user' | 'admin'>('user');
 const resendLoadingId = ref<string | null>(null);
 
 const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
@@ -153,45 +152,12 @@ const table = useVueTable({
 
 function openRoleModal(user: User) {
   editingUser.value = user;
-  editRole.value = user.role;
   showRoleModal.value = true;
 }
 
-async function handleCreate() {
-  if (!newEmail.value) return;
-
-  try {
-    await $fetch('/api/users', {
-      method: 'POST',
-      body: { email: newEmail.value, role: newRole.value },
-    });
-    newEmail.value = '';
-    newRole.value = 'user';
-    await refreshUsers();
-    showCreateModal.value = false;
-    success('Einladung wurde versendet.');
-  } catch (e: unknown) {
-    if (
-      typeof e === 'object' &&
-      e !== null &&
-      'statusCode' in e &&
-      (e as { statusCode: unknown }).statusCode === 409
-    ) {
-      error('Diese E-Mail-Adresse ist bereits registriert.');
-    } else if (
-      typeof e === 'object' &&
-      e !== null &&
-      'statusCode' in e &&
-      (e as { statusCode: unknown }).statusCode === 502
-    ) {
-      warning(
-        'Die Genoss*in wurde angelegt, aber die E-Mail konnte nicht versendet werden. Bitte „Einladung erneut senden“ verwenden.',
-      );
-      await refreshUsers();
-    } else {
-      error('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
-    }
-  }
+function openDeleteModal(user: User) {
+  deletingUser.value = user;
+  showDeleteModal.value = true;
 }
 
 async function handleResendInvitation(user: User) {
@@ -217,22 +183,6 @@ async function handleResendInvitation(user: User) {
     resendLoadingId.value = null;
   }
 }
-
-async function handleRoleChange() {
-  if (!editingUser.value) return;
-  await $fetch(`/api/users/${editingUser.value.id}`, {
-    method: 'PATCH',
-    body: { role: editRole.value },
-  });
-  showRoleModal.value = false;
-  editingUser.value = undefined;
-  await refreshUsers();
-}
-
-async function handleDelete(id: string) {
-  await $fetch(`/api/users/${id}`, { method: 'DELETE' });
-  await refreshUsers();
-}
 </script>
 
 <template>
@@ -243,37 +193,17 @@ async function handleDelete(id: string) {
       :show-search="true"
     >
       <template #actions>
-        <UiModal
+        <UserInviteModal
           v-if="isAdmin"
           v-model:open="showCreateModal"
-          title="Genoss*in einladen"
+          @success="refreshUsers()"
         >
           <template #trigger>
             <UiIconButton variant="solid" tooltip="Genoss*in einladen">
               <PlusIcon class="size-6" />
             </UiIconButton>
           </template>
-          <form class="flex flex-col gap-4" @submit.prevent="handleCreate">
-            <UiInputField
-              id="new-email"
-              v-model="newEmail"
-              label="E-Mail"
-              type="email"
-              required
-            />
-            <UiInputField id="new-role" label="Rolle">
-              <select
-                id="new-role"
-                v-model="newRole"
-                class="min-w-0 flex-1 bg-transparent outline-none"
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </UiInputField>
-            <UiButton type="submit" class="self-end">Einladen</UiButton>
-          </form>
-        </UiModal>
+        </UserInviteModal>
       </template>
 
       <template #column-filter="{ column }">
@@ -304,7 +234,7 @@ async function handleDelete(id: string) {
             </UiIconButton>
             <UiIconButton
               tooltip="Genoss*in löschen"
-              @click="handleDelete(row.original.id)"
+              @click="openDeleteModal(row.original)"
             >
               <TrashIcon class="size-5" />
             </UiIconButton>
@@ -336,24 +266,16 @@ async function handleDelete(id: string) {
       </template>
     </UiDataTable>
 
-    <UiModal v-model:open="showRoleModal" title="Rolle ändern">
-      <form class="flex flex-col gap-4" @submit.prevent="handleRoleChange">
-        <p class="text-sm text-gray-600">
-          {{ editingUser ? getUserDisplayName(editingUser) : '' }}
-          <span class="text-gray-400">({{ editingUser?.email }})</span>
-        </p>
-        <UiInputField id="edit-role" label="Rolle">
-          <select
-            id="edit-role"
-            v-model="editRole"
-            class="min-w-0 flex-1 bg-transparent outline-none"
-          >
-            <option value="user">User</option>
-            <option value="admin">Admin</option>
-          </select>
-        </UiInputField>
-        <UiButton type="submit" class="self-end">Speichern</UiButton>
-      </form>
-    </UiModal>
+    <UserRoleModal
+      v-model:open="showRoleModal"
+      :user="editingUser"
+      @success="refreshUsers()"
+    />
+
+    <UserDeleteModal
+      v-model:open="showDeleteModal"
+      :user="deletingUser"
+      @success="refreshUsers()"
+    />
   </UiPage>
 </template>
