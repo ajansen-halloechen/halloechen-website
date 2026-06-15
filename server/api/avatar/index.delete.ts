@@ -1,6 +1,6 @@
 import { userService } from '#server/entities/user/user.service';
 import { deleteFile } from '#server/utils/files/storage';
-import { toSessionUser } from '#server/utils/to-session-user';
+import { updateSessionUser } from '#server/utils/update-session-user';
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.user!;
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
 
   const user = await userService.setAvatar(id, null);
 
-  await setUserSession(event, { user: toSessionUser(user) });
+  await updateSessionUser(event, user);
 
   return user;
 });
