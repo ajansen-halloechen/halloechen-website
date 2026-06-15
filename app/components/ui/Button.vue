@@ -10,7 +10,7 @@ const button = tv({
     },
     color: {
       primary: '',
-      secondary: '',
+      error: '',
       accent: '',
     },
   },
@@ -22,8 +22,8 @@ const button = tv({
     },
     {
       variant: 'solid',
-      color: 'secondary',
-      class: 'bg-secondary text-on-secondary hover:bg-secondary-800',
+      color: 'error',
+      class: 'bg-error text-on-error hover:bg-error-800',
     },
     {
       variant: 'solid',
@@ -37,8 +37,8 @@ const button = tv({
     },
     {
       variant: 'outlined',
-      color: 'secondary',
-      class: 'border-secondary text-secondary hover:bg-secondary-50',
+      color: 'error',
+      class: 'border-error text-error hover:bg-error-50',
     },
     {
       variant: 'outlined',
