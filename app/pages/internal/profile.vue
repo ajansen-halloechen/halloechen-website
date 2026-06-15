@@ -30,6 +30,7 @@ const { data: profile, refresh: refreshProfile } =
 const avatar = computed(() => profile.value?.avatar ?? null);
 
 const avatarLoading = ref(false);
+const showAvatarDeleteModal = ref(false);
 const fileInputRef = ref<HTMLInputElement | null>(null);
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
@@ -137,6 +138,7 @@ async function handleAvatarRemove() {
     await $fetch('/api/avatar', { method: 'DELETE' });
     await fetchSession();
     await refreshProfile();
+    showAvatarDeleteModal.value = false;
     success('Avatar entfernt.');
   } catch {
     toastError('Avatar konnte nicht entfernt werden.');
@@ -283,7 +285,7 @@ async function handleSave() {
             type="button"
             color="error"
             :disabled="avatarLoading"
-            @click="handleAvatarRemove"
+            @click="showAvatarDeleteModal = true"
           >
             Bild entfernen
           </UiButton>
@@ -389,5 +391,13 @@ async function handleSave() {
         </form>
       </div>
     </div>
+
+    <UiConfirmDeleteModal
+      v-model:open="showAvatarDeleteModal"
+      title="Profilbild entfernen"
+      description="Möchtest du dein Profilbild wirklich entfernen?"
+      :loading="avatarLoading"
+      @confirm="handleAvatarRemove"
+    />
   </UiPage>
 </template>
