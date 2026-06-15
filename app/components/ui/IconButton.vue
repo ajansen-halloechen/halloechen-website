@@ -52,7 +52,7 @@ const iconButton = tv({
     {
       variant: 'solid',
       color: 'primary',
-      class: 'bg-primary text-on-primary hover:bg-primary-900',
+      class: 'bg-primary text-accent hover:bg-primary-900',
     },
     {
       variant: 'solid',
