@@ -310,41 +310,45 @@ async function handleSave() {
           >
             {{ error }}
           </div>
-
-          <UiInputField
-            id="first-name"
-            v-model="firstName"
-            label="Vorname"
-            required
-            autocomplete="given-name"
-          />
-          <UiInputField
-            id="last-name"
-            v-model="lastName"
-            label="Nachname"
-            required
-            autocomplete="family-name"
-          />
-          <UiInputField
-            id="email"
-            v-model="email"
-            label="E-Mail"
-            type="email"
-            required
-            autocomplete="email"
-          />
-          <div class="flex flex-col gap-1">
-            <UiInputField
-              id="phone-number"
-              v-model="phoneNumber"
-              label="Telefonnummer"
-              type="tel"
-              required
-              autocomplete="tel"
-            />
-            <p v-if="phoneError" class="text-sm text-red-600">
-              {{ phoneError }}
-            </p>
+          <div class="lg:col-span-2 flex flex-col gap-4 pt-2">
+            <h2 class="text-lg font-semibold">Kontakt</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              <UiInputField
+                id="first-name"
+                v-model="firstName"
+                label="Vorname"
+                required
+                autocomplete="given-name"
+              />
+              <UiInputField
+                id="last-name"
+                v-model="lastName"
+                label="Nachname"
+                required
+                autocomplete="family-name"
+              />
+              <UiInputField
+                id="email"
+                v-model="email"
+                label="E-Mail"
+                type="email"
+                required
+                autocomplete="email"
+              />
+              <div class="flex flex-col gap-1">
+                <UiInputField
+                  id="phone-number"
+                  v-model="phoneNumber"
+                  label="Telefonnummer"
+                  type="tel"
+                  required
+                  autocomplete="tel"
+                />
+                <p v-if="phoneError" class="text-sm text-red-600">
+                  {{ phoneError }}
+                </p>
+              </div>
+            </div>
           </div>
 
           <div class="lg:col-span-2 flex flex-col gap-4 pt-2">
