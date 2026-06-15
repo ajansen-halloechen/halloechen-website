@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import TopBar from '~/components/TopBar.vue';
-import FooterBar from '~/components/FooterBar.vue';
+import InternalFooterBar from '~/components/InternalFooterBar.vue';
 import { internalNavItems } from '~/utils/internal-navigation';
 
 const route = useRoute();
@@ -13,9 +13,9 @@ const activeItem = computed(() => {
 
 <template>
   <div
-    class="min-h-dvh flex flex-col bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20"
+    class="h-dvh flex flex-col overflow-hidden bg-gradient-to-r from-primary/10 md:from-primary/20 via-background/95 to-primary/10 md:to-primary/20"
   >
-    <header class="sticky top-0 z-50 backdrop-blur-3xl">
+    <header class="shrink-0 z-50 backdrop-blur-3xl">
       <TopBar
         :items="internalNavItems"
         :active-item="activeItem"
@@ -24,12 +24,12 @@ const activeItem = computed(() => {
       />
     </header>
 
-    <main class="flex-1 flex flex-col w-full">
+    <main class="flex-1 min-h-0 overflow-y-auto flex flex-col w-full">
       <slot />
     </main>
 
-    <footer>
-      <FooterBar />
+    <footer class="shrink-0">
+      <InternalFooterBar />
     </footer>
 
     <UiToaster />
