@@ -5,6 +5,7 @@ declare module '#auth-utils' {
     id: string;
     email: string;
     role: UserRole;
+    avatar: string | null;
   }
 }
 

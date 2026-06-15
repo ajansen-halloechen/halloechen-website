@@ -1,12 +1,17 @@
 <script setup lang="ts">
 import TopBar from '~/components/TopBar.vue';
 import InternalFooterBar from '~/components/InternalFooterBar.vue';
-import { internalNavItems } from '~/utils/internal-navigation';
+import { createInternalNavItems } from '~/utils/internal-navigation';
 
 const route = useRoute();
+const { user } = useUserSession();
+
+const navItems = computed(() =>
+  createInternalNavItems({ avatar: user.value?.avatar ?? null }),
+);
 
 const activeItem = computed(() => {
-  const match = internalNavItems.find((item) => route.path === item.to);
+  const match = navItems.value.find((item) => route.path === item.to);
   return match?.id ?? '';
 });
 </script>
@@ -17,7 +22,7 @@ const activeItem = computed(() => {
   >
     <header class="shrink-0 z-50 backdrop-blur-3xl">
       <TopBar
-        :items="internalNavItems"
+        :items="navItems"
         :active-item="activeItem"
         breakpoint="xl"
         :show-marquee="false"

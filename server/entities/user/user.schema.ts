@@ -37,6 +37,7 @@ export const userSchema = z.object({
   firstName: z.string().nullable(),
   lastName: z.string().nullable(),
   phoneNumber: z.string().max(50).nullable(),
+  avatar: z.string().max(512).nullable(),
   role: userRoleSchema,
   isPending: z.boolean(),
   createdAt: z.date(),
@@ -75,20 +76,29 @@ export const userSetupSchema = z.object({
   phoneNumber: phoneSchema,
 });
 
-export const userPatchSchema = z
-  .object({
-    email: z.email().optional(),
-    firstName: z.string().min(1).max(255).optional(),
-    lastName: z.string().min(1).max(255).optional(),
-    phoneNumber: z.union([phoneSchema, z.null()]).optional(),
-    role: userRoleSchema.optional(),
-    oldPassword: z.string().optional(),
-    password: passwordSchema.optional(),
-  })
-  .refine((data) => !data.password || data.oldPassword, {
+const userPatchFieldsSchema = z.object({
+  email: z.email().optional(),
+  firstName: z.string().min(1).max(255).optional(),
+  lastName: z.string().min(1).max(255).optional(),
+  phoneNumber: z.union([phoneSchema, z.null()]).optional(),
+  avatar: z.string().max(512).nullable().optional(),
+  role: userRoleSchema.optional(),
+  oldPassword: z.string().optional(),
+  password: passwordSchema.optional(),
+});
+
+function withPasswordRefinement<T extends z.ZodObject>(schema: T) {
+  return schema.refine((data) => !data.password || data.oldPassword, {
     message: 'Old password is required when setting a new password',
     path: ['oldPassword'],
   });
+}
+
+export const userPatchSchema = withPasswordRefinement(userPatchFieldsSchema);
+
+export const userProfilePatchSchema = withPasswordRefinement(
+  userPatchFieldsSchema.omit({ role: true }),
+);
 
 export const userLoginSchema = z.object({
   email: z.email(),

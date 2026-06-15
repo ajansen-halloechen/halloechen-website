@@ -93,7 +93,13 @@ onClickOutside(topBarRef, () => {
                 class="inline-flex items-center hover:text-accent"
                 :class="{ 'text-accent': activeItem === item.id }"
               >
-                <component :is="item.icon" class="h-6 w-6" />
+                <img
+                  v-if="item.imageUrl"
+                  :src="item.imageUrl"
+                  :alt="item.tooltip ?? item.label"
+                  class="h-6 w-6 rounded-full object-cover"
+                >
+                <component :is="item.icon" v-else class="h-6 w-6" />
               </NuxtLink>
             </UiTooltip>
             <NuxtLink
@@ -137,7 +143,13 @@ onClickOutside(topBarRef, () => {
           @click="closeMobileMenu"
         >
           <span class="inline-flex items-center gap-2">
-            <component :is="item.icon" v-if="item.icon" class="h-5 w-5" />
+            <img
+              v-if="item.imageUrl"
+              :src="item.imageUrl"
+              :alt="item.tooltip ?? item.label"
+              class="h-5 w-5 rounded-full object-cover"
+            >
+            <component :is="item.icon" v-else-if="item.icon" class="h-5 w-5" />
             {{ item.label || item.tooltip }}
           </span>
         </NuxtLink>
