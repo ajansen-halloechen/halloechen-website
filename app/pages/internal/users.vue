@@ -7,6 +7,7 @@ import {
   getFilteredRowModel,
   useVueTable,
   type SortingState,
+  type ColumnFiltersState,
   type ColumnDef,
 } from '@tanstack/vue-table';
 import {
@@ -27,7 +28,27 @@ const { data: users, refresh: refreshUsers } =
   await useFetch<User[]>('/api/users');
 
 const sorting = ref<SortingState>([]);
+const columnFilters = ref<ColumnFiltersState>([]);
 const globalSearch = ref('');
+
+const uniqueStatuses = ['Aktiv', 'Eingeladen'] as const;
+
+const selectedStatuses = ref<string[]>([...uniqueStatuses]);
+
+const statusFilterOptions = computed(() =>
+  uniqueStatuses.map((status) => ({
+    value: status,
+    label: status,
+  })),
+);
+
+watch([selectedStatuses], () => {
+  const filters: ColumnFiltersState = [];
+  if (selectedStatuses.value.length < uniqueStatuses.length) {
+    filters.push({ id: 'status', value: [...selectedStatuses.value] });
+  }
+  columnFilters.value = filters;
+});
 
 const showCreateModal = ref(false);
 const showRoleModal = ref(false);
@@ -63,15 +84,20 @@ const columns = computed((): ColumnDef<User>[] => {
     }),
     columnHelper.accessor('email', {
       header: 'E-Mail',
+      enableSorting: false,
     }),
     columnHelper.accessor('phoneNumber', {
       header: 'Telefon',
       cell: (info) => info.getValue(),
+      enableSorting: false,
     }),
     columnHelper.accessor((row) => getUserStatus(row), {
       id: 'status',
       header: 'Status',
-      enableSorting: true,
+      cell: (info) => info.getValue(),
+      filterFn: (row, _columnId, filterValue: string[]) =>
+        filterValue.includes(row.getValue('status')),
+      enableSorting: false,
     }),
   ];
 
@@ -97,6 +123,9 @@ const table = useVueTable({
   state: {
     get sorting() {
       return sorting.value;
+    },
+    get columnFilters() {
+      return columnFilters.value;
     },
     get globalFilter() {
       return globalSearch.value;
@@ -242,6 +271,15 @@ async function handleDelete(id: string) {
             <UiButton type="submit" class="self-end">Einladen</UiButton>
           </form>
         </UiModal>
+      </template>
+
+      <template #column-filter="{ column }">
+        <UiFilterPopover
+          v-if="column.id === 'status'"
+          v-model="selectedStatuses"
+          :options="statusFilterOptions"
+          aria-label="Nach Status filtern"
+        />
       </template>
 
       <template #cell="{ cell, row }">

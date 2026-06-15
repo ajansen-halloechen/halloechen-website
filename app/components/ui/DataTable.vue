@@ -105,16 +105,18 @@ const globalSearch = defineModel<string>('globalSearch', { default: '' });
                 'w-0': (cell.column.columnDef.meta as any)?.shrink,
               }"
             >
-              <slot
-                name="cell"
-                :cell="cell as Cell<T, unknown>"
-                :row="row as Row<T>"
-              >
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
-              </slot>
+              <div class="min-h-9 flex items-center">
+                <slot
+                  name="cell"
+                  :cell="cell as Cell<T, unknown>"
+                  :row="row as Row<T>"
+                >
+                  <FlexRender
+                    :render="cell.column.columnDef.cell"
+                    :props="cell.getContext()"
+                  />
+                </slot>
+              </div>
             </td>
           </tr>
         </tbody>
