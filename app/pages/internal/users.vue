@@ -26,7 +26,7 @@ const { user: currentUser } = useUserSession();
 const { data: users, refresh: refreshUsers } =
   await useFetch<User[]>('/api/users');
 
-const sorting = ref<SortingState>([{ id: 'displayName', desc: true }]);
+const sorting = ref<SortingState>([{ id: 'displayName', desc: false }]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const globalSearch = ref('');
 
