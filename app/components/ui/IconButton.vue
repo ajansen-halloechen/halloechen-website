@@ -8,7 +8,7 @@ const iconButton = tv({
   variants: {
     variant: {
       plain: 'text-primary hover:bg-primary/70 hover:text-accent',
-      nohover: 'text-primary',
+      nohover: 'text-current',
       outlined:
         'bg-transparent border border-primary text-primary hover:bg-primary/10',
       solid: 'bg-primary text-accent hover:bg-primary-900',
