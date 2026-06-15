@@ -19,7 +19,7 @@ const open = defineModel<boolean>('open', { default: false });
 
 <template>
   <DialogRoot v-model:open="open">
-    <DialogTrigger as-child>
+    <DialogTrigger v-if="$slots.trigger" as-child>
       <slot name="trigger" />
     </DialogTrigger>
     <DialogPortal>
