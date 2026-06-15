@@ -71,7 +71,7 @@
     }
 
     :focus-visible,
-    :-moz-focusring {
+    :focus {
         outline: 1px solid var(--color-accent);
         outline-offset: 1px;
     }
