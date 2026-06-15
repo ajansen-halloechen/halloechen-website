@@ -42,7 +42,7 @@ const globalSearch = defineModel<string>('globalSearch', { default: '' });
             <th
               v-for="header in headerGroup.headers"
               :key="header.id"
-              class="px-4 py-4 text-left text-md font-semibold tracking-wider"
+              class="px-4 py-3 text-left text-md font-semibold tracking-wider"
               :class="{
                 'text-right':
                   (header.column.columnDef.meta as any)?.align === 'right',
