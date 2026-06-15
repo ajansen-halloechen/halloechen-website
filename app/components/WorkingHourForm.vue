@@ -80,8 +80,8 @@ function handleSubmit() {
         v-model="plusOneDay"
         type="checkbox"
         class="accent-primary"
-      >
-      <label for="wh-plus-one" class="text-sm">Ende am Folgetag (+1)</label>
+      />
+      <label for="wh-plus-one" class="text-sm">Ende am Folgetag</label>
     </div>
 
     <UiInputField
@@ -96,7 +96,7 @@ function handleSubmit() {
     <UiAutocompleteField
       id="wh-activity"
       v-model="activity"
-      label="Aktivität"
+      label="Aktivität (Freitext oder Auswahl)"
       :options="activities"
       required
     />
