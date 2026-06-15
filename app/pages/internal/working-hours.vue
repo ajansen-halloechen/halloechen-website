@@ -361,6 +361,23 @@ function openDeleteModal(entry: WorkingHour) {
             </UiIconButton>
           </div>
         </template>
+        <template v-else-if="cell.column.id === 'userId'">
+          <div class="flex items-center gap-2">
+            <UiUserAvatar
+              :src="userMap.get(row.original.userId)?.avatar ?? null"
+              :alt="
+                userMap.get(row.original.userId)
+                  ? getUserDisplayName(userMap.get(row.original.userId)!)
+                  : row.original.userId
+              "
+            />
+            <span>{{
+              userMap.get(row.original.userId)
+                ? getUserDisplayName(userMap.get(row.original.userId)!)
+                : row.original.userId
+            }}</span>
+          </div>
+        </template>
         <template v-else>
           <FlexRender
             :render="cell.column.columnDef.cell"

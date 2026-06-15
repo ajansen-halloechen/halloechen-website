@@ -258,6 +258,15 @@ async function handleResendInvitation(user: User) {
             {{ row.original.phoneNumber }}
           </a>
         </template>
+        <template v-else-if="cell.column.id === 'displayName'">
+          <div class="flex items-center gap-2">
+            <UiUserAvatar
+              :src="row.original.avatar"
+              :alt="getUserDisplayName(row.original) ?? row.original.email"
+            />
+            <span>{{ getUserDisplayName(row.original) ?? '' }}</span>
+          </div>
+        </template>
         <template v-else>
           <FlexRender
             :render="cell.column.columnDef.cell"
