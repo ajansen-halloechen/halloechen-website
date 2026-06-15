@@ -8,7 +8,6 @@ import {
   useVueTable,
   type SortingState,
   type ColumnFiltersState,
-  type ColumnDef,
 } from '@tanstack/vue-table';
 import {
   PlusIcon,
@@ -27,7 +26,7 @@ const { user: currentUser } = useUserSession();
 const { data: users, refresh: refreshUsers } =
   await useFetch<User[]>('/api/users');
 
-const sorting = ref<SortingState>([]);
+const sorting = ref<SortingState>([{ id: 'displayName', desc: true }]);
 const columnFilters = ref<ColumnFiltersState>([]);
 const globalSearch = ref('');
 
@@ -68,58 +67,63 @@ function getUserDisplayName(user: User): string | null {
   return null;
 }
 
+function getUserSortKey(user: User): string {
+  return getUserDisplayName(user) ?? user.email;
+}
+
 function getUserStatus(user: User): string {
   return user.isPending ? 'Eingeladen' : 'Aktiv';
 }
 
 const columnHelper = createColumnHelper<User>();
 
-const columns = computed((): ColumnDef<User>[] => {
-  const cols: ColumnDef<User>[] = [
-    columnHelper.accessor((row) => getUserDisplayName(row), {
-      id: 'displayName',
-      header: 'Genoss*in',
-      cell: (info) => info.getValue(),
-      enableSorting: true,
-    }),
-    columnHelper.accessor('email', {
-      header: 'E-Mail',
-      enableSorting: false,
-    }),
-    columnHelper.accessor('phoneNumber', {
-      header: 'Telefon',
-      cell: (info) => info.getValue(),
-      enableSorting: false,
-    }),
-    columnHelper.accessor((row) => getUserStatus(row), {
-      id: 'status',
-      header: 'Status',
-      cell: (info) => info.getValue(),
-      filterFn: (row, _columnId, filterValue: string[]) =>
-        filterValue.includes(row.getValue('status')),
-      enableSorting: false,
-    }),
-  ];
+const baseColumns = [
+  columnHelper.accessor((row) => getUserSortKey(row), {
+    id: 'displayName',
+    header: 'Genoss*in',
+    cell: (info) => getUserDisplayName(info.row.original) ?? '',
+    enableSorting: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+      return a.localeCompare(b, 'de');
+    },
+  }),
+  columnHelper.accessor('email', {
+    header: 'E-Mail',
+    enableSorting: false,
+  }),
+  columnHelper.display({
+    id: 'phoneNumber',
+    header: 'Telefon',
+    enableSorting: false,
+  }),
+  columnHelper.accessor((row) => getUserStatus(row), {
+    id: 'status',
+    header: 'Status',
+    cell: (info) => info.getValue(),
+    filterFn: (row, _columnId, filterValue: string[]) =>
+      filterValue.includes(row.getValue('status')),
+    enableSorting: false,
+  }),
+];
 
-  if (isAdmin.value) {
-    cols.push(
-      columnHelper.display({
-        id: 'actions',
-        header: 'Aktionen',
-      }),
-    );
-  }
-
-  return cols;
-});
+const adminColumns = [
+  ...baseColumns,
+  columnHelper.display({
+    id: 'actions',
+    header: 'Aktionen',
+  }),
+];
 
 const table = useVueTable({
   get data() {
     return users.value ?? [];
   },
   get columns() {
-    return columns.value;
+    return isAdmin.value ? adminColumns : baseColumns;
   },
+  getRowId: (row) => row.id,
   state: {
     get sorting() {
       return sorting.value;
@@ -198,7 +202,6 @@ async function handleResendInvitation(user: User) {
       method: 'POST',
     });
     success('Einladung wurde erneut versendet.');
-    await refreshUsers();
   } catch (e: unknown) {
     if (
       typeof e === 'object' &&
