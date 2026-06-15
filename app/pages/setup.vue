@@ -22,6 +22,8 @@ const loading = ref(false);
 
 const tokenMissing = computed(() => !token.value);
 
+const { fetch: fetchSession } = useUserSession();
+
 async function handleSetup() {
   error.value = '';
   passwordError.value = '';
@@ -45,7 +47,8 @@ async function handleSetup() {
         ...(phoneNumber.value ? { phoneNumber: phoneNumber.value } : {}),
       },
     });
-    await navigateTo('/login');
+    await fetchSession();
+    await navigateTo('/internal/working-hours');
   } catch (e: unknown) {
     if (
       typeof e === 'object' &&
