@@ -309,7 +309,7 @@ async function handleDelete(id: string) {
       <template #actions>
         <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">
           <template #trigger>
-            <UiIconButton variant="solid" aria-label="Arbeitszeit erfassen">
+            <UiIconButton variant="solid" tooltip="Arbeitszeit erfassen">
               <PlusIcon class="size-6" />
             </UiIconButton>
           </template>
@@ -343,14 +343,14 @@ async function handleDelete(id: string) {
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
             <UiIconButton
-              aria-label="Bearbeiten"
+              tooltip="Arbeitszeit bearbeiten"
               :disabled="row.original.userId !== currentUser?.id"
               @click="openEditModal(row.original)"
             >
               <PencilIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
-              aria-label="Löschen"
+              tooltip="Arbeitszeit löschen"
               :disabled="row.original.userId !== currentUser?.id"
               @click="handleDelete(row.original.id)"
             >

@@ -249,7 +249,7 @@ async function handleDelete(id: string) {
           title="Genoss*in einladen"
         >
           <template #trigger>
-            <UiIconButton variant="solid" aria-label="Genoss*in einladen">
+            <UiIconButton variant="solid" tooltip="Genoss*in einladen">
               <PlusIcon class="size-6" />
             </UiIconButton>
           </template>
@@ -290,20 +290,20 @@ async function handleDelete(id: string) {
           <div class="flex gap-1">
             <UiIconButton
               v-if="row.original.isPending"
-              aria-label="Einladung erneut senden"
+              tooltip="Einladung erneut senden"
               :disabled="resendLoadingId === row.original.id"
               @click="handleResendInvitation(row.original)"
             >
               <PaperAirplaneIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
-              aria-label="Rolle ändern"
+              tooltip="Rolle ändern"
               @click="openRoleModal(row.original)"
             >
               <Cog6ToothIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
-              aria-label="Löschen"
+              tooltip="Genoss*in löschen"
               @click="handleDelete(row.original.id)"
             >
               <TrashIcon class="size-5" />
