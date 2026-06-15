@@ -4,5 +4,11 @@ import { userSetupSchema } from '#server/entities/user/user.schema';
 
 export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, userSetupSchema.parse);
-  return userService.setup(body);
+  const user = await userService.setup(body);
+
+  await setUserSession(event, {
+    user: { id: user.id, email: user.email, role: user.role },
+  });
+
+  return user;
 });
