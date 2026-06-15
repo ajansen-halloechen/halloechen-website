@@ -68,7 +68,7 @@ async function handleSetup() {
     <template #heading>Konto einrichten</template>
     <div
       v-if="tokenMissing"
-      class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+      class="px-4 py-2 bg-error text-sm text-on-error rounded-md"
     >
       Kein gültiger Einladungslink. Bitte verwende den Link aus deiner
       Einladungs-E-Mail.
@@ -76,7 +76,7 @@ async function handleSetup() {
     <form v-else class="flex flex-col gap-4" @submit.prevent="handleSetup">
       <div
         v-if="error"
-        class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+        class="px-4 py-2 bg-error text-sm text-on-error rounded-md"
       >
         {{ error }}
       </div>

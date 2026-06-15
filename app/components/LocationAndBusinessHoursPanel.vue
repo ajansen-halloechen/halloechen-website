@@ -12,7 +12,7 @@
       <h3 class="text-xl font-semibold">Zeit:</h3>
       <!-- Banner: Zurzeit wegen Umbau nur zu Veranstaltungen geöffnet -->
       <div
-        class="px-4 py-2 bg-secondary text-on-secondary font-semibold rounded-md flex justify-center items-center"
+        class="px-4 py-2 bg-error text-on-error font-semibold rounded-md flex justify-center items-center"
       >
         Momentan wegen Umbau nur zu Veranstaltungen geöffnet!
       </div>

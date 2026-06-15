@@ -17,9 +17,9 @@ import { HeartIcon } from '@heroicons/vue/24/solid';
         class="text-2xl md:text-3xl font-bold pt-4 inline-flex items-center gap-1"
       >
         Prost!
-        <HeartIcon class="size-7 md:size-8 text-secondary" />
+        <HeartIcon class="size-7 md:size-8 text-error" />
         🍺
-        <HeartIcon class="size-7 md:size-8 text-secondary" />
+        <HeartIcon class="size-7 md:size-8 text-error" />
       </p>
     </div>
   </div>

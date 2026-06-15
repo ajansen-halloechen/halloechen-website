@@ -24,9 +24,9 @@ const toastRoot = tv({
   ],
   variants: {
     variant: {
-      success: 'border-success/40 bg-success/15 text-primary',
-      warning: 'border-warning/40 bg-warning/15 text-primary',
-      error: 'border-error/40 bg-error/15 text-primary',
+      success: 'border-success/40 bg-success text-primary',
+      warning: 'border-warning/40 bg-warning text-primary',
+      error: 'border-error/40 bg-error text-on-error',
     },
   },
   defaultVariants: {
@@ -61,14 +61,18 @@ function handleOpenChange(item: ToastItem, open: boolean) {
         </ToastDescription>
       </div>
       <ToastClose as-child>
-        <UiIconButton aria-label="Schließen" class="shrink-0 -mr-1 -mt-1">
+        <UiIconButton
+          variant="nohover"
+          aria-label="Schließen"
+          class="shrink-0 -mr-1 -mt-1"
+        >
           <XMarkIcon class="size-5" />
         </UiIconButton>
       </ToastClose>
     </ToastRoot>
 
     <ToastViewport
-      class="fixed right-4 bottom-56 z-[60] flex max-h-[calc(100dvh-14rem)] w-full max-w-sm flex-col gap-2 p-4 outline-none"
+      class="fixed right-0 bottom-10 z-[60] flex max-h-[calc(100dvh-14rem)] w-full max-w-sm flex-col gap-2 p-4 outline-none"
     />
   </ToastProvider>
 </template>

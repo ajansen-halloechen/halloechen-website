@@ -40,7 +40,7 @@ async function handleLogin() {
     <form class="flex flex-col gap-4" @submit.prevent="handleLogin">
       <div
         v-if="error"
-        class="px-4 py-2 bg-secondary text-sm text-on-secondary rounded-md"
+        class="px-4 py-2 bg-error text-sm text-on-error rounded-md"
       >
         {{ error }}
       </div>
