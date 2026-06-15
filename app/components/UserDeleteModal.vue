@@ -48,17 +48,11 @@ async function handleDelete() {
 </script>
 
 <template>
-  <UiModal v-model:open="open" title="Genoss*in löschen">
-    <p class="text-sm text-gray-600">
-      {{ description }}
-    </p>
-    <div class="mt-6 flex justify-end gap-2">
-      <UiButton variant="outlined" :disabled="loading" @click="open = false">
-        Abbrechen
-      </UiButton>
-      <UiButton color="error" :disabled="loading" @click="handleDelete">
-        {{ loading ? 'Löschen…' : 'Löschen' }}
-      </UiButton>
-    </div>
-  </UiModal>
+  <UiConfirmDeleteModal
+    v-model:open="open"
+    title="Genoss*in löschen"
+    :description="description"
+    :loading="loading"
+    @confirm="handleDelete"
+  />
 </template>
