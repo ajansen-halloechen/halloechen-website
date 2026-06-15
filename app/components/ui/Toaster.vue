@@ -72,7 +72,7 @@ function handleOpenChange(item: ToastItem, open: boolean) {
     </ToastRoot>
 
     <ToastViewport
-      class="fixed right-0 bottom-10 z-[60] flex max-h-[calc(100dvh-14rem)] w-full max-w-sm flex-col gap-2 p-4 outline-none"
+      class="fixed right-0 bottom-0 xl:bottom-10 z-[60] flex max-h-[calc(100dvh-14rem)] w-full max-w-sm flex-col gap-2 p-4 outline-none"
     />
   </ToastProvider>
 </template>

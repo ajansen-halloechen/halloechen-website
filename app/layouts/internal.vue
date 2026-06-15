@@ -28,7 +28,7 @@ const activeItem = computed(() => {
       <slot />
     </main>
 
-    <footer class="shrink-0">
+    <footer class="shrink-0 hidden xl:block">
       <InternalFooterBar />
     </footer>
 
