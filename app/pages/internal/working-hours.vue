@@ -234,8 +234,10 @@ const table = useVueTable({
 
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
+const showDeleteModal = ref(false);
 const editingId = ref<string | undefined>();
 const editingEntry = ref<WorkingHourFormData>();
+const deletingEntry = ref<WorkingHour>();
 
 function openEditModal(entry: WorkingHour) {
   editingId.value = entry.id;
@@ -293,9 +295,9 @@ async function handleEdit(data: WorkingHourFormData) {
   editingId.value = undefined;
 }
 
-async function handleDelete(id: string) {
-  await $fetch(`/api/working-hours/${id}`, { method: 'DELETE' });
-  await refreshWorkingHours();
+function openDeleteModal(entry: WorkingHour) {
+  deletingEntry.value = entry;
+  showDeleteModal.value = true;
 }
 </script>
 
@@ -353,7 +355,7 @@ async function handleDelete(id: string) {
               color="error"
               tooltip="Arbeitszeit löschen"
               :disabled="row.original.userId !== currentUser?.id"
-              @click="handleDelete(row.original.id)"
+              @click="openDeleteModal(row.original)"
             >
               <TrashIcon class="size-5" />
             </UiIconButton>
@@ -375,5 +377,12 @@ async function handleDelete(id: string) {
         @submit="handleEdit"
       />
     </UiModal>
+
+    <WorkingHourDeleteModal
+      v-model:open="showDeleteModal"
+      :working-hour="deletingEntry"
+      :activity-name="deletingEntry ? activityMap.get(deletingEntry.activityId)?.name : undefined"
+      @success="refreshWorkingHours()"
+    />
   </UiPage>
 </template>
