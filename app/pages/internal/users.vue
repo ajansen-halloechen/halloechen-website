@@ -76,6 +76,10 @@ function getUserStatus(user: User): string {
   return user.isPending ? 'Eingeladen' : 'Aktiv';
 }
 
+function getRoleLabel(role: User['role']): string {
+  return role === 'admin' ? 'Admin' : 'User';
+}
+
 const columnHelper = createColumnHelper<User>();
 
 const baseColumns = [
@@ -105,6 +109,11 @@ const baseColumns = [
     cell: (info) => info.getValue(),
     filterFn: (row, _columnId, filterValue: string[]) =>
       filterValue.includes(row.getValue('status')),
+    enableSorting: false,
+  }),
+  columnHelper.accessor('role', {
+    header: 'Rolle',
+    cell: (info) => getRoleLabel(info.getValue()),
     enableSorting: false,
   }),
 ];
@@ -143,7 +152,7 @@ const table = useVueTable({
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
     const u = row.original;
-    return [getUserDisplayName(u), u.email, u.phoneNumber, getUserStatus(u)]
+    return [getUserDisplayName(u), u.email, u.phoneNumber, getUserStatus(u), getRoleLabel(u.role)]
       .filter(Boolean)
       .some((v) => v!.toLowerCase().includes(search));
   },
