@@ -29,6 +29,11 @@ const { data: profile, refresh: refreshProfile } =
 
 const avatar = computed(() => profile.value?.avatar ?? null);
 
+const avatarLoading = ref(false);
+const fileInputRef = ref<HTMLInputElement | null>(null);
+
+const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
+
 const firstName = ref('');
 const lastName = ref('');
 const email = ref('');
@@ -83,6 +88,61 @@ function clearErrors() {
   error.value = '';
   passwordError.value = '';
   phoneError.value = '';
+}
+
+function triggerAvatarUpload() {
+  fileInputRef.value?.click();
+}
+
+async function handleAvatarSelect(event: Event) {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  input.value = '';
+
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    toastError('Bitte wähle eine Bilddatei aus.');
+    return;
+  }
+
+  if (file.size > MAX_AVATAR_SIZE) {
+    toastError('Die Datei ist zu groß (max. 5 MB).');
+    return;
+  }
+
+  avatarLoading.value = true;
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    await $fetch('/api/avatar', {
+      method: 'POST',
+      body: formData,
+    });
+    await fetchSession();
+    await refreshProfile();
+    success('Avatar aktualisiert.');
+  } catch {
+    toastError('Avatar konnte nicht hochgeladen werden.');
+  } finally {
+    avatarLoading.value = false;
+  }
+}
+
+async function handleAvatarRemove() {
+  avatarLoading.value = true;
+
+  try {
+    await $fetch('/api/avatar', { method: 'DELETE' });
+    await fetchSession();
+    await refreshProfile();
+    success('Avatar entfernt.');
+  } catch {
+    toastError('Avatar konnte nicht entfernt werden.');
+  } finally {
+    avatarLoading.value = false;
+  }
 }
 
 function clearPasswordFields() {
@@ -210,7 +270,31 @@ async function handleSave() {
             class="h-44 w-44 lg:h-60 lg:w-60 text-on-surface/50"
           />
         </div>
-        <UiButton type="button" disabled> Avatar ändern </UiButton>
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="handleAvatarSelect"
+        />
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <UiButton
+            v-if="avatar"
+            type="button"
+            color="error"
+            :disabled="avatarLoading"
+            @click="handleAvatarRemove"
+          >
+            Bild entfernen
+          </UiButton>
+          <UiButton
+            type="button"
+            :disabled="avatarLoading"
+            @click="triggerAvatarUpload"
+          >
+            {{ avatarLoading ? 'Bild ändern…' : 'Bild ändern' }}
+          </UiButton>
+        </div>
       </div>
 
       <div class="bg-surface p-4 border border-accent border-3 rounded-md">

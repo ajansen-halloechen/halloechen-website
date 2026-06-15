@@ -39,6 +39,22 @@ export const userService = {
     return toPublicUser(user);
   },
 
+  async getByIdInternal(id: string) {
+    const user = await userRepository.findById(id);
+    if (!user) {
+      throw createError({ statusCode: 404, statusMessage: 'User not found' });
+    }
+    return user;
+  },
+
+  async setAvatar(id: string, avatar: string | null) {
+    const user = await userRepository.update(id, { avatar });
+    if (!user) {
+      throw createError({ statusCode: 404, statusMessage: 'User not found' });
+    }
+    return toPublicUser(user);
+  },
+
   async create(input: UserCreate) {
     const existing = await userRepository.findByEmail(input.email);
     if (existing) {
