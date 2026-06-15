@@ -5,6 +5,11 @@ const props = defineProps<{
   src: string | null;
   alt?: string;
   class?: string;
+  interactive?: boolean;
+}>();
+
+const emit = defineEmits<{
+  click: [];
 }>();
 
 const failed = ref(false);
@@ -15,16 +20,33 @@ watch(
     failed.value = false;
   },
 );
+
+const imgClass = computed(() =>
+  twMerge('size-8 shrink-0 rounded-full object-cover', props.class),
+);
 </script>
 
 <template>
+  <button
+    v-if="src && !failed && interactive"
+    type="button"
+    class="shrink-0 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+    @click="emit('click')"
+  >
+    <img
+      :src="src"
+      :alt="alt ?? ''"
+      loading="lazy"
+      :class="twMerge(imgClass, 'cursor-pointer hover:ring-2 hover:ring-accent')"
+      @error="failed = true"
+    />
+  </button>
   <img
-    v-if="src && !failed"
+    v-else-if="src && !failed"
     :src="src"
     :alt="alt ?? ''"
     loading="lazy"
-    class="size-8 shrink-0 rounded-full object-cover"
-    :class="twMerge(props.class)"
+    :class="imgClass"
     @error="failed = true"
   />
 </template>
