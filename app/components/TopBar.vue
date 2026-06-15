@@ -87,15 +87,15 @@ onClickOutside(topBarRef, () => {
           :class="desktopNavClass"
         >
           <template v-for="item in items" :key="item.id">
-            <NuxtLink
-              v-if="item.icon"
-              :to="item.to"
-              :title="item.tooltip"
-              class="inline-flex items-center hover:text-accent"
-              :class="{ 'text-accent': activeItem === item.id }"
-            >
-              <component :is="item.icon" class="h-6 w-6" />
-            </NuxtLink>
+            <UiTooltip v-if="item.icon" :content="item.tooltip!">
+              <NuxtLink
+                :to="item.to"
+                class="inline-flex items-center hover:text-accent"
+                :class="{ 'text-accent': activeItem === item.id }"
+              >
+                <component :is="item.icon" class="h-6 w-6" />
+              </NuxtLink>
+            </UiTooltip>
             <NuxtLink
               v-else
               :to="item.to"

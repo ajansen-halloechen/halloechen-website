@@ -24,6 +24,7 @@ type IconButtonVariants = VariantProps<typeof iconButton>;
 const props = withDefaults(
   defineProps<{
     variant?: IconButtonVariants['variant'];
+    tooltip?: string;
   }>(),
   {
     variant: 'plain',
@@ -38,12 +39,31 @@ const buttonClass = computed(() =>
 
 const buttonAttrs = computed(() => {
   const { class: _, ...rest } = attrs;
+  if (props.tooltip && !('aria-label' in rest)) {
+    return { ...rest, 'aria-label': props.tooltip };
+  }
   return rest;
 });
+
+const isDisabled = computed(() => Boolean(buttonAttrs.value.disabled));
 </script>
 
 <template>
-  <button type="button" v-bind="buttonAttrs" :class="buttonClass">
+  <UiTooltip v-if="tooltip" :content="tooltip">
+    <span v-if="isDisabled" tabindex="0" class="inline-flex">
+      <button
+        type="button"
+        v-bind="buttonAttrs"
+        :class="[buttonClass, 'pointer-events-none']"
+      >
+        <slot />
+      </button>
+    </span>
+    <button v-else type="button" v-bind="buttonAttrs" :class="buttonClass">
+      <slot />
+    </button>
+  </UiTooltip>
+  <button v-else type="button" v-bind="buttonAttrs" :class="buttonClass">
     <slot />
   </button>
 </template>
