@@ -219,24 +219,25 @@ async function handleResendInvitation(user: User) {
         <template v-if="cell.column.id === 'actions'">
           <div class="flex gap-1">
             <UiIconButton
-              v-if="row.original.isPending"
-              tooltip="Einladung erneut senden"
-              :disabled="resendLoadingId === row.original.id"
-              @click="handleResendInvitation(row.original)"
-            >
-              <PaperAirplaneIcon class="size-5" />
-            </UiIconButton>
-            <UiIconButton
               tooltip="Rolle ändern"
               @click="openRoleModal(row.original)"
             >
               <Cog6ToothIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
+              color="error"
               tooltip="Genoss*in löschen"
               @click="openDeleteModal(row.original)"
             >
               <TrashIcon class="size-5" />
+            </UiIconButton>
+            <UiIconButton
+              v-if="row.original.isPending"
+              tooltip="Einladung erneut senden"
+              :disabled="resendLoadingId === row.original.id"
+              @click="handleResendInvitation(row.original)"
+            >
+              <PaperAirplaneIcon class="size-5" />
             </UiIconButton>
           </div>
         </template>

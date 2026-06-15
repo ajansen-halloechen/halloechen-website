@@ -7,15 +7,67 @@ const iconButton = tv({
   base: 'inline-flex items-center justify-center p-2 rounded-md transition-colors cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed',
   variants: {
     variant: {
-      plain: 'text-primary hover:bg-primary/70 hover:text-accent',
+      plain: '',
       nohover: 'text-current',
-      outlined:
-        'bg-transparent border border-primary text-primary hover:bg-primary/10',
-      solid: 'bg-primary text-accent hover:bg-primary-900',
+      outlined: 'bg-transparent border',
+      solid: '',
+    },
+    color: {
+      primary: '',
+      warning: '',
+      error: '',
     },
   },
+  compoundVariants: [
+    {
+      variant: 'plain',
+      color: 'primary',
+      class: 'text-primary hover:bg-primary/70 hover:text-accent',
+    },
+    {
+      variant: 'plain',
+      color: 'warning',
+      class: 'text-warning-700 hover:bg-warning/30 hover:text-warning-900',
+    },
+    {
+      variant: 'plain',
+      color: 'error',
+      class: 'text-error hover:bg-error/10 hover:text-error-800',
+    },
+    {
+      variant: 'outlined',
+      color: 'primary',
+      class: 'border-primary text-primary hover:bg-primary/10',
+    },
+    {
+      variant: 'outlined',
+      color: 'warning',
+      class: 'border-warning-600 text-warning-700 hover:bg-warning/10',
+    },
+    {
+      variant: 'outlined',
+      color: 'error',
+      class: 'border-error text-error hover:bg-error/10',
+    },
+    {
+      variant: 'solid',
+      color: 'primary',
+      class: 'bg-primary text-on-primary hover:bg-primary-900',
+    },
+    {
+      variant: 'solid',
+      color: 'warning',
+      class: 'bg-warning text-primary hover:bg-warning-300',
+    },
+    {
+      variant: 'solid',
+      color: 'error',
+      class: 'bg-error text-on-error hover:bg-error-800',
+    },
+  ],
   defaultVariants: {
     variant: 'plain',
+    color: 'primary',
   },
 });
 
@@ -24,17 +76,23 @@ type IconButtonVariants = VariantProps<typeof iconButton>;
 const props = withDefaults(
   defineProps<{
     variant?: IconButtonVariants['variant'];
+    color?: IconButtonVariants['color'];
     tooltip?: string;
   }>(),
   {
     variant: 'plain',
+    color: 'primary',
   },
 );
 
 const attrs = useAttrs();
 
 const buttonClass = computed(() =>
-  iconButton({ variant: props.variant, class: attrs.class as string }),
+  iconButton({
+    variant: props.variant,
+    color: props.color,
+    class: attrs.class as string,
+  }),
 );
 
 const buttonAttrs = computed(() => {
