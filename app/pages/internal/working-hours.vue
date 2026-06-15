@@ -350,6 +350,7 @@ async function handleDelete(id: string) {
               <PencilIcon class="size-5" />
             </UiIconButton>
             <UiIconButton
+              color="error"
               tooltip="Arbeitszeit löschen"
               :disabled="row.original.userId !== currentUser?.id"
               @click="handleDelete(row.original.id)"
