@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { resolveAvatarUrl } from '#server/utils/files/avatar-url';
 import { passwordValidationMessage, validatePassword } from '#shared/password';
 import {
   normalizePhoneNumber,
@@ -60,7 +61,11 @@ export const toPublicUserSchema = userInternalSchema
 export function toPublicUser(
   user: z.infer<typeof userInternalSchema>,
 ): z.infer<typeof userSchema> {
-  return toPublicUserSchema.parse(user);
+  const publicUser = toPublicUserSchema.parse(user);
+  return {
+    ...publicUser,
+    avatar: resolveAvatarUrl(publicUser.avatar),
+  };
 }
 
 export const userCreateSchema = z.object({
@@ -81,7 +86,6 @@ const userPatchFieldsSchema = z.object({
   firstName: z.string().min(1).max(255).optional(),
   lastName: z.string().min(1).max(255).optional(),
   phoneNumber: z.union([phoneSchema, z.null()]).optional(),
-  avatar: z.string().max(512).nullable().optional(),
   role: userRoleSchema.optional(),
   oldPassword: z.string().optional(),
   password: passwordSchema.optional(),

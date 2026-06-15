@@ -12,6 +12,20 @@ services:
     volumes:
       - postgres_data_halloechen_website:/var/lib/postgresql
 
+  # Example app service for production (uncomment when adding a Dockerfile):
+  # app:
+  #   build: .
+  #   ports:
+  #     - "3000:3000"
+  #   environment:
+  #     FILES_STORAGE_PATH: /app/files
+  #   volumes:
+  #     - files_data_halloechen_website:/app/files
+  #   depends_on:
+  #     - postgres
+
 volumes:
   postgres_data_halloechen_website:
     driver: local
+  # files_data_halloechen_website:
+  #   driver: local

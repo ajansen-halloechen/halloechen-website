@@ -1,3 +1,4 @@
+import { join } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
@@ -132,6 +133,18 @@ export default defineNuxtConfig({
   },
 
   modules: ['nuxt-auth-utils', '@nuxt/eslint'],
+
+  nitro: {
+    storage: {
+      files: {
+        driver: 'fs',
+        base: process.env.FILES_STORAGE_PATH ?? join(process.cwd(), 'files'),
+      },
+    },
+    externals: {
+      inline: ['sharp'],
+    },
+  },
 
   runtimeConfig: {
     smtpHost: process.env.SMTP_HOST ?? '',
