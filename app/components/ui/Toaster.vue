@@ -68,7 +68,7 @@ function handleOpenChange(item: ToastItem, open: boolean) {
     </ToastRoot>
 
     <ToastViewport
-      class="fixed bottom-0 right-0 z-[60] flex max-h-dvh w-full max-w-sm flex-col gap-2 p-4 outline-none sm:bottom-4 sm:right-4"
+      class="fixed right-4 bottom-56 z-[60] flex max-h-[calc(100dvh-14rem)] w-full max-w-sm flex-col gap-2 p-4 outline-none"
     />
   </ToastProvider>
 </template>
@@ -78,6 +78,7 @@ function handleOpenChange(item: ToastItem, open: boolean) {
   from {
     transform: translateX(var(--reka-toast-swipe-end-x));
   }
+
   to {
     transform: translateX(calc(var(--reka-toast-swipe-end-x) + 100%));
   }
