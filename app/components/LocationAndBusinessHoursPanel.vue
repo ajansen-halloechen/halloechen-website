@@ -10,12 +10,6 @@
     </div>
     <div class="space-y-6">
       <h3 class="text-xl font-semibold">Zeit:</h3>
-      <!-- Banner: Zurzeit wegen Umbau nur zu Veranstaltungen geöffnet -->
-      <div
-        class="px-4 py-2 bg-error text-on-error font-semibold rounded-md flex justify-center items-center"
-      >
-        Momentan wegen Umbau nur zu Veranstaltungen geöffnet!
-      </div>
       <table class="border-collapse max-w-xs gap-1">
         <tbody>
           <tr>
