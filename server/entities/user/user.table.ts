@@ -8,6 +8,7 @@ export const users = pgTable('users', {
   firstName: varchar('first_name', { length: 255 }),
   lastName: varchar('last_name', { length: 255 }),
   phoneNumber: varchar('phone_number', { length: 50 }),
+  avatar: varchar('avatar', { length: 512 }),
   role: userRoleEnum('role').default('user').notNull(),
   passwordHash: varchar('password_hash', { length: 255 }),
   setupToken: varchar('setup_token', { length: 255 }).unique(),
