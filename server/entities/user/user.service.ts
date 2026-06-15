@@ -110,9 +110,9 @@ export const userService = {
 
     const updated = await userRepository.update(user.id, {
       passwordHash,
-      firstName: input.firstName ?? user.firstName,
-      lastName: input.lastName ?? user.lastName,
-      phoneNumber: input.phoneNumber ?? user.phoneNumber,
+      firstName: input.firstName,
+      lastName: input.lastName,
+      phoneNumber: input.phoneNumber,
       setupToken: null,
       setupTokenExpiresAt: null,
     });

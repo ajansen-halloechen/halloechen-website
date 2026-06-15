@@ -4,6 +4,11 @@ import {
   passwordValidationMessage,
   validatePassword,
 } from '~~/shared/password';
+import {
+  normalizePhoneNumber,
+  phoneValidationMessage,
+  validatePhoneNumber,
+} from '~~/shared/phone';
 
 const route = useRoute();
 
@@ -18,6 +23,7 @@ const lastName = ref('');
 const phoneNumber = ref('');
 const error = ref('');
 const passwordError = ref('');
+const phoneError = ref('');
 const loading = ref(false);
 
 const tokenMissing = computed(() => !token.value);
@@ -27,12 +33,21 @@ const { fetch: fetchSession } = useUserSession();
 async function handleSetup() {
   error.value = '';
   passwordError.value = '';
+  phoneError.value = '';
 
-  const validationError = validatePassword(password.value);
-  if (validationError) {
-    passwordError.value = passwordValidationMessage(validationError);
+  const passwordValidationError = validatePassword(password.value);
+  if (passwordValidationError) {
+    passwordError.value = passwordValidationMessage(passwordValidationError);
     return;
   }
+
+  const phoneValidationError = validatePhoneNumber(phoneNumber.value);
+  if (phoneValidationError) {
+    phoneError.value = phoneValidationMessage(phoneValidationError);
+    return;
+  }
+
+  const normalizedPhoneNumber = normalizePhoneNumber(phoneNumber.value);
 
   loading.value = true;
 
@@ -42,9 +57,9 @@ async function handleSetup() {
       body: {
         token: token.value,
         password: password.value,
-        ...(firstName.value ? { firstName: firstName.value } : {}),
-        ...(lastName.value ? { lastName: lastName.value } : {}),
-        ...(phoneNumber.value ? { phoneNumber: phoneNumber.value } : {}),
+        firstName: firstName.value,
+        lastName: lastName.value,
+        phoneNumber: normalizedPhoneNumber,
       },
     });
     await fetchSession();
@@ -103,21 +118,29 @@ async function handleSetup() {
         id="first-name"
         v-model="firstName"
         label="Vorname"
+        required
         autocomplete="given-name"
       />
       <UiInputField
         id="last-name"
         v-model="lastName"
         label="Nachname"
+        required
         autocomplete="family-name"
       />
-      <UiInputField
-        id="phone-number"
-        v-model="phoneNumber"
-        label="Telefonnummer"
-        type="tel"
-        autocomplete="tel"
-      />
+      <div class="flex flex-col gap-1">
+        <UiInputField
+          id="phone-number"
+          v-model="phoneNumber"
+          label="Telefonnummer"
+          type="tel"
+          required
+          autocomplete="tel"
+        />
+        <p v-if="phoneError" class="text-sm text-red-600">
+          {{ phoneError }}
+        </p>
+      </div>
       <UiButton type="submit" :disabled="loading" class="w-full">
         {{ loading ? 'Einrichten…' : 'Konto einrichten' }}
       </UiButton>

@@ -1,5 +1,10 @@
 import { z } from 'zod';
 import { passwordValidationMessage, validatePassword } from '#shared/password';
+import {
+  normalizePhoneNumber,
+  phoneValidationMessage,
+  validatePhoneNumber,
+} from '#shared/phone';
 
 export const passwordSchema = z.string().superRefine((value, ctx) => {
   const error = validatePassword(value);
@@ -10,6 +15,19 @@ export const passwordSchema = z.string().superRefine((value, ctx) => {
     });
   }
 });
+
+export const phoneSchema = z
+  .string()
+  .superRefine((value, ctx) => {
+    const error = validatePhoneNumber(value);
+    if (error) {
+      ctx.addIssue({
+        code: 'custom',
+        message: phoneValidationMessage(error),
+      });
+    }
+  })
+  .transform((value) => normalizePhoneNumber(value));
 
 export const userRoleSchema = z.enum(['user', 'admin']);
 
@@ -52,9 +70,9 @@ export const userCreateSchema = z.object({
 export const userSetupSchema = z.object({
   token: z.string(),
   password: passwordSchema,
-  firstName: z.string().min(1).max(255).optional(),
-  lastName: z.string().min(1).max(255).optional(),
-  phoneNumber: z.string().min(1).max(50).optional(),
+  firstName: z.string().trim().min(1).max(255),
+  lastName: z.string().trim().min(1).max(255),
+  phoneNumber: phoneSchema,
 });
 
 export const userPatchSchema = z
@@ -62,7 +80,7 @@ export const userPatchSchema = z
     email: z.email().optional(),
     firstName: z.string().min(1).max(255).optional(),
     lastName: z.string().min(1).max(255).optional(),
-    phoneNumber: z.string().min(1).max(50).nullable().optional(),
+    phoneNumber: z.union([phoneSchema, z.null()]).optional(),
     role: userRoleSchema.optional(),
     oldPassword: z.string().optional(),
     password: passwordSchema.optional(),
