@@ -53,6 +53,10 @@ function getUserDisplayName(user: User): string {
   return user.email;
 }
 
+function getUserForId(userId: string): User | undefined {
+  return userMap.value.get(userId);
+}
+
 const formActivityNames = computed(() =>
   (backendActivities.value ?? [])
     .map((a) => a.name)
@@ -235,9 +239,11 @@ const table = useVueTable({
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
+const showProfileModal = ref(false);
 const editingId = ref<string | undefined>();
 const editingEntry = ref<WorkingHourFormData>();
 const deletingEntry = ref<WorkingHour>();
+const profileUser = ref<User>();
 
 function openEditModal(entry: WorkingHour) {
   editingId.value = entry.id;
@@ -298,6 +304,11 @@ async function handleEdit(data: WorkingHourFormData) {
 function openDeleteModal(entry: WorkingHour) {
   deletingEntry.value = entry;
   showDeleteModal.value = true;
+}
+
+function openProfileModal(user: User) {
+  profileUser.value = user;
+  showProfileModal.value = true;
 }
 </script>
 
@@ -364,16 +375,17 @@ function openDeleteModal(entry: WorkingHour) {
         <template v-else-if="cell.column.id === 'userId'">
           <div class="flex items-center gap-2">
             <UiUserAvatar
-              :src="userMap.get(row.original.userId)?.avatar ?? null"
+              v-if="getUserForId(row.original.userId)?.avatar"
+              :src="getUserForId(row.original.userId)!.avatar"
               :alt="
-                userMap.get(row.original.userId)
-                  ? getUserDisplayName(userMap.get(row.original.userId)!)
-                  : row.original.userId
+                getUserDisplayName(getUserForId(row.original.userId)!)
               "
+              interactive
+              @click="openProfileModal(getUserForId(row.original.userId)!)"
             />
             <span>{{
-              userMap.get(row.original.userId)
-                ? getUserDisplayName(userMap.get(row.original.userId)!)
+              getUserForId(row.original.userId)
+                ? getUserDisplayName(getUserForId(row.original.userId)!)
                 : row.original.userId
             }}</span>
           </div>
@@ -401,5 +413,7 @@ function openDeleteModal(entry: WorkingHour) {
       :activity-name="deletingEntry ? activityMap.get(deletingEntry.activityId)?.name : undefined"
       @success="refreshWorkingHours()"
     />
+
+    <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />
   </UiPage>
 </template>

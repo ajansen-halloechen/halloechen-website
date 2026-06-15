@@ -52,8 +52,10 @@ watch([selectedStatuses], () => {
 const showCreateModal = ref(false);
 const showRoleModal = ref(false);
 const showDeleteModal = ref(false);
+const showProfileModal = ref(false);
 const editingUser = ref<User>();
 const deletingUser = ref<User>();
+const profileUser = ref<User>();
 
 const resendLoadingId = ref<string | null>(null);
 
@@ -160,6 +162,11 @@ function openDeleteModal(user: User) {
   showDeleteModal.value = true;
 }
 
+function openProfileModal(user: User) {
+  profileUser.value = user;
+  showProfileModal.value = true;
+}
+
 async function handleResendInvitation(user: User) {
   resendLoadingId.value = user.id;
 
@@ -263,6 +270,8 @@ async function handleResendInvitation(user: User) {
             <UiUserAvatar
               :src="row.original.avatar"
               :alt="getUserDisplayName(row.original) ?? row.original.email"
+              interactive
+              @click="openProfileModal(row.original)"
             />
             <span>{{ getUserDisplayName(row.original) ?? '' }}</span>
           </div>
@@ -287,5 +296,7 @@ async function handleResendInvitation(user: User) {
       :user="deletingUser"
       @success="refreshUsers()"
     />
+
+    <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />
   </UiPage>
 </template>
