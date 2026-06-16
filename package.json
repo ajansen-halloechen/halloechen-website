@@ -18,6 +18,8 @@
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
     "@internationalized/date": "^3.12.1",
+    "@nuxtjs/robots": "6.1.1",
+    "@nuxtjs/sitemap": "8.2.1",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/vue-table": "^8.21.3",
     "@vueuse/core": "^14.1.0",
