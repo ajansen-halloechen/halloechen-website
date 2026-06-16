@@ -1,4 +1,4 @@
-/// <reference path="./types/nitro-robots.d.ts" />
+/// <reference path="./server/types/nitro-robots.d.ts" />
 import { join } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -52,7 +52,12 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ['nuxt-auth-utils', '@nuxt/eslint', '@nuxtjs/robots', '@nuxtjs/sitemap'],
+  modules: [
+    'nuxt-auth-utils',
+    '@nuxt/eslint',
+    '@nuxtjs/robots',
+    '@nuxtjs/sitemap',
+  ],
 
   site: {
     url: process.env.NUXT_PUBLIC_SITE_URL ?? 'http://localhost:3000',
