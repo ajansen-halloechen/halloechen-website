@@ -1,9 +1,11 @@
 import type { RobotsValue } from '@nuxtjs/robots';
 
-type RobotsRouteRule = RobotsValue | {
-  indexable: boolean;
-  rule: string;
-};
+type RobotsRouteRule =
+  | RobotsValue
+  | {
+      indexable: boolean;
+      rule: string;
+    };
 
 declare module 'nitropack' {
   interface NitroRouteConfig {

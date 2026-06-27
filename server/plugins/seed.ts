@@ -1,4 +1,5 @@
 import { userService } from '#server/entities/user/user.service';
+import { randomUUID } from 'node:crypto';
 
 async function addUserIfNotExists(
   email: string,
@@ -20,12 +21,15 @@ async function addUserIfNotExists(
 }
 
 export default defineNitroPlugin(async () => {
+  const password = randomUUID();
+
   await addUserIfNotExists(
     'test@halloechen.org',
     'Test',
     'User',
-    'test1234',
+    password,
     'admin',
   );
-  await addUserIfNotExists('test2@halloechen.org', 'Test2', 'User', 'password');
+
+  console.log(`[init] Generated new admin user with password: ${password}`);
 });

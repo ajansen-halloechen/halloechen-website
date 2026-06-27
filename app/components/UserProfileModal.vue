@@ -42,7 +42,10 @@ function getRoleLabel(role: User['role']): string {
 
         <dt class="font-medium text-on-surface/70">E-Mail</dt>
         <dd>
-          <a :href="`mailto:${user.email}`" class="text-primary hover:underline">
+          <a
+            :href="`mailto:${user.email}`"
+            class="text-primary hover:underline"
+          >
             {{ user.email }}
           </a>
         </dd>

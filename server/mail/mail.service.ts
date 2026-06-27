@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { getSiteEnv, getSmtpConfig } from '#server/utils/env';
+import { getSmtpConfig } from '#server/utils/env';
 
 export async function sendMail(
   to: string,
@@ -9,7 +9,7 @@ export async function sendMail(
 ): Promise<void> {
   const smtp = getSmtpConfig();
 
-  if (getSiteEnv() !== 'production') {
+  if (!smtp.host) {
     console.log(`[mail] To: ${to}`);
     console.log(`[mail] Subject: ${subject}`);
     console.log(`[mail] Body:\n${text}`);

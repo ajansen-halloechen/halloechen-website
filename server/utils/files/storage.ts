@@ -13,7 +13,9 @@ export function assertSafePath(path: string): string {
   }
 
   const segments = path.split('/');
-  if (segments.some((segment) => !segment || segment === '.' || segment === '..')) {
+  if (
+    segments.some((segment) => !segment || segment === '.' || segment === '..')
+  ) {
     throw createError({ statusCode: 400, statusMessage: 'Invalid file path' });
   }
 
