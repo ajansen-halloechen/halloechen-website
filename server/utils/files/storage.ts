@@ -1,9 +1,10 @@
 import { createError } from 'h3';
+import { mkdir, readFile, unlink, writeFile } from 'node:fs/promises';
+import { dirname, join } from 'node:path';
+import { getFilesStoragePath } from '#server/utils/env';
 
-const FILES_STORAGE = 'files';
-
-function getStorage() {
-  return useStorage(FILES_STORAGE);
+function filePath(key: string): string {
+  return join(getFilesStoragePath(), key);
 }
 
 export function assertSafePath(path: string): string {
@@ -21,17 +22,33 @@ export function assertSafePath(path: string): string {
 
 export async function getFile(key: string) {
   const safeKey = assertSafePath(key);
-  return getStorage().getItemRaw(safeKey);
+  try {
+    return await readFile(filePath(safeKey));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function putFile(key: string, data: Buffer | Uint8Array) {
   const safeKey = assertSafePath(key);
-  await getStorage().setItemRaw(safeKey, data);
+  const path = filePath(safeKey);
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, data);
 }
 
 export async function deleteFile(key: string) {
   const safeKey = assertSafePath(key);
-  await getStorage().removeItem(safeKey);
+  try {
+    await unlink(filePath(safeKey));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return;
+    }
+    throw error;
+  }
 }
 
 const MIME_TYPES: Record<string, string> = {

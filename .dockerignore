@@ -18,7 +18,6 @@ dist
 # Local environment and secrets
 .env
 .env.*
-!.env.example
 
 # Runtime user data (mount as a volume instead)
 /files
