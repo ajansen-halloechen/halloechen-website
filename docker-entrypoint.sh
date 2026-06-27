@@ -5,4 +5,4 @@ files_dir="${FILES_STORAGE_PATH:-/app/files}"
 
 chown -R node:node "${files_dir}"
 
-exec runuser -u node -- "$@"
+exec su-exec node "$@"

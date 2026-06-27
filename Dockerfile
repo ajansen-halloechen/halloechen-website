@@ -2,7 +2,7 @@
 
 ARG NODE_VERSION=24
 
-FROM node:${NODE_VERSION}-slim AS builder
+FROM node:${NODE_VERSION}-alpine AS builder
 
 WORKDIR /app
 
@@ -27,13 +27,14 @@ RUN pnpm build
 RUN cd .output/server \
     && npm install --no-save --no-package-lock --include=optional sharp@0.35.1
 
-FROM node:${NODE_VERSION}-slim AS runner
+FROM node:${NODE_VERSION}-alpine AS runner
 
 WORKDIR /app
 
 USER root
 
-RUN chown node:node /app \
+RUN apk add --no-cache su-exec \
+    && chown node:node /app \
     && mkdir -p /app/files/avatars \
     && chown -R node:node /app/files
 

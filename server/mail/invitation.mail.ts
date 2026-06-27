@@ -1,11 +1,11 @@
+import { getPublicSiteUrl, getSiteEnv } from '#server/utils/env';
 import { sendMail } from './mail.service';
 
 export async function sendInvitationEmail(
   email: string,
   token: string,
 ): Promise<void> {
-  const config = useRuntimeConfig();
-  const setupUrl = `${config.public.siteUrl}/setup?token=${token}`;
+  const setupUrl = `${getPublicSiteUrl()}/setup?token=${token}`;
 
   const subject = 'Einladung zur Hallöchen-Webseite';
   const text = [
@@ -31,7 +31,7 @@ export async function sendInvitationEmail(
     '<p>Viele Grüße,<br>das Internetz</p>',
   ].join('\n');
 
-  if (import.meta.dev) {
+  if (getSiteEnv() !== 'production') {
     console.log(`[mail] Invitation setup URL: ${setupUrl}`);
   }
 

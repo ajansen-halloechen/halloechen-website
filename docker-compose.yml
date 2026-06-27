@@ -16,23 +16,23 @@ services:
     profiles:
       - local
     build: .
+    pull_policy: build
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: production
       NUXT_SESSION_PASSWORD: local-dev-session-password-must-be-32-chars!
+      NUXT_PUBLIC_SITE_URL: http://localhost:3000
+      NUXT_SITE_ENV: development
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres
       DB_PASSWORD: postgres
       DB_NAME: local
-      NUXT_PUBLIC_SITE_URL: http://localhost:3000
-      NUXT_SITE_ENV: development
       FILES_STORAGE_PATH: /app/files
-      SMTP_HOST: "mail.your-server.de"
+      SMTP_HOST: mail.your-server.de
       SMTP_PORT: 587
-      SMTP_USER: "info@@halloechen.org"
-      SMTP_PASS: ${MAILSERVER}
+      SMTP_USER: info@halloechen.org
+      SMTP_PASSWORD: ${MAILSERVER_PASSWORD}
       MAIL_FROM: info@halloechen.org
     volumes:
       - files_data_halloechen_website:/app/files

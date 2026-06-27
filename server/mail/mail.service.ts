@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { getSiteEnv, getSmtpConfig } from '#server/utils/env';
 
 export async function sendMail(
   to: string,
@@ -6,30 +7,35 @@ export async function sendMail(
   text: string,
   html?: string,
 ): Promise<void> {
-  if (import.meta.dev) {
+  const smtp = getSmtpConfig();
+
+  if (getSiteEnv() !== 'production') {
     console.log(`[mail] To: ${to}`);
     console.log(`[mail] Subject: ${subject}`);
     console.log(`[mail] Body:\n${text}`);
     return;
   }
 
-  const config = useRuntimeConfig();
-
   const transporter = nodemailer.createTransport({
-    host: config.smtpHost,
-    port: config.smtpPort,
-    secure: config.smtpPort === 465,
+    host: smtp.host,
+    port: smtp.port,
+    secure: smtp.port === 465,
     auth: {
-      user: config.smtpUser,
-      pass: config.smtpPass,
+      user: smtp.user,
+      pass: smtp.password,
     },
   });
 
-  await transporter.sendMail({
-    from: config.mailFrom,
-    to,
-    subject,
-    text,
-    html,
-  });
+  try {
+    await transporter.sendMail({
+      from: smtp.from,
+      to,
+      subject,
+      text,
+      html,
+    });
+  } catch (error) {
+    console.error(`[mail] Failed to send email to ${to}:`, error);
+    throw error;
+  }
 }
