@@ -25,7 +25,9 @@ const props = withDefaults(
     ui?: Partial<Record<keyof typeof page.slots, string>>;
   }>(),
   {
+    heading: undefined,
     size: 'lg',
+    ui: undefined,
   },
 );
 

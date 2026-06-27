@@ -266,7 +266,7 @@ async function handleSave() {
             :src="avatar"
             alt="Profilbild"
             class="h-full w-full object-cover"
-          />
+          >
           <UserCircleIcon
             v-else
             class="h-44 w-44 lg:h-60 lg:w-60 text-on-surface/50"
@@ -278,7 +278,7 @@ async function handleSave() {
           accept="image/*"
           class="hidden"
           @change="handleAvatarSelect"
-        />
+        >
         <div class="flex flex-wrap items-center justify-center gap-2">
           <UiButton
             v-if="avatar"

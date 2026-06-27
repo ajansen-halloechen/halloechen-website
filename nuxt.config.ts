@@ -1,4 +1,4 @@
-/// <reference path="./server/types/nitro-robots.d.ts" />
+import './server/types/nitro-robots';
 import { join } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 
