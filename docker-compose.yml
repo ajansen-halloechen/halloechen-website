@@ -22,7 +22,7 @@ services:
     environment:
       NUXT_SESSION_PASSWORD: local-dev-session-password-must-be-32-chars!
       NUXT_PUBLIC_SITE_URL: http://localhost:3000
-      NUXT_SITE_ENV: development
+      NUXT_SITE_ENV: production
       DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: postgres

@@ -152,7 +152,13 @@ const table = useVueTable({
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
     const u = row.original;
-    return [getUserDisplayName(u), u.email, u.phoneNumber, getUserStatus(u), getRoleLabel(u.role)]
+    return [
+      getUserDisplayName(u),
+      u.email,
+      u.phoneNumber,
+      getUserStatus(u),
+      getRoleLabel(u.role),
+    ]
       .filter(Boolean)
       .some((v) => v!.toLowerCase().includes(search));
   },

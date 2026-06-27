@@ -37,7 +37,9 @@ const imgClass = computed(() =>
       :src="src"
       :alt="alt ?? ''"
       loading="lazy"
-      :class="twMerge(imgClass, 'cursor-pointer hover:ring-2 hover:ring-accent')"
+      :class="
+        twMerge(imgClass, 'cursor-pointer hover:ring-2 hover:ring-accent')
+      "
       @error="failed = true"
     >
   </button>

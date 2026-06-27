@@ -377,9 +377,7 @@ function openProfileModal(user: User) {
             <UiUserAvatar
               v-if="getUserForId(row.original.userId)?.avatar"
               :src="getUserForId(row.original.userId)!.avatar"
-              :alt="
-                getUserDisplayName(getUserForId(row.original.userId)!)
-              "
+              :alt="getUserDisplayName(getUserForId(row.original.userId)!)"
               interactive
               @click="openProfileModal(getUserForId(row.original.userId)!)"
             />
@@ -410,7 +408,11 @@ function openProfileModal(user: User) {
     <WorkingHourDeleteModal
       v-model:open="showDeleteModal"
       :working-hour="deletingEntry"
-      :activity-name="deletingEntry ? activityMap.get(deletingEntry.activityId)?.name : undefined"
+      :activity-name="
+        deletingEntry
+          ? activityMap.get(deletingEntry.activityId)?.name
+          : undefined
+      "
       @success="refreshWorkingHours()"
     />
 

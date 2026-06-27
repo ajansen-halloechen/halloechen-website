@@ -52,10 +52,12 @@ export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
 });
 
 export const toPublicUserSchema = userInternalSchema
-  .transform(({ passwordHash, setupToken, setupTokenExpiresAt, ...publicFields }) => ({
-    ...publicFields,
-    isPending: !passwordHash,
-  }))
+  .transform(
+    ({ passwordHash, setupToken, setupTokenExpiresAt, ...publicFields }) => ({
+      ...publicFields,
+      isPending: !passwordHash,
+    }),
+  )
   .pipe(userSchema);
 
 export function toPublicUser(
