@@ -82,6 +82,7 @@ const props = withDefaults(
   {
     variant: 'plain',
     color: 'primary',
+    tooltip: undefined,
   },
 );
 

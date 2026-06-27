@@ -32,24 +32,26 @@ import logoSmall from '~/assets/logo-small.svg?raw';
             rel="noopener noreferrer"
             aria-label="Instagram"
           >
-            <!-- eslint-disable-next-line vue/no-v-html -->
+            <!-- eslint-disable vue/no-v-html -->
             <span
               class="size-6 [&>svg]:size-full"
               aria-hidden="true"
               v-html="instagramIcon"
             />
+            <!-- eslint-enable vue/no-v-html -->
           </BottonBarLink>
           <BottonBarLink
             :is="'a'"
             href="mailto:info@halloechen.org"
             aria-label="E-Mail an info@halloechen.org"
           >
-            <!-- eslint-disable-next-line vue/no-v-html -->
+            <!-- eslint-disable vue/no-v-html -->
             <span
               class="size-6 [&>svg]:size-full"
               aria-hidden="true"
               v-html="letterIcon"
             />
+            <!-- eslint-enable vue/no-v-html -->
           </BottonBarLink>
         </div>
         <BottonBarLink :is="'nuxt-link'" to="/legal">

@@ -39,7 +39,7 @@ const imgClass = computed(() =>
       loading="lazy"
       :class="twMerge(imgClass, 'cursor-pointer hover:ring-2 hover:ring-accent')"
       @error="failed = true"
-    />
+    >
   </button>
   <img
     v-else-if="src && !failed"
@@ -48,5 +48,5 @@ const imgClass = computed(() =>
     loading="lazy"
     :class="imgClass"
     @error="failed = true"
-  />
+  >
 </template>
