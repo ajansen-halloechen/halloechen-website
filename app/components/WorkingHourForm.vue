@@ -80,7 +80,7 @@ function handleSubmit() {
         v-model="plusOneDay"
         type="checkbox"
         class="accent-primary"
-      >
+      />
       <label for="wh-plus-one" class="text-sm">Ende am Folgetag</label>
     </div>
 
