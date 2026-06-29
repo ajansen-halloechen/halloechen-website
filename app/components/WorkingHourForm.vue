@@ -57,7 +57,7 @@ function handleSubmit() {
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
     <UiDateInput id="wh-date" v-model="date" label="Datum" required />
 
-    <div class="grid grid-cols-2 gap-4 [&>*]:min-w-0">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>*]:min-w-0">
       <UiInputField
         id="wh-start"
         v-model="startTime"
