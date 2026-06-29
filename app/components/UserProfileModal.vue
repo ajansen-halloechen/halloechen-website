@@ -36,7 +36,7 @@ function getRoleLabel(role: User['role']): string {
         class="size-48"
       />
 
-      <dl class="w-full grid grid-cols-[auto_1fr] gap-x-4 gap-y-3 text-sm">
+      <dl class="w-full grid grid-cols-[auto_1fr] gap-x-4 gap-y-3">
         <dt class="font-medium text-on-surface/70">Name</dt>
         <dd>{{ getUserDisplayName(user) ?? '–' }}</dd>
 
