@@ -8,7 +8,7 @@ defineOptions({ inheritAttrs: false });
 const attrs = useAttrs();
 
 const baseClass =
-  'flex items-center w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm focus-within:border-primary focus-within:ring-1 focus-within:ring-primary';
+  'flex items-center w-full rounded-md border border-gray-300 bg-surface px-3 py-2 focus-within:border-primary focus-within:ring-1 focus-within:ring-primary';
 
 const containerClasses = computed(() =>
   twMerge(baseClass, attrs.class as string),

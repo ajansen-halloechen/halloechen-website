@@ -81,7 +81,7 @@ function handleSubmit() {
         type="checkbox"
         class="accent-primary"
       >
-      <label for="wh-plus-one" class="text-sm">Ende am Folgetag</label>
+      <label for="wh-plus-one">Ende am Folgetag</label>
     </div>
 
     <UiInputField
