@@ -21,7 +21,7 @@ withDefaults(
 
 <template>
   <div class="flex flex-col gap-1">
-    <label :for="id" class="block text-sm font-medium">
+    <label :for="id" class="block font-medium">
       {{ label
       }}<span
         v-if="required"

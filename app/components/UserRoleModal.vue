@@ -53,7 +53,7 @@ async function handleSubmit() {
 <template>
   <UiModal v-model:open="open" title="Rolle ändern">
     <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-      <p class="text-sm text-gray-600">
+      <p class="text-gray-600">
         {{ user ? getUserDisplayName(user) : '' }}
         <span class="text-gray-400">({{ user?.email }})</span>
       </p>
