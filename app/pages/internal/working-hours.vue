@@ -14,6 +14,10 @@ import type { Activity } from '~~/shared/types/activity';
 import type { User } from '~~/shared/types/user';
 import type { WorkingHour } from '~~/shared/types/working-hour';
 import type { WorkingHourFormData } from '~/components/WorkingHourForm.vue';
+import {
+  createUserAvatarColumn,
+  hasAnyUserAvatar,
+} from '~/utils/user-table-columns';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
@@ -160,7 +164,11 @@ async function ensureActivityExists(activityName: string): Promise<string> {
 
 const columnHelper = createColumnHelper<WorkingHour>();
 
-const columns = [
+const avatarColumn = createUserAvatarColumn(columnHelper);
+
+const hasAnyAvatar = computed(() => hasAnyUserAvatar(backendUsers.value ?? []));
+
+const baseColumns = [
   columnHelper.accessor('userId', {
     header: 'Genoss*in',
     cell: (info) => {
@@ -190,7 +198,6 @@ const columns = [
     id: 'hours',
     header: 'Stunden',
     cell: (info) => computeHours(info.row.original).toFixed(1),
-    meta: { align: 'right', shrink: true },
   }),
   columnHelper.display({
     id: 'actions',
@@ -202,7 +209,11 @@ const table = useVueTable({
   get data() {
     return workingHours.value ?? [];
   },
-  columns,
+  get columns() {
+    const cols = [...baseColumns];
+    if (hasAnyAvatar.value) cols.unshift(avatarColumn);
+    return cols;
+  },
   state: {
     get sorting() {
       return sorting.value;
@@ -371,21 +382,22 @@ function openProfileModal(user: User) {
             </UiIconButton>
           </div>
         </template>
-        <template v-else-if="cell.column.id === 'userId'">
-          <div class="flex items-center gap-2">
+        <template v-else-if="cell.column.id === 'avatar'">
+          <div class="flex w-full justify-center px-2">
             <UiUserAvatar
               v-if="getUserForId(row.original.userId)?.avatar"
               :src="getUserForId(row.original.userId)!.avatar"
-              :alt="getUserDisplayName(getUserForId(row.original.userId)!)"
               interactive
               @click="openProfileModal(getUserForId(row.original.userId)!)"
             />
-            <span>{{
-              getUserForId(row.original.userId)
-                ? getUserDisplayName(getUserForId(row.original.userId)!)
-                : row.original.userId
-            }}</span>
           </div>
+        </template>
+        <template v-else-if="cell.column.id === 'userId'">
+          <span>{{
+            getUserForId(row.original.userId)
+              ? getUserDisplayName(getUserForId(row.original.userId)!)
+              : row.original.userId
+          }}</span>
         </template>
         <template v-else>
           <FlexRender

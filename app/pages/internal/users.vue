@@ -16,6 +16,10 @@ import {
   PaperAirplaneIcon,
 } from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
+import {
+  createUserAvatarColumn,
+  hasAnyUserAvatar,
+} from '~/utils/user-table-columns';
 
 const { success, error } = useToast();
 
@@ -82,6 +86,10 @@ function getRoleLabel(role: User['role']): string {
 
 const columnHelper = createColumnHelper<User>();
 
+const avatarColumn = createUserAvatarColumn(columnHelper);
+
+const hasAnyAvatar = computed(() => hasAnyUserAvatar(users.value ?? []));
+
 const baseColumns = [
   columnHelper.accessor((row) => getUserSortKey(row), {
     id: 'displayName',
@@ -118,20 +126,20 @@ const baseColumns = [
   }),
 ];
 
-const adminColumns = [
-  ...baseColumns,
-  columnHelper.display({
-    id: 'actions',
-    header: 'Aktionen',
-  }),
-];
+const actionsColumn = columnHelper.display({
+  id: 'actions',
+  header: 'Aktionen',
+});
 
 const table = useVueTable({
   get data() {
     return users.value ?? [];
   },
   get columns() {
-    return isAdmin.value ? adminColumns : baseColumns;
+    const cols = [...baseColumns];
+    if (isAdmin.value) cols.push(actionsColumn);
+    if (hasAnyAvatar.value) cols.unshift(avatarColumn);
+    return cols;
   },
   getRowId: (row) => row.id,
   state: {
@@ -280,16 +288,18 @@ async function handleResendInvitation(user: User) {
             {{ row.original.phoneNumber }}
           </a>
         </template>
-        <template v-else-if="cell.column.id === 'displayName'">
-          <div class="flex items-center gap-2">
+        <template v-else-if="cell.column.id === 'avatar'">
+          <div class="flex w-full justify-center px-2">
             <UiUserAvatar
+              v-if="row.original.avatar"
               :src="row.original.avatar"
-              :alt="getUserDisplayName(row.original) ?? row.original.email"
               interactive
               @click="openProfileModal(row.original)"
             />
-            <span>{{ getUserDisplayName(row.original) ?? '' }}</span>
           </div>
+        </template>
+        <template v-else-if="cell.column.id === 'displayName'">
+          <span>{{ getUserDisplayName(row.original) ?? '' }}</span>
         </template>
         <template v-else>
           <FlexRender
