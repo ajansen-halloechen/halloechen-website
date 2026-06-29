@@ -281,7 +281,7 @@ async function handleResendInvitation(user: User) {
           </a>
         </template>
         <template v-else-if="cell.column.id === 'displayName'">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 pr-2">
             <UiUserAvatar
               :src="row.original.avatar"
               :alt="getUserDisplayName(row.original) ?? row.original.email"

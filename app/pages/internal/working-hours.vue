@@ -373,7 +373,7 @@ function openProfileModal(user: User) {
           </div>
         </template>
         <template v-else-if="cell.column.id === 'userId'">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 pr-2">
             <UiUserAvatar
               v-if="getUserForId(row.original.userId)?.avatar"
               :src="getUserForId(row.original.userId)!.avatar"
