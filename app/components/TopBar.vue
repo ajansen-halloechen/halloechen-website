@@ -105,7 +105,7 @@ const openingHoursMarqueeText = computed(() =>
                   :src="item.imageUrl"
                   :alt="item.tooltip ?? item.label"
                   class="h-10 w-10 rounded-full object-cover hover:border-2 hover:border-accent"
-                />
+                >
                 <component :is="item.icon" v-else class="h-6 w-6" />
               </NuxtLink>
             </UiTooltip>
@@ -155,7 +155,7 @@ const openingHoursMarqueeText = computed(() =>
               :src="item.imageUrl"
               :alt="item.tooltip ?? item.label"
               class="h-6 w-6 rounded-full object-cover"
-            />
+            >
             <component :is="item.icon" v-else-if="item.icon" class="h-5 w-5" />
             {{ item.label || item.tooltip }}
           </span>
