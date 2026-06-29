@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
-import { onClickOutside } from '@vueuse/core';
+import { onClickOutside, useNow } from '@vueuse/core';
 import type { TopBarItem } from '~/types/top-bar';
+import { getOpeningHoursMarqueeText } from '~/utils/opening-hours-marquee';
 import logo from '~/assets/logo-inverted.svg?raw';
 
 export type { TopBarItem };
@@ -62,6 +63,12 @@ onClickOutside(topBarRef, () => {
     isMobileMenuOpen.value = false;
   }
 });
+
+const now = useNow({ interval: 60_000 });
+
+const openingHoursMarqueeText = computed(() =>
+  getOpeningHoursMarqueeText(now.value),
+);
 </script>
 
 <template>
@@ -162,7 +169,7 @@ onClickOutside(topBarRef, () => {
       <slot name="marquee">
         <div v-for="i in 4" :key="i">
           <span class="p-8">#######</span>
-          <span> Wir haben offen - Kommt rum!!!&nbsp; </span>
+          <span>{{ openingHoursMarqueeText }}</span>
           <span class="p-8">#######</span>
           <span>
             Schaut auch auf
