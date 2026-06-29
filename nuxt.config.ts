@@ -87,4 +87,13 @@ export default defineNuxtConfig({
       traceInclude: ['node_modules/sharp/**', 'node_modules/@img/**'],
     },
   },
+
+  runtimeConfig: {
+    session: {
+      cookie: {
+        sameSite: 'lax',
+        secure: process.env.NUXT_SITE_ENV === 'production',
+      },
+    },
+  },
 });
