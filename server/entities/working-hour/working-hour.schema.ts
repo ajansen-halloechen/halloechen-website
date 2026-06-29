@@ -14,7 +14,6 @@ export const workingHourSchema = z.object({
 });
 
 export const workingHourCreateSchema = z.object({
-  userId: z.uuid(),
   activityId: z.uuid(),
   date: z.coerce.date(),
   startTime: z.iso.time(),
