@@ -264,7 +264,6 @@ async function handleCreate(data: WorkingHourFormData) {
   await $fetch('/api/working-hours', {
     method: 'POST',
     body: {
-      userId: currentUser.value!.id,
       activityId,
       date: data.date,
       startTime: data.startTime,

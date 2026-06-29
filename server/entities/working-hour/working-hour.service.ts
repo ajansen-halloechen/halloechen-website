@@ -1,6 +1,5 @@
 import { createError } from 'h3';
 import { workingHourRepository } from './working-hour.repository';
-import { userService } from '../user/user.service';
 import { activityService } from '../activity/activity.service';
 import type {
   WorkingHourCreate,
@@ -30,11 +29,10 @@ export const workingHourService = {
     return workingHourRepository.findByUserId(userId);
   },
 
-  async create(input: WorkingHourCreate) {
-    await userService.getById(input.userId);
+  async create(userId: string, input: WorkingHourCreate) {
     await activityService.getById(input.activityId);
 
-    return workingHourRepository.create(input);
+    return workingHourRepository.create({ ...input, userId });
   },
 
   async patch(id: string, input: WorkingHourPatch, userId: string) {
