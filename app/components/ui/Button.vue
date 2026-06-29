@@ -2,7 +2,7 @@
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const button = tv({
-  base: 'rounded-md px-4 py-2 text-sm font-semibold transition-colors cursor-pointer disabled:opacity-50',
+  base: 'rounded-md px-4 py-2 font-semibold transition-colors cursor-pointer disabled:opacity-50',
   variants: {
     variant: {
       solid: '',

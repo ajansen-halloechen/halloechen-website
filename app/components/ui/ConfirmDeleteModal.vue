@@ -14,7 +14,7 @@ const emit = defineEmits<{
 
 <template>
   <UiModal v-model:open="open" :title="title">
-    <p class="text-sm text-gray-600">
+    <p class="text-gray-600">
       {{ description }}
     </p>
     <div class="mt-6 flex justify-end gap-2">

@@ -16,7 +16,7 @@ async function handleLogout() {
 <template>
   <UiAuthPanel>
     <template #heading>Von internen Bereich abmelden</template>
-    <p class="text-sm text-center">
+    <p class="text-center">
       Willst du dich abmelden oder nur zurück zur öffentlichen Webseite?
     </p>
     <div class="flex flex-col gap-2">
