@@ -58,18 +58,16 @@ function handleSubmit() {
     <UiDateInput id="wh-date" v-model="date" label="Datum" required />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>*]:min-w-0">
-      <UiInputField
+      <UiTimeInput
         id="wh-start"
         v-model="startTime"
         label="Beginn"
-        type="time"
         required
       />
-      <UiInputField
+      <UiTimeInput
         id="wh-end"
         v-model="endTime"
         label="Ende"
-        type="time"
         required
       />
     </div>
