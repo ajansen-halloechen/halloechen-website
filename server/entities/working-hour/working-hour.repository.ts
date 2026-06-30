@@ -19,8 +19,8 @@ export const workingHourRepository = {
   },
 
   async findByMonth(year: number, month: number) {
-    const from = new Date(year, month - 1, 1);
-    const to = new Date(year, month, 1);
+    const from = new Date(Date.UTC(year, month - 1, 1));
+    const to = new Date(Date.UTC(year, month, 1));
     return db
       .select()
       .from(workingHours)
