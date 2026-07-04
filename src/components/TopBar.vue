@@ -103,10 +103,7 @@ onClickOutside(topBarRef, () => {
     <div class="marquee flex whitespace-nowrap">
       <div v-for="i in 4" :key="i">
         <span class="p-8">#######</span>
-        <span>
-          Wir haben das BB21 übernommen und bauen gerade um - Eröffnung ist am
-          30. Mai!!!&nbsp;
-        </span>
+        <span> Wir haben offen - Kommt rum!!!&nbsp; </span>
         <span class="p-8">#######</span>
         <span>
           Schaut auch auf

@@ -14,12 +14,6 @@ import GoogleMapEmbed from './GoogleMapEmbed.vue';
     </div>
     <div class="space-y-6">
       <h3 class="text-xl font-semibold">Zeit:</h3>
-      <!-- Banner: Zurzeit wegen Umbau nur zu Veranstaltungen geöffnet -->
-      <div
-        class="px-4 py-2 bg-secondary text-on-secondary font-semibold rounded-md flex justify-center items-center"
-      >
-        Ab 30. Mai!
-      </div>
       <table class="border-collapse max-w-xs gap-1">
         <tbody>
           <tr>
