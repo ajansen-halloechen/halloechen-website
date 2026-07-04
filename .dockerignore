@@ -1,0 +1,28 @@
+# Dependencies and build outputs
+node_modules
+.output
+.nuxt
+.nitro
+.data
+.cache
+dist
+
+# Git and editor metadata
+.git
+.github
+.fleet
+.idea
+*.md
+!README.md
+
+# Local environment and secrets
+.env
+.env.*
+
+# Runtime user data (mount as a volume instead)
+/files
+
+# Logs and OS files
+logs
+*.log
+.DS_Store

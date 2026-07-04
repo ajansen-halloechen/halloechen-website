@@ -1,0 +1,46 @@
+name: halloechen-website
+
+services:
+  postgres:
+    image: postgres:18.3-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: local
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_halloechen_website:/var/lib/postgresql
+
+  app:
+    profiles:
+      - local
+    build: .
+    pull_policy: build
+    ports:
+      - "3000:3000"
+    environment:
+      NUXT_SESSION_PASSWORD: local-dev-session-password-must-be-32-chars!
+      NUXT_PUBLIC_SITE_URL: http://localhost:3000
+      NUXT_SITE_ENV: production
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: local
+      FILES_STORAGE_PATH: /app/files
+      SMTP_HOST: mail.your-server.de
+      SMTP_PORT: 587
+      SMTP_USER: info@halloechen.org
+      SMTP_PASSWORD: ${MAILSERVER_PASSWORD}
+      MAIL_FROM: info@halloechen.org
+    volumes:
+      - files_data_halloechen_website:/app/files
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data_halloechen_website:
+    driver: local
+  files_data_halloechen_website:
+    driver: local
