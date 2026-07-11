@@ -56,6 +56,10 @@ export const userService = {
     return user;
   },
 
+  async getSessionMetaById(id: string) {
+    return userRepository.findSessionMetaById(id);
+  },
+
   async setAvatar(id: string, avatar: string | null) {
     const user = await userRepository.update(id, { avatar });
     if (!user) {
@@ -139,7 +143,7 @@ export const userService = {
       setupTokenExpiresAt: null,
     });
 
-    return toPublicUser(updated!);
+    return updated!;
   },
 
   async requestPasswordReset(email: string) {
@@ -176,13 +180,17 @@ export const userService = {
 
     const passwordHash = await hashPassword(input.password);
 
-    const updated = await userRepository.update(user.id, {
-      passwordHash,
-      passwordResetToken: null,
-      passwordResetTokenExpiresAt: null,
-      setupToken: null,
-      setupTokenExpiresAt: null,
-    });
+    const updated = await userRepository.update(
+      user.id,
+      {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetTokenExpiresAt: null,
+        setupToken: null,
+        setupTokenExpiresAt: null,
+      },
+      { bumpSessionVersion: true },
+    );
 
     return toPublicUser(updated!);
   },
@@ -221,11 +229,15 @@ export const userService = {
       data.passwordHash = await hashPassword(password);
     }
 
-    const user = await userRepository.update(id, data);
+    const shouldBumpSessionVersion = !!(password || fields.role !== undefined);
+
+    const user = await userRepository.update(id, data, {
+      bumpSessionVersion: shouldBumpSessionVersion,
+    });
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
     }
-    return toPublicUser(user);
+    return user;
   },
 
   async login(email: string, password: string) {
@@ -245,7 +257,7 @@ export const userService = {
       });
     }
 
-    return toPublicUser(user);
+    return user;
   },
 
   async remove(id: string) {

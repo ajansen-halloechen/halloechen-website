@@ -1,6 +1,6 @@
 import { readValidatedBody } from 'h3';
 import { userService } from '#server/entities/user/user.service';
-import { userPatchSchema } from '#server/entities/user/user.schema';
+import { userPatchSchema, toPublicUser } from '#server/entities/user/user.schema';
 import { requireAdmin } from '#server/utils/require-admin';
 import { UserRole } from '#shared/types/user';
 
@@ -17,5 +17,6 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 403, statusMessage: 'Forbidden' });
   }
 
-  return userService.patch(id, body);
+  const user = await userService.patch(id, body);
+  return toPublicUser(user);
 });

@@ -6,6 +6,7 @@ declare module '#auth-utils' {
     email: string;
     role: UserRole;
     avatar: string | null;
+    sessionVersion: number;
   }
 }
 

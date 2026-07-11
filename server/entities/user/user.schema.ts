@@ -51,6 +51,7 @@ export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
   setupTokenExpiresAt: z.date().nullable(),
   passwordResetToken: z.string().nullable(),
   passwordResetTokenExpiresAt: z.date().nullable(),
+  sessionVersion: z.number().int(),
 });
 
 export const toPublicUserSchema = userInternalSchema
@@ -61,6 +62,7 @@ export const toPublicUserSchema = userInternalSchema
       setupTokenExpiresAt,
       passwordResetToken,
       passwordResetTokenExpiresAt,
+      sessionVersion: _sessionVersion,
       ...publicFields
     }) => ({
       ...publicFields,
