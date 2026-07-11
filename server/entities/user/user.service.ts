@@ -3,6 +3,7 @@ import { sendInvitationEmail } from '#server/mail/invitation.mail';
 import { sendPasswordResetEmail } from '#server/mail/password-reset.mail';
 import {
   createAuthToken,
+  hashAuthToken,
   isAuthTokenExpired,
   PASSWORD_RESET_TOKEN_TTL_MS,
   SETUP_TOKEN_TTL_MS,
@@ -20,7 +21,8 @@ import type {
 function createSetupToken() {
   const { token, expiresAt } = createAuthToken(SETUP_TOKEN_TTL_MS);
   return {
-    setupToken: token,
+    plainToken: token,
+    setupToken: hashAuthToken(token),
     setupTokenExpiresAt: expiresAt,
   };
 }
@@ -71,7 +73,7 @@ export const userService = {
       });
     }
 
-    const { setupToken, setupTokenExpiresAt } = createSetupToken();
+    const { plainToken, setupToken, setupTokenExpiresAt } = createSetupToken();
 
     const user = await userRepository.create({
       email: input.email,
@@ -80,7 +82,7 @@ export const userService = {
       setupTokenExpiresAt,
     });
 
-    await deliverInvitation(user.email, setupToken);
+    await deliverInvitation(user.email, plainToken);
 
     return toPublicUser(user);
   },
@@ -98,14 +100,14 @@ export const userService = {
       });
     }
 
-    const { setupToken, setupTokenExpiresAt } = createSetupToken();
+    const { plainToken, setupToken, setupTokenExpiresAt } = createSetupToken();
 
     const updated = await userRepository.update(id, {
       setupToken,
       setupTokenExpiresAt,
     });
 
-    await deliverInvitation(user.email, setupToken);
+    await deliverInvitation(user.email, plainToken);
 
     return toPublicUser(updated!);
   },
@@ -149,7 +151,7 @@ export const userService = {
     const { token, expiresAt } = createAuthToken(PASSWORD_RESET_TOKEN_TTL_MS);
 
     await userRepository.update(user.id, {
-      passwordResetToken: token,
+      passwordResetToken: hashAuthToken(token),
       passwordResetTokenExpiresAt: expiresAt,
     });
 

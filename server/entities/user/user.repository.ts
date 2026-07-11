@@ -1,5 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { db } from '#server/database';
+import { hashAuthToken } from '#server/utils/auth-token';
 import { users } from './user.table';
 
 type UserInsert = typeof users.$inferInsert;
@@ -24,7 +25,7 @@ export const userRepository = {
     const rows = await db
       .select()
       .from(users)
-      .where(eq(users.setupToken, token));
+      .where(eq(users.setupToken, hashAuthToken(token)));
     return rows[0] ?? null;
   },
 
@@ -32,7 +33,7 @@ export const userRepository = {
     const rows = await db
       .select()
       .from(users)
-      .where(eq(users.passwordResetToken, token));
+      .where(eq(users.passwordResetToken, hashAuthToken(token)));
     return rows[0] ?? null;
   },
 

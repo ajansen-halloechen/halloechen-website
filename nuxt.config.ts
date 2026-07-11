@@ -72,8 +72,14 @@ export default defineNuxtConfig({
     '/internal/**': { robots: false },
     '/login': { robots: false },
     '/logout': { robots: false },
-    '/setup': { robots: false },
-    '/reset-password': { robots: false },
+    '/setup': {
+      robots: false,
+      headers: { 'Referrer-Policy': 'no-referrer' },
+    },
+    '/reset-password': {
+      robots: false,
+      headers: { 'Referrer-Policy': 'no-referrer' },
+    },
   },
 
   nitro: {

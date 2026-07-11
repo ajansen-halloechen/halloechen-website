@@ -10,12 +10,7 @@ import {
   validatePhoneNumber,
 } from '~~/shared/phone';
 
-const route = useRoute();
-
-const token = computed(() => {
-  const value = route.query.token;
-  return typeof value === 'string' ? value : '';
-});
+const { token, tokenMissing } = useAuthTokenFromUrl();
 
 const password = ref('');
 const firstName = ref('');
@@ -25,8 +20,6 @@ const error = ref('');
 const passwordError = ref('');
 const phoneError = ref('');
 const loading = ref(false);
-
-const tokenMissing = computed(() => !token.value);
 
 const { fetch: fetchSession } = useUserSession();
 

@@ -5,19 +5,12 @@ import {
   validatePassword,
 } from '~~/shared/password';
 
-const route = useRoute();
-
-const token = computed(() => {
-  const value = route.query.token;
-  return typeof value === 'string' ? value : '';
-});
+const { token, tokenMissing } = useAuthTokenFromUrl();
 
 const password = ref('');
 const error = ref('');
 const passwordError = ref('');
 const loading = ref(false);
-
-const tokenMissing = computed(() => !token.value);
 
 async function handleReset() {
   error.value = '';
