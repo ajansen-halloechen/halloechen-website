@@ -1,28 +1,35 @@
-import { randomUUID } from 'node:crypto';
 import { createError } from 'h3';
 import { sendInvitationEmail } from '#server/mail/invitation.mail';
+import { sendPasswordResetEmail } from '#server/mail/password-reset.mail';
+import {
+  createAuthToken,
+  isAuthTokenExpired,
+  PASSWORD_RESET_TOKEN_TTL_MS,
+  SETUP_TOKEN_TTL_MS,
+} from '#server/utils/auth-token';
+import { deliverMail } from '#server/utils/deliver-mail';
 import { toPublicUser } from './user.schema';
 import { userRepository } from './user.repository';
-import type { UserCreate, UserSetup, UserPatch } from '#shared/types/user';
-
-const SETUP_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+import type {
+  PasswordResetConfirm,
+  UserCreate,
+  UserPatch,
+  UserSetup,
+} from '#shared/types/user';
 
 function createSetupToken() {
+  const { token, expiresAt } = createAuthToken(SETUP_TOKEN_TTL_MS);
   return {
-    setupToken: randomUUID(),
-    setupTokenExpiresAt: new Date(Date.now() + SETUP_TOKEN_TTL_MS),
+    setupToken: token,
+    setupTokenExpiresAt: expiresAt,
   };
 }
 
 async function deliverInvitation(email: string, token: string) {
-  try {
-    await sendInvitationEmail(email, token);
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: 'Failed to send invitation email',
-    });
-  }
+  await deliverMail(
+    () => sendInvitationEmail(email, token),
+    'Failed to send invitation email',
+  );
 }
 
 export const userService = {
@@ -112,10 +119,7 @@ export const userService = {
       });
     }
 
-    if (
-      user.setupTokenExpiresAt &&
-      user.setupTokenExpiresAt.getTime() < Date.now()
-    ) {
+    if (isAuthTokenExpired(user.setupTokenExpiresAt)) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Setup token has expired',
@@ -129,6 +133,51 @@ export const userService = {
       firstName: input.firstName,
       lastName: input.lastName,
       phoneNumber: input.phoneNumber,
+      setupToken: null,
+      setupTokenExpiresAt: null,
+    });
+
+    return toPublicUser(updated!);
+  },
+
+  async requestPasswordReset(email: string) {
+    const user = await userRepository.findByEmail(email);
+    if (!user || !user.passwordHash) {
+      return;
+    }
+
+    const { token, expiresAt } = createAuthToken(PASSWORD_RESET_TOKEN_TTL_MS);
+
+    await userRepository.update(user.id, {
+      passwordResetToken: token,
+      passwordResetTokenExpiresAt: expiresAt,
+    });
+
+    try {
+      await sendPasswordResetEmail(user.email, token);
+    } catch (error) {
+      console.error(
+        `[mail] Failed to send password reset email to ${user.email}:`,
+        error,
+      );
+    }
+  },
+
+  async resetPassword(input: PasswordResetConfirm) {
+    const user = await userRepository.findByPasswordResetToken(input.token);
+    if (!user || isAuthTokenExpired(user.passwordResetTokenExpiresAt)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid or expired reset token',
+      });
+    }
+
+    const passwordHash = await hashPassword(input.password);
+
+    const updated = await userRepository.update(user.id, {
+      passwordHash,
+      passwordResetToken: null,
+      passwordResetTokenExpiresAt: null,
       setupToken: null,
       setupTokenExpiresAt: null,
     });

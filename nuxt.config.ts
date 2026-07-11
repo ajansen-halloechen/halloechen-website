@@ -65,7 +65,7 @@ export default defineNuxtConfig({
   },
 
   sitemap: {
-    exclude: ['/internal/**', '/login', '/logout', '/setup'],
+    exclude: ['/internal/**', '/login', '/logout', '/setup', '/reset-password'],
   },
 
   routeRules: {
@@ -73,6 +73,7 @@ export default defineNuxtConfig({
     '/login': { robots: false },
     '/logout': { robots: false },
     '/setup': { robots: false },
+    '/reset-password': { robots: false },
   },
 
   nitro: {

@@ -28,6 +28,14 @@ export const userRepository = {
     return rows[0] ?? null;
   },
 
+  async findByPasswordResetToken(token: string) {
+    const rows = await db
+      .select()
+      .from(users)
+      .where(eq(users.passwordResetToken, token));
+    return rows[0] ?? null;
+  },
+
   async create(data: UserInsert) {
     const rows = await db.insert(users).values(data).returning();
     return rows[0]!;

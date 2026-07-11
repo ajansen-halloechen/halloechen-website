@@ -15,6 +15,10 @@ export const users = pgTable('users', {
   setupTokenExpiresAt: timestamp('setup_token_expires_at', {
     withTimezone: true,
   }),
+  passwordResetToken: varchar('password_reset_token', { length: 255 }).unique(),
+  passwordResetTokenExpiresAt: timestamp('password_reset_token_expires_at', {
+    withTimezone: true,
+  }),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

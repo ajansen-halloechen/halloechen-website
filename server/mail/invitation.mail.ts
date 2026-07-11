@@ -1,11 +1,12 @@
-import { getPublicSiteUrl, getSiteEnv } from '#server/utils/env';
+import { buildAuthLink } from '#server/utils/auth-link';
+import { getSiteEnv } from '#server/utils/env';
 import { sendMail } from './mail.service';
 
 export async function sendInvitationEmail(
   email: string,
   token: string,
 ): Promise<void> {
-  const setupUrl = `${getPublicSiteUrl()}/setup?token=${token}`;
+  const setupUrl = buildAuthLink('/setup', token);
 
   const subject = 'Einladung zur Hallöchen-Webseite';
   const text = [

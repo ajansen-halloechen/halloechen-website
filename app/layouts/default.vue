@@ -45,5 +45,7 @@ const activeItem = computed(() => {
     <footer>
       <FooterBar />
     </footer>
+
+    <UiToaster />
   </div>
 </template>

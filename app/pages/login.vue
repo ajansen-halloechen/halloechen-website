@@ -1,8 +1,12 @@
 <script setup lang="ts">
+const route = useRoute();
+
 const email = ref('');
 const password = ref('');
 const error = ref('');
+const resetSuccess = computed(() => route.query.reset === 'success');
 const loading = ref(false);
+const showForgotPasswordModal = ref(false);
 
 const { fetch: fetchSession } = useUserSession();
 
@@ -39,6 +43,13 @@ async function handleLogin() {
     <template #heading>Für internen Bereich anmelden</template>
     <form class="flex flex-col gap-4" @submit.prevent="handleLogin">
       <div
+        v-if="resetSuccess"
+        class="px-4 py-2 bg-primary/10 text-sm text-on-surface rounded-md"
+      >
+        Dein Passwort wurde erfolgreich zurückgesetzt. Du kannst dich jetzt
+        anmelden.
+      </div>
+      <div
         v-if="error"
         class="px-4 py-2 bg-error text-sm text-on-error rounded-md"
       >
@@ -60,10 +71,21 @@ async function handleLogin() {
         required
         autocomplete="current-password"
       />
+      <button
+        type="button"
+        class="self-end text-sm text-on-surface/70 underline hover:text-on-surface"
+        @click="showForgotPasswordModal = true"
+      >
+        Passwort vergessen?
+      </button>
 
       <UiButton type="submit" :disabled="loading" class="w-full">
         {{ loading ? 'Anmelden…' : 'Anmelden' }}
       </UiButton>
     </form>
+    <ForgotPasswordModal
+      v-model:open="showForgotPasswordModal"
+      :initial-email="email"
+    />
   </UiAuthPanel>
 </template>
