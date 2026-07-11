@@ -1,5 +1,11 @@
 http:
   middlewares:
+    rate-limit:
+      rateLimit:
+        # 100 requests per minute per IP, with burst for page loads (assets, API calls).
+        average: 200
+        period: 1m
+        burst: 100
     auth-rate-limit:
       rateLimit:
         # 10 requests per minute per IP, with a small burst for legitimate retries.
@@ -25,6 +31,7 @@ http:
       rule: Host(`halloechen.org`)
       service: halloechenwebsite-app-nnmoi2-service-3
       middlewares:
+        - rate-limit
         - redirect-to-https
       entryPoints:
         - web
@@ -32,6 +39,7 @@ http:
       rule: Host(`halloechen.org`)
       service: halloechenwebsite-app-nnmoi2-service-3
       middlewares:
+        - rate-limit
         - redirect-halloechenwebsite-app-nnmoi2-2
       entryPoints:
         - websecure
@@ -41,6 +49,7 @@ http:
       rule: Host(`www.halloechen.org`)
       service: halloechenwebsite-app-nnmoi2-service-4
       middlewares:
+        - rate-limit
         - redirect-to-https
         - redirect-halloechenwebsite-app-nnmoi2-2
       entryPoints:
@@ -49,6 +58,7 @@ http:
       rule: Host(`www.halloechen.org`)
       service: halloechenwebsite-app-nnmoi2-service-4
       middlewares:
+        - rate-limit
         - redirect-halloechenwebsite-app-nnmoi2-2
       entryPoints:
         - websecure
