@@ -58,18 +58,8 @@ function handleSubmit() {
     <UiDateInput id="wh-date" v-model="date" label="Datum" required />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>*]:min-w-0">
-      <UiTimeInput
-        id="wh-start"
-        v-model="startTime"
-        label="Beginn"
-        required
-      />
-      <UiTimeInput
-        id="wh-end"
-        v-model="endTime"
-        label="Ende"
-        required
-      />
+      <UiTimeInput id="wh-start" v-model="startTime" label="Beginn" required />
+      <UiTimeInput id="wh-end" v-model="endTime" label="Ende" required />
     </div>
 
     <div class="flex items-center gap-2">
@@ -78,7 +68,7 @@ function handleSubmit() {
         v-model="plusOneDay"
         type="checkbox"
         class="accent-primary"
-      >
+      />
       <label for="wh-plus-one">Ende am Folgetag</label>
     </div>
 

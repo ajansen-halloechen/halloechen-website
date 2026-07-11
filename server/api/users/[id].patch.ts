@@ -1,6 +1,9 @@
 import { readValidatedBody } from 'h3';
 import { userService } from '#server/entities/user/user.service';
-import { userPatchSchema, toPublicUser } from '#server/entities/user/user.schema';
+import {
+  userPatchSchema,
+  toPublicUser,
+} from '#server/entities/user/user.schema';
 import { requireAdmin } from '#server/utils/require-admin';
 import { UserRole } from '#shared/types/user';
 
