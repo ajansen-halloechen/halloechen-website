@@ -1,6 +1,9 @@
 import { readValidatedBody } from 'h3';
 import { userService } from '#server/entities/user/user.service';
-import { userProfilePatchSchema } from '#server/entities/user/user.schema';
+import {
+  userProfilePatchSchema,
+  toPublicUser,
+} from '#server/entities/user/user.schema';
 import { toSessionUser } from '#server/utils/to-session-user';
 
 export default defineEventHandler(async (event) => {
@@ -10,5 +13,5 @@ export default defineEventHandler(async (event) => {
 
   await setUserSession(event, { user: toSessionUser(user) });
 
-  return user;
+  return toPublicUser(user);
 });

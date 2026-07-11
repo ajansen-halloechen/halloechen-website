@@ -1,28 +1,37 @@
-import { randomUUID } from 'node:crypto';
 import { createError } from 'h3';
 import { sendInvitationEmail } from '#server/mail/invitation.mail';
+import { sendPasswordResetEmail } from '#server/mail/password-reset.mail';
+import {
+  createAuthToken,
+  hashAuthToken,
+  isAuthTokenExpired,
+  PASSWORD_RESET_TOKEN_TTL_MS,
+  SETUP_TOKEN_TTL_MS,
+} from '#server/utils/auth-token';
+import { deliverMail } from '#server/utils/deliver-mail';
 import { toPublicUser } from './user.schema';
 import { userRepository } from './user.repository';
-import type { UserCreate, UserSetup, UserPatch } from '#shared/types/user';
-
-const SETUP_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+import type {
+  PasswordResetConfirm,
+  UserCreate,
+  UserPatch,
+  UserSetup,
+} from '#shared/types/user';
 
 function createSetupToken() {
+  const { token, expiresAt } = createAuthToken(SETUP_TOKEN_TTL_MS);
   return {
-    setupToken: randomUUID(),
-    setupTokenExpiresAt: new Date(Date.now() + SETUP_TOKEN_TTL_MS),
+    plainToken: token,
+    setupToken: hashAuthToken(token),
+    setupTokenExpiresAt: expiresAt,
   };
 }
 
 async function deliverInvitation(email: string, token: string) {
-  try {
-    await sendInvitationEmail(email, token);
-  } catch {
-    throw createError({
-      statusCode: 502,
-      statusMessage: 'Failed to send invitation email',
-    });
-  }
+  await deliverMail(
+    () => sendInvitationEmail(email, token),
+    'Failed to send invitation email',
+  );
 }
 
 export const userService = {
@@ -47,6 +56,10 @@ export const userService = {
     return user;
   },
 
+  async getSessionMetaById(id: string) {
+    return userRepository.findSessionMetaById(id);
+  },
+
   async setAvatar(id: string, avatar: string | null) {
     const user = await userRepository.update(id, { avatar });
     if (!user) {
@@ -64,7 +77,7 @@ export const userService = {
       });
     }
 
-    const { setupToken, setupTokenExpiresAt } = createSetupToken();
+    const { plainToken, setupToken, setupTokenExpiresAt } = createSetupToken();
 
     const user = await userRepository.create({
       email: input.email,
@@ -73,7 +86,7 @@ export const userService = {
       setupTokenExpiresAt,
     });
 
-    await deliverInvitation(user.email, setupToken);
+    await deliverInvitation(user.email, plainToken);
 
     return toPublicUser(user);
   },
@@ -91,14 +104,14 @@ export const userService = {
       });
     }
 
-    const { setupToken, setupTokenExpiresAt } = createSetupToken();
+    const { plainToken, setupToken, setupTokenExpiresAt } = createSetupToken();
 
     const updated = await userRepository.update(id, {
       setupToken,
       setupTokenExpiresAt,
     });
 
-    await deliverInvitation(user.email, setupToken);
+    await deliverInvitation(user.email, plainToken);
 
     return toPublicUser(updated!);
   },
@@ -112,10 +125,7 @@ export const userService = {
       });
     }
 
-    if (
-      user.setupTokenExpiresAt &&
-      user.setupTokenExpiresAt.getTime() < Date.now()
-    ) {
+    if (isAuthTokenExpired(user.setupTokenExpiresAt)) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Setup token has expired',
@@ -132,6 +142,55 @@ export const userService = {
       setupToken: null,
       setupTokenExpiresAt: null,
     });
+
+    return updated!;
+  },
+
+  async requestPasswordReset(email: string) {
+    const user = await userRepository.findByEmail(email);
+    if (!user || !user.passwordHash) {
+      return;
+    }
+
+    const { token, expiresAt } = createAuthToken(PASSWORD_RESET_TOKEN_TTL_MS);
+
+    await userRepository.update(user.id, {
+      passwordResetToken: hashAuthToken(token),
+      passwordResetTokenExpiresAt: expiresAt,
+    });
+
+    try {
+      await sendPasswordResetEmail(user.email, token);
+    } catch (error) {
+      console.error(
+        `[mail] Failed to send password reset email to ${user.email}:`,
+        error,
+      );
+    }
+  },
+
+  async resetPassword(input: PasswordResetConfirm) {
+    const user = await userRepository.findByPasswordResetToken(input.token);
+    if (!user || isAuthTokenExpired(user.passwordResetTokenExpiresAt)) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Invalid or expired reset token',
+      });
+    }
+
+    const passwordHash = await hashPassword(input.password);
+
+    const updated = await userRepository.update(
+      user.id,
+      {
+        passwordHash,
+        passwordResetToken: null,
+        passwordResetTokenExpiresAt: null,
+        setupToken: null,
+        setupTokenExpiresAt: null,
+      },
+      { bumpSessionVersion: true },
+    );
 
     return toPublicUser(updated!);
   },
@@ -170,11 +229,15 @@ export const userService = {
       data.passwordHash = await hashPassword(password);
     }
 
-    const user = await userRepository.update(id, data);
+    const shouldBumpSessionVersion = !!(password || fields.role !== undefined);
+
+    const user = await userRepository.update(id, data, {
+      bumpSessionVersion: shouldBumpSessionVersion,
+    });
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
     }
-    return toPublicUser(user);
+    return user;
   },
 
   async login(email: string, password: string) {
@@ -194,7 +257,7 @@ export const userService = {
       });
     }
 
-    return toPublicUser(user);
+    return user;
   },
 
   async remove(id: string) {

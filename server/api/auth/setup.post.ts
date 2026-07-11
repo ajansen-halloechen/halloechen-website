@@ -11,5 +11,6 @@ export default defineEventHandler(async (event) => {
     user: toSessionUser(user),
   });
 
-  return user;
+  setResponseStatus(event, 204);
+  return null;
 });

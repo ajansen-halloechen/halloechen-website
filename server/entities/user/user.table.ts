@@ -1,4 +1,11 @@
-import { pgEnum, pgTable, uuid, varchar, timestamp } from 'drizzle-orm/pg-core';
+import {
+  integer,
+  pgEnum,
+  pgTable,
+  uuid,
+  varchar,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const userRoleEnum = pgEnum('user_role', ['user', 'admin']);
 
@@ -15,6 +22,11 @@ export const users = pgTable('users', {
   setupTokenExpiresAt: timestamp('setup_token_expires_at', {
     withTimezone: true,
   }),
+  passwordResetToken: varchar('password_reset_token', { length: 255 }).unique(),
+  passwordResetTokenExpiresAt: timestamp('password_reset_token_expires_at', {
+    withTimezone: true,
+  }),
+  sessionVersion: integer('session_version').default(0).notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })
     .defaultNow()
     .notNull(),

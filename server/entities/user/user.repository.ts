@@ -1,5 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { db } from '#server/database';
+import { hashAuthToken } from '#server/utils/auth-token';
 import { users } from './user.table';
 
 type UserInsert = typeof users.$inferInsert;
@@ -24,7 +25,29 @@ export const userRepository = {
     const rows = await db
       .select()
       .from(users)
-      .where(eq(users.setupToken, token));
+      .where(eq(users.setupToken, hashAuthToken(token)));
+    return rows[0] ?? null;
+  },
+
+  async findByPasswordResetToken(token: string) {
+    const rows = await db
+      .select()
+      .from(users)
+      .where(eq(users.passwordResetToken, hashAuthToken(token)));
+    return rows[0] ?? null;
+  },
+
+  async findSessionMetaById(id: string) {
+    const rows = await db
+      .select({
+        id: users.id,
+        email: users.email,
+        role: users.role,
+        avatar: users.avatar,
+        sessionVersion: users.sessionVersion,
+      })
+      .from(users)
+      .where(eq(users.id, id));
     return rows[0] ?? null;
   },
 
@@ -33,10 +56,18 @@ export const userRepository = {
     return rows[0]!;
   },
 
-  async update(id: string, data: Partial<UserColumns>) {
+  async update(
+    id: string,
+    data: Partial<UserColumns>,
+    options?: { bumpSessionVersion?: boolean },
+  ) {
     const rows = await db
       .update(users)
-      .set(data)
+      .set(
+        options?.bumpSessionVersion
+          ? { ...data, sessionVersion: sql`${users.sessionVersion} + 1` }
+          : data,
+      )
       .where(eq(users.id, id))
       .returning();
     return rows[0] ?? null;

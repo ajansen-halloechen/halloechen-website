@@ -43,6 +43,27 @@
       "when": 1781535985419,
       "tag": "0005_tired_dark_beast",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783242907035,
+      "tag": "0006_cheerful_mac_gargan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1783245000000,
+      "tag": "0007_clear_legacy_auth_tokens",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783764735513,
+      "tag": "0008_daily_gwen_stacy",
+      "breakpoints": true
     }
   ]
 }

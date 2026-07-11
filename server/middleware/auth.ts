@@ -1,9 +1,11 @@
 import type { H3Event } from 'h3';
+import { SESSION_EXPIRED_MESSAGE } from '#shared/constants/auth';
+import { validateSessionUser } from '#server/utils/validate-session';
 
 export default defineEventHandler(async (event: H3Event) => {
   const path: string = getRequestURL(event).pathname;
 
-  if (path.startsWith('/api/auth/')) {
+  if (path.startsWith('/api/auth/') || path.startsWith('/api/_auth/')) {
     return;
   }
 
@@ -12,6 +14,16 @@ export default defineEventHandler(async (event: H3Event) => {
     if (!session?.user) {
       throw createError({ statusCode: 401, statusMessage: 'Unauthorized' });
     }
-    event.context.user = session.user;
+
+    const validUser = await validateSessionUser(event, session.user);
+    if (!validUser) {
+      await clearUserSession(event);
+      throw createError({
+        statusCode: 401,
+        statusMessage: SESSION_EXPIRED_MESSAGE,
+      });
+    }
+
+    event.context.user = validUser;
   }
 });

@@ -5,9 +5,10 @@ import { toSessionUser } from '#server/utils/to-session-user';
 export async function updateSessionUser(event: H3Event, user: User) {
   const session = await getUserSession(event);
   const { id: _id, ...sessionData } = session;
+  const sessionVersion = session.user?.sessionVersion ?? 0;
 
   await replaceUserSession(event, {
     ...sessionData,
-    user: toSessionUser(user),
+    user: toSessionUser({ ...user, sessionVersion }),
   });
 }

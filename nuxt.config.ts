@@ -65,14 +65,21 @@ export default defineNuxtConfig({
   },
 
   sitemap: {
-    exclude: ['/internal/**', '/login', '/logout', '/setup'],
+    exclude: ['/internal/**', '/login', '/logout', '/setup', '/reset-password'],
   },
 
   routeRules: {
     '/internal/**': { robots: false },
     '/login': { robots: false },
     '/logout': { robots: false },
-    '/setup': { robots: false },
+    '/setup': {
+      robots: false,
+      headers: { 'Referrer-Policy': 'no-referrer' },
+    },
+    '/reset-password': {
+      robots: false,
+      headers: { 'Referrer-Policy': 'no-referrer' },
+    },
   },
 
   nitro: {

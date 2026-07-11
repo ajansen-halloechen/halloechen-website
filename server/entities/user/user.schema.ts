@@ -49,11 +49,22 @@ export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
   passwordHash: z.string().nullable(),
   setupToken: z.string().nullable(),
   setupTokenExpiresAt: z.date().nullable(),
+  passwordResetToken: z.string().nullable(),
+  passwordResetTokenExpiresAt: z.date().nullable(),
+  sessionVersion: z.number().int(),
 });
 
 export const toPublicUserSchema = userInternalSchema
   .transform(
-    ({ passwordHash, setupToken, setupTokenExpiresAt, ...publicFields }) => ({
+    ({
+      passwordHash,
+      setupToken,
+      setupTokenExpiresAt,
+      passwordResetToken,
+      passwordResetTokenExpiresAt,
+      sessionVersion: _sessionVersion,
+      ...publicFields
+    }) => ({
       ...publicFields,
       isPending: !passwordHash,
     }),
@@ -109,4 +120,13 @@ export const userProfilePatchSchema = withPasswordRefinement(
 export const userLoginSchema = z.object({
   email: z.email(),
   password: z.string(),
+});
+
+export const passwordResetRequestSchema = z.object({
+  email: z.email(),
+});
+
+export const passwordResetConfirmSchema = z.object({
+  token: z.string().min(1),
+  password: passwordSchema,
 });

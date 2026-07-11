@@ -1,0 +1,77 @@
+http:
+  middlewares:
+    rate-limit:
+      rateLimit:
+        # 100 requests per minute per IP, with burst for page loads (assets, API calls).
+        average: 200
+        period: 1m
+        burst: 100
+    auth-rate-limit:
+      rateLimit:
+        # 10 requests per minute per IP, with a small burst for legitimate retries.
+        # Protects /api/auth/login, /forgot-password, /reset-password, and /setup.
+        average: 10
+        period: 1m
+        burst: 5
+  routers:
+    # Auth-only router on HTTPS only. HTTP /api/auth requests are already
+    # caught by the existing web routers and redirected to HTTPS first.
+    halloechenwebsite-app-nnmoi2-router-auth-websecure:
+      rule: (Host(`halloechen.org`) || Host(`www.halloechen.org`)) && PathPrefix(`/api/auth`)
+      service: halloechenwebsite-app-nnmoi2-service-3
+      middlewares:
+        - auth-rate-limit
+        - redirect-halloechenwebsite-app-nnmoi2-2
+      entryPoints:
+        - websecure
+      priority: 100
+      tls:
+        certResolver: letsencrypt
+    halloechenwebsite-app-nnmoi2-router-3:
+      rule: Host(`halloechen.org`)
+      service: halloechenwebsite-app-nnmoi2-service-3
+      middlewares:
+        - rate-limit
+        - redirect-to-https
+      entryPoints:
+        - web
+    halloechenwebsite-app-nnmoi2-router-websecure-3:
+      rule: Host(`halloechen.org`)
+      service: halloechenwebsite-app-nnmoi2-service-3
+      middlewares:
+        - rate-limit
+        - redirect-halloechenwebsite-app-nnmoi2-2
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+    halloechenwebsite-app-nnmoi2-router-4:
+      rule: Host(`www.halloechen.org`)
+      service: halloechenwebsite-app-nnmoi2-service-4
+      middlewares:
+        - rate-limit
+        - redirect-to-https
+        - redirect-halloechenwebsite-app-nnmoi2-2
+      entryPoints:
+        - web
+    halloechenwebsite-app-nnmoi2-router-websecure-4:
+      rule: Host(`www.halloechen.org`)
+      service: halloechenwebsite-app-nnmoi2-service-4
+      middlewares:
+        - rate-limit
+        - redirect-halloechenwebsite-app-nnmoi2-2
+      entryPoints:
+        - websecure
+      tls:
+        certResolver: letsencrypt
+  services:
+    halloechenwebsite-app-nnmoi2-service-3:
+      loadBalancer:
+        servers:
+          - url: http://halloechenwebsite-app-nnmoi2:3000
+        passHostHeader: true
+    halloechenwebsite-app-nnmoi2-service-4:
+      loadBalancer:
+        servers:
+          - url: http://halloechenwebsite-app-nnmoi2:3000
+        passHostHeader: true
