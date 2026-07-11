@@ -1,4 +1,5 @@
 // @ts-check
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 import withNuxt from "./.nuxt/eslint.config.mjs";
 import halloechen from "./eslint/plugin.mjs";
 
@@ -28,4 +29,7 @@ export default withNuxt(
       "halloechen/no-external-repository-imports": "error",
     },
   },
+
+  // Must be last: disables ESLint formatting rules that conflict with Prettier.
+  eslintConfigPrettier,
 );
