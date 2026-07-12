@@ -123,7 +123,7 @@ onMounted(() => {
           :src="src"
           :alt="`Carousel image ${i + 1}`"
           class="object-cover h-full w-full"
-        >
+        />
       </div>
     </div>
 
