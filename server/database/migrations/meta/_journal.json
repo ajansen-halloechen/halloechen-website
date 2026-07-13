@@ -64,6 +64,13 @@
       "when": 1783764735513,
       "tag": "0008_daily_gwen_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1783879760174,
+      "tag": "0009_shiny_warbird",
+      "breakpoints": true
     }
   ]
 }
