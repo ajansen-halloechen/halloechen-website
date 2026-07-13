@@ -1,16 +1,13 @@
 import { createError } from 'h3';
+import {
+  dateTimeRangeValidationMessage,
+  validateDateTimeRange,
+} from '~~/shared/time-range-validation';
 import { shiftBlockerRepository } from './shift-blocker.repository';
 import type {
   ShiftBlockerCreate,
   ShiftBlockerPatch,
 } from '#shared/types/shift-blocker';
-
-function toDateTime(date: Date, time: string): Date {
-  const [hours = 0, minutes = 0, seconds = 0] = time.split(':').map(Number);
-  const result = new Date(date);
-  result.setHours(hours, minutes, seconds, 0);
-  return result;
-}
 
 function assertValidDateTimeRange(
   startDate: Date,
@@ -18,13 +15,17 @@ function assertValidDateTimeRange(
   endDate: Date,
   endTime: string,
 ) {
-  const start = toDateTime(startDate, startTime);
-  const end = toDateTime(endDate, endTime);
+  const error = validateDateTimeRange({
+    startDate,
+    startTime,
+    endDate,
+    endTime,
+  });
 
-  if (end <= start) {
+  if (error) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'End date and time must be after start date and time',
+      statusMessage: dateTimeRangeValidationMessage(error),
     });
   }
 }

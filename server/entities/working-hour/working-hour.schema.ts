@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import {
+  dateTimeRangeValidationMessage,
+  validateDateTimeRange,
+  workingHourToDateTimeRange,
+} from '~~/shared/time-range-validation';
 
 export const workingHourSchema = z.object({
   id: z.uuid(),
@@ -13,14 +18,19 @@ export const workingHourSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const workingHourCreateSchema = z.object({
-  activityId: z.uuid(),
-  date: z.coerce.date(),
-  startTime: z.iso.time(),
-  endTime: z.iso.time(),
-  breakInHours: z.number().min(0).default(0),
-  plusOneDay: z.boolean().default(false),
-});
+export const workingHourCreateSchema = z
+  .object({
+    activityId: z.uuid(),
+    date: z.coerce.date(),
+    startTime: z.iso.time(),
+    endTime: z.iso.time(),
+    breakInHours: z.number().min(0).default(0),
+    plusOneDay: z.boolean().default(false),
+  })
+  .refine((data) => validateDateTimeRange(workingHourToDateTimeRange(data)) === null, {
+    message: dateTimeRangeValidationMessage('end_before_start'),
+    path: ['endTime'],
+  });
 
 export const workingHourPatchSchema = z.object({
   activityId: z.uuid().optional(),

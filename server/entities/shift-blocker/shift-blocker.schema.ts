@@ -1,4 +1,8 @@
 import { z } from 'zod';
+import {
+  dateTimeRangeValidationMessage,
+  validateDateTimeRange,
+} from '~~/shared/time-range-validation';
 
 export const shiftBlockerSchema = z.object({
   id: z.uuid(),
@@ -12,13 +16,18 @@ export const shiftBlockerSchema = z.object({
   updatedAt: z.date(),
 });
 
-export const shiftBlockerCreateSchema = z.object({
-  startDate: z.coerce.date(),
-  startTime: z.iso.time(),
-  endDate: z.coerce.date(),
-  endTime: z.iso.time(),
-  description: z.string().max(500).default(''),
-});
+export const shiftBlockerCreateSchema = z
+  .object({
+    startDate: z.coerce.date(),
+    startTime: z.iso.time(),
+    endDate: z.coerce.date(),
+    endTime: z.iso.time(),
+    description: z.string().max(500).default(''),
+  })
+  .refine((data) => validateDateTimeRange(data) === null, {
+    message: dateTimeRangeValidationMessage('end_before_start'),
+    path: ['endDate'],
+  });
 
 export const shiftBlockerPatchSchema = z.object({
   startDate: z.coerce.date().optional(),
