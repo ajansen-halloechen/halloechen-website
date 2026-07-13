@@ -39,33 +39,42 @@ function formatDate(date: Date | string): string {
   });
 }
 
-function formatDateTime(date: Date | string, time: string): string {
-  return `${formatDate(date)} ${time.slice(0, 5)}`;
-}
-
 function toIsoDateString(date: Date | string): string {
   if (typeof date === 'string') return date.slice(0, 10);
   return date.toISOString().slice(0, 10);
 }
 
-const sorting = ref<SortingState>([{ id: 'startDate', desc: false }]);
+function formatTime(time: string): string {
+  return time.slice(0, 5);
+}
+
+function isSameDay(startDate: Date | string, endDate: Date | string): boolean {
+  return toIsoDateString(startDate) === toIsoDateString(endDate);
+}
+
+function formatPeriod(blocker: ShiftBlocker): string {
+  const startDateFormatted = formatDate(blocker.startDate);
+  const startTimeFormatted = formatTime(blocker.startTime);
+  const endTimeFormatted = formatTime(blocker.endTime);
+
+  if (isSameDay(blocker.startDate, blocker.endDate)) {
+    return `${startDateFormatted}, ${startTimeFormatted} - ${endTimeFormatted}`;
+  }
+
+  const endDateFormatted = formatDate(blocker.endDate);
+  return `${startDateFormatted}, ${startTimeFormatted} - ${endDateFormatted}, ${endTimeFormatted}`;
+}
+
+const sorting = ref<SortingState>([{ id: 'period', desc: false }]);
 const globalSearch = ref('');
 
 const columnHelper = createColumnHelper<ShiftBlocker>();
 
 const columns = [
   columnHelper.accessor('startDate', {
-    id: 'startDate',
-    header: 'Von',
-    cell: (info) =>
-      formatDateTime(info.getValue(), info.row.original.startTime),
-    enableSorting: true,
-    enableGlobalFilter: false,
-  }),
-  columnHelper.accessor('endDate', {
-    id: 'endDate',
-    header: 'Bis',
-    cell: (info) => formatDateTime(info.getValue(), info.row.original.endTime),
+    id: 'period',
+    header: 'Zeitraum',
+    cell: (info) => formatPeriod(info.row.original),
     enableSorting: true,
     enableGlobalFilter: false,
   }),
@@ -102,9 +111,8 @@ const table = useVueTable({
   globalFilterFn: (row, _columnId, filterValue: string) => {
     const search = filterValue.toLowerCase();
     const blocker = row.original;
-    const start = formatDateTime(blocker.startDate, blocker.startTime);
-    const end = formatDateTime(blocker.endDate, blocker.endTime);
-    return [start, end, blocker.description ?? ''].some((v) =>
+    const period = formatPeriod(blocker);
+    return [period, blocker.description ?? ''].some((v) =>
       v.toLowerCase().includes(search),
     );
   },
