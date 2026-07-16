@@ -27,10 +27,13 @@ export const workingHourCreateSchema = z
     breakInHours: z.number().min(0).default(0),
     plusOneDay: z.boolean().default(false),
   })
-  .refine((data) => validateDateTimeRange(workingHourToDateTimeRange(data)) === null, {
-    message: dateTimeRangeValidationMessage('end_before_start'),
-    path: ['endTime'],
-  });
+  .refine(
+    (data) => validateDateTimeRange(workingHourToDateTimeRange(data)) === null,
+    {
+      message: dateTimeRangeValidationMessage('end_before_start'),
+      path: ['endTime'],
+    },
+  );
 
 export const workingHourPatchSchema = z.object({
   activityId: z.uuid().optional(),

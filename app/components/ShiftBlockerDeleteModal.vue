@@ -34,7 +34,10 @@ const confirmDescription = computed(() => {
     props.shiftBlocker.startDate,
     props.shiftBlocker.startTime,
   );
-  const end = formatDateTime(props.shiftBlocker.endDate, props.shiftBlocker.endTime);
+  const end = formatDateTime(
+    props.shiftBlocker.endDate,
+    props.shiftBlocker.endTime,
+  );
   const label = props.shiftBlocker.description.trim();
   if (label) {
     return `Möchtest du den Schichtblocker „${label}" vom ${start} bis ${end} wirklich löschen?`;
