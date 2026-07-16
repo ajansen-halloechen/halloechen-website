@@ -1,9 +1,20 @@
 <script setup lang="ts">
+import { UserRole } from '~~/shared/types/user';
+
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
+
+const { user: currentUser } = useUserSession();
+
+const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
+const showAllUsers = ref(false);
 </script>
 
 <template>
-  <UiPage heading="Schichten" size="xl">
-    <p class="text-lg text-gray-600">Hier kommt die Schichtplanung hin.</p>
+  <UiPage heading="Schichtblocker" size="xl">
+    <ShiftBlockerTable :show-all-users="showAllUsers">
+      <template v-if="isAdmin" #actions-prepend>
+        <ShiftBlockerSettingsModal v-model:show-all-users="showAllUsers" />
+      </template>
+    </ShiftBlockerTable>
   </UiPage>
 </template>

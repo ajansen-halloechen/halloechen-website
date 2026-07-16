@@ -10,12 +10,12 @@ const internalBaseNavItems: TopBarItem[] = [
   //   label: 'Veranstaltungen',
   //   to: '/internal/events',
   // },
+  { id: 'shifts', label: 'Schichten', to: '/internal/shifts' },
   {
     id: 'working-hours',
     label: 'Zeiterfassung',
     to: '/internal/working-hours',
   },
-  // { id: 'shifts', label: 'Schichten', to: '/internal/shifts' },
   // { id: 'invoices', label: 'Rechnungen', to: '/internal/invoices' },
   { id: 'users', label: 'Genoss*innen', to: '/internal/users' },
 ];

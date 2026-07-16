@@ -16,10 +16,8 @@ import {
   PaperAirplaneIcon,
 } from '@heroicons/vue/24/outline';
 import { UserRole, type User } from '~~/shared/types/user';
-import {
-  createUserAvatarColumn,
-  hasAnyUserAvatar,
-} from '~/utils/user-table-columns';
+import { createUserAvatarColumn } from '~/utils/user-table-columns';
+import { getUserDisplayName } from '~/utils/user-display';
 
 const { success, error } = useToast();
 
@@ -65,15 +63,8 @@ const resendLoadingId = ref<string | null>(null);
 
 const isAdmin = computed(() => currentUser.value?.role === UserRole.admin);
 
-function getUserDisplayName(user: User): string | null {
-  if (user.firstName || user.lastName) {
-    return [user.firstName, user.lastName].filter(Boolean).join(' ');
-  }
-  return null;
-}
-
 function getUserSortKey(user: User): string {
-  return getUserDisplayName(user) ?? user.email;
+  return getUserDisplayName(user);
 }
 
 function getUserStatus(user: User): string {
@@ -88,13 +79,11 @@ const columnHelper = createColumnHelper<User>();
 
 const avatarColumn = createUserAvatarColumn(columnHelper);
 
-const hasAnyAvatar = computed(() => hasAnyUserAvatar(users.value ?? []));
-
 const baseColumns = [
   columnHelper.accessor((row) => getUserSortKey(row), {
     id: 'displayName',
     header: 'Genoss*in',
-    cell: (info) => getUserDisplayName(info.row.original) ?? '',
+    cell: (info) => getUserDisplayName(info.row.original),
     enableSorting: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -136,9 +125,8 @@ const table = useVueTable({
     return users.value ?? [];
   },
   get columns() {
-    const cols = [...baseColumns];
+    const cols = [avatarColumn, ...baseColumns];
     if (isAdmin.value) cols.push(actionsColumn);
-    if (hasAnyAvatar.value) cols.unshift(avatarColumn);
     return cols;
   },
   getRowId: (row) => row.id,
@@ -289,17 +277,14 @@ async function handleResendInvitation(user: User) {
           </a>
         </template>
         <template v-else-if="cell.column.id === 'avatar'">
-          <div class="flex w-full justify-center px-2">
-            <UiUserAvatar
-              v-if="row.original.avatar"
-              :src="row.original.avatar"
-              interactive
-              @click="openProfileModal(row.original)"
-            />
-          </div>
+          <UserCell
+            part="avatar"
+            :user="row.original"
+            @profile="openProfileModal"
+          />
         </template>
         <template v-else-if="cell.column.id === 'displayName'">
-          <span>{{ getUserDisplayName(row.original) ?? '' }}</span>
+          <UserCell part="name" :user="row.original" />
         </template>
         <template v-else>
           <FlexRender

@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  dateTimeRangeValidationMessage,
+  validateDateTimeRange,
+  workingHourToDateTimeRange,
+} from '~~/shared/time-range-validation';
+
 export interface WorkingHourFormData {
   date: string;
   startTime: string;
@@ -26,6 +32,7 @@ const endTime = ref(props.initialData?.endTime ?? '');
 const breakInHours = ref(String(props.initialData?.breakInHours ?? 0));
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
 const activity = ref(props.initialData?.activityName ?? '');
+const rangeError = ref('');
 
 watch(
   () => props.initialData,
@@ -41,7 +48,27 @@ watch(
   },
 );
 
+watch([date, startTime, endTime, plusOneDay], () => {
+  rangeError.value = '';
+});
+
 function handleSubmit() {
+  rangeError.value = '';
+
+  const rangeValidationError = validateDateTimeRange(
+    workingHourToDateTimeRange({
+      date: date.value,
+      startTime: startTime.value,
+      endTime: endTime.value,
+      plusOneDay: plusOneDay.value,
+    }),
+  );
+
+  if (rangeValidationError) {
+    rangeError.value = dateTimeRangeValidationMessage(rangeValidationError);
+    return;
+  }
+
   emit('submit', {
     date: date.value,
     startTime: startTime.value,
@@ -59,7 +86,12 @@ function handleSubmit() {
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>*]:min-w-0">
       <UiTimeInput id="wh-start" v-model="startTime" label="Beginn" required />
-      <UiTimeInput id="wh-end" v-model="endTime" label="Ende" required />
+      <div class="flex flex-col gap-1">
+        <UiTimeInput id="wh-end" v-model="endTime" label="Ende" required />
+        <p v-if="rangeError" class="text-sm text-red-600">
+          {{ rangeError }}
+        </p>
+      </div>
     </div>
 
     <div class="flex items-center gap-2">

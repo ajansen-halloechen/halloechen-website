@@ -30,16 +30,12 @@ function getRoleLabel(role: User['role']): string {
   >
     <div v-if="user" class="flex flex-col items-center gap-6">
       <UiUserAvatar
-        v-if="user.avatar"
         :src="user.avatar"
         :alt="getUserDisplayName(user) ?? user.email"
         class="size-48"
       />
 
       <dl class="w-full grid grid-cols-[auto_1fr] gap-x-4 gap-y-3">
-        <dt class="font-medium text-on-surface/70">Name</dt>
-        <dd>{{ getUserDisplayName(user) ?? '–' }}</dd>
-
         <dt class="font-medium text-on-surface/70">E-Mail</dt>
         <dd>
           <a

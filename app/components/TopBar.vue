@@ -100,11 +100,11 @@ const openingHoursMarqueeText = computed(() =>
                 class="inline-flex items-center hover:text-accent"
                 :class="{ 'text-accent': activeItem === item.id }"
               >
-                <img
-                  v-if="item.imageUrl"
+                <UiUserAvatar
+                  v-if="item.imageUrl !== undefined"
                   :src="item.imageUrl"
                   :alt="item.tooltip ?? item.label"
-                  class="h-10 w-10 rounded-full object-cover hover:border-2 hover:border-accent"
+                  class="size-10 hover:ring-2 hover:ring-accent"
                 />
                 <component :is="item.icon" v-else class="h-6 w-6" />
               </NuxtLink>
@@ -150,11 +150,11 @@ const openingHoursMarqueeText = computed(() =>
           @click="closeMobileMenu"
         >
           <span class="inline-flex items-center gap-2">
-            <img
-              v-if="item.imageUrl"
+            <UiUserAvatar
+              v-if="item.imageUrl !== undefined"
               :src="item.imageUrl"
               :alt="item.tooltip ?? item.label"
-              class="h-6 w-6 rounded-full object-cover"
+              class="size-6"
             />
             <component :is="item.icon" v-else-if="item.icon" class="h-5 w-5" />
             {{ item.label || item.tooltip }}
