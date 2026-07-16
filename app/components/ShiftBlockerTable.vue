@@ -12,10 +12,7 @@ import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import type { ShiftBlocker } from '~~/shared/types/shift-blocker';
 import type { User } from '~~/shared/types/user';
 import type { ShiftBlockerFormData } from '~/components/ShiftBlockerForm.vue';
-import {
-  createUserAvatarColumn,
-  hasAnyUserAvatar,
-} from '~/utils/user-table-columns';
+import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
 
 const props = defineProps<{
@@ -97,12 +94,6 @@ const columnHelper = createColumnHelper<ShiftBlocker>();
 
 const avatarColumn = createUserAvatarColumn(columnHelper);
 
-const hasAnyAvatar = computed(() =>
-  props.showAllUsers
-    ? hasAnyUserAvatar(backendUsers.value ?? [])
-    : false,
-);
-
 const baseColumns = [
   columnHelper.accessor('userId', {
     id: 'userId',
@@ -139,9 +130,7 @@ const table = useVueTable({
     if (!props.showAllUsers) {
       return baseColumns.filter((col) => col.id !== 'userId');
     }
-    const cols = [...baseColumns];
-    if (hasAnyAvatar.value) cols.unshift(avatarColumn);
-    return cols;
+    return [avatarColumn, ...baseColumns];
   },
   state: {
     get sorting() {

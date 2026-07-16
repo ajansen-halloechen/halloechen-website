@@ -17,10 +17,9 @@ const emit = defineEmits<{
   <template v-if="part === 'avatar'">
     <div class="flex w-full justify-center px-2">
       <UiUserAvatar
-        v-if="user?.avatar"
-        :src="user.avatar"
-        interactive
-        @click="emit('profile', user!)"
+        :src="user?.avatar ?? null"
+        :interactive="Boolean(user)"
+        @click="user && emit('profile', user)"
       />
     </div>
   </template>
