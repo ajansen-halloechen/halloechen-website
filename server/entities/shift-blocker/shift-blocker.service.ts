@@ -8,6 +8,7 @@ import type {
   ShiftBlockerCreate,
   ShiftBlockerPatch,
 } from '#shared/types/shift-blocker';
+import { UserRole } from '#shared/types/user';
 
 function assertValidDateTimeRange(
   startDate: Date,
@@ -30,20 +31,33 @@ function assertValidDateTimeRange(
   }
 }
 
+type Requester = {
+  id: string;
+  role: typeof UserRole.user | typeof UserRole.admin;
+};
+
 export const shiftBlockerService = {
-  async getAllForUser(userId: string, month?: { year: number; month: number }) {
-    if (month) {
-      return shiftBlockerRepository.findByUserAndMonth(
-        userId,
-        month.year,
-        month.month,
-      );
+  async getAll(
+    requester: Requester,
+    month: { year: number; month: number },
+    options?: { allUsers?: boolean },
+  ) {
+    if (options?.allUsers) {
+      if (requester.role !== UserRole.admin) {
+        throw createError({
+          statusCode: 403,
+          statusMessage: 'Forbidden',
+        });
+      }
+
+      return shiftBlockerRepository.findByMonth(month.year, month.month);
     }
 
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Month parameter is required. Expected YYYY-MM.',
-    });
+    return shiftBlockerRepository.findByUserAndMonth(
+      requester.id,
+      month.year,
+      month.month,
+    );
   },
 
   async getById(id: string, userId: string) {

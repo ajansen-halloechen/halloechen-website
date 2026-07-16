@@ -1,9 +1,10 @@
 import { shiftBlockerService } from '#server/entities/shift-blocker/shift-blocker.service';
 
 export default defineEventHandler((event) => {
-  const userId = event.context.user!.id;
+  const user = event.context.user!;
   const query = getQuery(event);
   const monthStr = typeof query.month === 'string' ? query.month : undefined;
+  const allUsers = query.allUsers === 'true' || query.allUsers === true;
 
   if (!monthStr) {
     throw createError({
@@ -20,8 +21,12 @@ export default defineEventHandler((event) => {
     });
   }
 
-  return shiftBlockerService.getAllForUser(userId, {
-    year: Number(match[1]),
-    month: Number(match[2]),
-  });
+  return shiftBlockerService.getAll(
+    { id: user.id, role: user.role },
+    {
+      year: Number(match[1]),
+      month: Number(match[2]),
+    },
+    { allUsers },
+  );
 });

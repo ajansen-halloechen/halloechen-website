@@ -30,6 +30,21 @@ export const shiftBlockerRepository = {
       );
   },
 
+  async findByMonth(year: number, month: number) {
+    const firstDay = new Date(Date.UTC(year, month - 1, 1));
+    const lastDay = new Date(Date.UTC(year, month, 0));
+
+    return db
+      .select()
+      .from(shiftBlockers)
+      .where(
+        and(
+          lte(shiftBlockers.startDate, lastDay),
+          gte(shiftBlockers.endDate, firstDay),
+        ),
+      );
+  },
+
   async create(data: ShiftBlockerInsert) {
     const rows = await db.insert(shiftBlockers).values(data).returning();
     return rows[0]!;

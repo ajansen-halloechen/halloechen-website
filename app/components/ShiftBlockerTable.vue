@@ -10,7 +10,19 @@ import {
 } from '@tanstack/vue-table';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
 import type { ShiftBlocker } from '~~/shared/types/shift-blocker';
+import type { User } from '~~/shared/types/user';
 import type { ShiftBlockerFormData } from '~/components/ShiftBlockerForm.vue';
+import {
+  createUserAvatarColumn,
+  hasAnyUserAvatar,
+} from '~/utils/user-table-columns';
+import { getUserDisplayName } from '~/utils/user-display';
+
+const props = defineProps<{
+  showAllUsers: boolean;
+}>();
+
+const { user: currentUser } = useUserSession();
 
 const today = new Date();
 const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -24,9 +36,24 @@ const monthParam = computed(() => {
   return `${y}-${m}`;
 });
 
+const fetchQuery = computed(() => ({
+  month: monthParam.value,
+  ...(props.showAllUsers ? { allUsers: 'true' } : {}),
+}));
+
 const { data: shiftBlockers, refresh: refreshShiftBlockers } = await useFetch<
   ShiftBlocker[]
->('/api/shift-blockers', { query: { month: monthParam } });
+>('/api/shift-blockers', { query: fetchQuery });
+
+const { data: backendUsers } = await useFetch<User[]>('/api/users');
+
+const userMap = computed(
+  () => new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
+);
+
+function getUserForId(userId: string): User | undefined {
+  return userMap.value.get(userId);
+}
 
 function formatDate(date: Date | string): string {
   const d = date instanceof Date ? date : new Date(date);
@@ -68,7 +95,24 @@ const globalSearch = ref('');
 
 const columnHelper = createColumnHelper<ShiftBlocker>();
 
-const columns = [
+const avatarColumn = createUserAvatarColumn(columnHelper);
+
+const hasAnyAvatar = computed(() =>
+  props.showAllUsers
+    ? hasAnyUserAvatar(backendUsers.value ?? [])
+    : false,
+);
+
+const baseColumns = [
+  columnHelper.accessor('userId', {
+    id: 'userId',
+    header: 'Genoss*in',
+    cell: (info) => {
+      const user = userMap.value.get(info.getValue());
+      return user ? getUserDisplayName(user) : info.getValue();
+    },
+    enableSorting: false,
+  }),
   columnHelper.accessor('startDate', {
     id: 'period',
     header: 'Zeitraum',
@@ -92,7 +136,12 @@ const table = useVueTable({
     return shiftBlockers.value ?? [];
   },
   get columns() {
-    return columns;
+    if (!props.showAllUsers) {
+      return baseColumns.filter((col) => col.id !== 'userId');
+    }
+    const cols = [...baseColumns];
+    if (hasAnyAvatar.value) cols.unshift(avatarColumn);
+    return cols;
   },
   state: {
     get sorting() {
@@ -110,9 +159,13 @@ const table = useVueTable({
     const search = filterValue.toLowerCase();
     const blocker = row.original;
     const period = formatPeriod(blocker);
-    return [period, blocker.description ?? ''].some((v) =>
-      v.toLowerCase().includes(search),
-    );
+    const values = [period, blocker.description ?? ''];
+    if (props.showAllUsers) {
+      const user = userMap.value.get(blocker.userId);
+      const userName = user ? getUserDisplayName(user) : blocker.userId;
+      values.push(userName);
+    }
+    return values.some((v) => v.toLowerCase().includes(search));
   },
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
@@ -122,9 +175,16 @@ const table = useVueTable({
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
+const showProfileModal = ref(false);
 const editingId = ref<string | undefined>();
 const editingEntry = ref<ShiftBlockerFormData>();
 const deletingEntry = ref<ShiftBlocker>();
+const profileUser = ref<User>();
+
+function canEditRow(blocker: ShiftBlocker): boolean {
+  if (!props.showAllUsers) return true;
+  return blocker.userId === currentUser.value?.id;
+}
 
 function openEditModal(entry: ShiftBlocker) {
   editingId.value = entry.id;
@@ -178,6 +238,11 @@ function openDeleteModal(entry: ShiftBlocker) {
   deletingEntry.value = entry;
   showDeleteModal.value = true;
 }
+
+function openProfileModal(user: User) {
+  profileUser.value = user;
+  showProfileModal.value = true;
+}
 </script>
 
 <template>
@@ -187,14 +252,20 @@ function openDeleteModal(entry: ShiftBlocker) {
     :show-search="true"
   >
     <template #actions>
-      <UiModal v-model:open="showCreateModal" title="Schichtblocker hinzufügen">
-        <template #trigger>
-          <UiIconButton variant="solid" tooltip="Schichtblocker hinzufügen">
-            <PlusIcon class="size-6" />
-          </UiIconButton>
-        </template>
-        <ShiftBlockerForm @submit="handleCreate" />
-      </UiModal>
+      <div class="flex items-center gap-1">
+        <slot name="actions-prepend" />
+        <UiModal
+          v-model:open="showCreateModal"
+          title="Schichtblocker hinzufügen"
+        >
+          <template #trigger>
+            <UiIconButton variant="solid" tooltip="Schichtblocker hinzufügen">
+              <PlusIcon class="size-6" />
+            </UiIconButton>
+          </template>
+          <ShiftBlockerForm @submit="handleCreate" />
+        </UiModal>
+      </div>
     </template>
 
     <template #toolbar>
@@ -206,6 +277,7 @@ function openDeleteModal(entry: ShiftBlocker) {
         <div class="flex gap-1">
           <UiIconButton
             tooltip="Schichtblocker bearbeiten"
+            :disabled="!canEditRow(row.original)"
             @click="openEditModal(row.original)"
           >
             <PencilIcon class="size-5" />
@@ -213,11 +285,26 @@ function openDeleteModal(entry: ShiftBlocker) {
           <UiIconButton
             color="error"
             tooltip="Schichtblocker löschen"
+            :disabled="!canEditRow(row.original)"
             @click="openDeleteModal(row.original)"
           >
             <TrashIcon class="size-5" />
           </UiIconButton>
         </div>
+      </template>
+      <template v-else-if="cell.column.id === 'avatar'">
+        <UserCell
+          part="avatar"
+          :user="getUserForId(row.original.userId)"
+          @profile="openProfileModal"
+        />
+      </template>
+      <template v-else-if="cell.column.id === 'userId'">
+        <UserCell
+          part="name"
+          :user="getUserForId(row.original.userId)"
+          :fallback="row.original.userId"
+        />
       </template>
       <template v-else>
         <FlexRender
@@ -237,4 +324,6 @@ function openDeleteModal(entry: ShiftBlocker) {
     :shift-blocker="deletingEntry"
     @success="refreshShiftBlockers()"
   />
+
+  <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />
 </template>
