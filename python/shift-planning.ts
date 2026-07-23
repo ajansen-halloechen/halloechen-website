@@ -217,11 +217,13 @@ function writeJson(path: string, value: unknown): void {
 }
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
-const shiftBlockers = loadShiftBlockers(join(scriptDir, 'shift-blockers.json'));
+const shiftBlockers = loadShiftBlockers(
+  join(scriptDir, '/data/202609/shift-blockers.json'),
+);
 const users = loadUsers(join(scriptDir, 'users.json'));
 
 const excludedDates = new Set(['2026-08-01']);
-const plannedShifts = planShiftsForMonth(2026, 8, templates).filter(
+const plannedShifts = planShiftsForMonth(2026, 9, templates).filter(
   (shift) => !excludedDates.has(formatDate(shift.date)),
 );
 const shiftAvailabilities = getAvailability(
@@ -250,7 +252,9 @@ const availableCount = shiftAvailabilitiesJson.filter(
   (a) => a.availability === 'available',
 ).length;
 
-console.log(`Wrote ${plannedShiftsJson.length} planned shifts → ${plannedShiftsPath}`);
+console.log(
+  `Wrote ${plannedShiftsJson.length} planned shifts → ${plannedShiftsPath}`,
+);
 console.log(
   `Wrote ${shiftAvailabilitiesJson.length} availabilities` +
     ` (${availableCount} available, ${unavailableCount} unavailable)` +

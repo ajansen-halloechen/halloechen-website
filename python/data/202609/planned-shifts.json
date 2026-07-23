@@ -1,0 +1,122 @@
+[
+  {
+    "id": "2cbed6e2-1e60-4dc7-a53b-9628715eefec",
+    "shiftTemplateId": "d4280b6c-68d0-44e0-911e-4e157a4d0663",
+    "date": "2026-09-03",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "fe27e4be-0a46-4721-b4ae-2ee29174a00e",
+    "shiftTemplateId": "6c5ba3ec-11be-4dce-a0c9-e29114890162",
+    "date": "2026-09-04",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "c27634d8-d1fe-4d0a-90b2-f6dae74b4fe0",
+    "shiftTemplateId": "8bb9aaf8-c117-41ba-8723-469f15e922d2",
+    "date": "2026-09-05",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "614bb0b0-69c5-4b4c-8b88-83f2bebd96bb",
+    "shiftTemplateId": "d4280b6c-68d0-44e0-911e-4e157a4d0663",
+    "date": "2026-09-10",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "c8f0d7ca-13e0-48e4-bbf0-cf433e3c6492",
+    "shiftTemplateId": "6c5ba3ec-11be-4dce-a0c9-e29114890162",
+    "date": "2026-09-11",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "a654774b-9fe1-4c3a-8f9d-0ac64857f8b6",
+    "shiftTemplateId": "8bb9aaf8-c117-41ba-8723-469f15e922d2",
+    "date": "2026-09-12",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "97a40df6-c02f-4809-8e93-7d38b1cc79c3",
+    "shiftTemplateId": "d4280b6c-68d0-44e0-911e-4e157a4d0663",
+    "date": "2026-09-17",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "e1ff6e45-a2e2-4dfe-b845-3bfcf9f84135",
+    "shiftTemplateId": "6c5ba3ec-11be-4dce-a0c9-e29114890162",
+    "date": "2026-09-18",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "e42c62bb-3df3-4b4d-8f71-4a8bbe2a2025",
+    "shiftTemplateId": "8bb9aaf8-c117-41ba-8723-469f15e922d2",
+    "date": "2026-09-19",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "9fe70374-fddc-406f-b82c-066d50da751e",
+    "shiftTemplateId": "d4280b6c-68d0-44e0-911e-4e157a4d0663",
+    "date": "2026-09-24",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "c0aa3fde-b2a7-46a5-afbf-28711edd7c56",
+    "shiftTemplateId": "6c5ba3ec-11be-4dce-a0c9-e29114890162",
+    "date": "2026-09-25",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  },
+  {
+    "id": "8e80e99f-7d07-4bb2-9c35-cac705b6a851",
+    "shiftTemplateId": "8bb9aaf8-c117-41ba-8723-469f15e922d2",
+    "date": "2026-09-26",
+    "startTime": "18:00:00",
+    "endTime": "02:00:00",
+    "plusOneDay": true,
+    "numberOfPersons": 2,
+    "shiftType": "barShift"
+  }
+]

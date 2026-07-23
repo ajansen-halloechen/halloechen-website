@@ -231,8 +231,30 @@
     "updatedAt": "2026-07-19T07:53:06.351Z"
   },
   {
+    "id": "167019d0-8f9b-4b58-8c7e-4f237f2d2110",
+    "userId": "e4c89d1b-9681-4838-8d3c-7b95a65379b9",
+    "startDate": "2026-09-03T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-03T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "",
+    "createdAt": "2026-07-19T07:53:06.351Z",
+    "updatedAt": "2026-07-19T07:53:06.351Z"
+  },
+  {
     "id": "bb0136c8-ba32-42df-b099-31747f22827c",
     "userId": "43b5e56d-79e8-4f39-8097-f021e49051f6",
+    "startDate": "2026-09-05T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-10T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "",
+    "createdAt": "2026-07-19T07:53:21.788Z",
+    "updatedAt": "2026-07-19T07:53:21.788Z"
+  },
+  {
+    "id": "bb0136c8-ba32-42df-b099-31747f22827c",
+    "userId": "e4c89d1b-9681-4838-8d3c-7b95a65379b9",
     "startDate": "2026-09-05T00:00:00.000Z",
     "startTime": "00:00:00",
     "endDate": "2026-09-10T00:00:00.000Z",
@@ -253,8 +275,30 @@
     "updatedAt": "2026-07-19T07:53:31.736Z"
   },
   {
+    "id": "056b0cec-f909-481c-9dbc-b2021c4e6ef9",
+    "userId": "e4c89d1b-9681-4838-8d3c-7b95a65379b9",
+    "startDate": "2026-09-17T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-17T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "",
+    "createdAt": "2026-07-19T07:53:31.736Z",
+    "updatedAt": "2026-07-19T07:53:31.736Z"
+  },
+  {
     "id": "b294fb41-63e0-4f7b-b076-4639cd6e5e52",
     "userId": "43b5e56d-79e8-4f39-8097-f021e49051f6",
+    "startDate": "2026-09-19T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-24T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "",
+    "createdAt": "2026-07-19T07:53:49.791Z",
+    "updatedAt": "2026-07-19T07:53:49.791Z"
+  },
+  {
+    "id": "b294fb41-63e0-4f7b-b076-4639cd6e5e52",
+    "userId": "e4c89d1b-9681-4838-8d3c-7b95a65379b9",
     "startDate": "2026-09-19T00:00:00.000Z",
     "startTime": "00:00:00",
     "endDate": "2026-09-24T00:00:00.000Z",
@@ -335,6 +379,72 @@
     "startDate": "2026-09-24T00:00:00.000Z",
     "startTime": "00:00:00",
     "endDate": "2026-09-27T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "31392b36-233a-4482-a855-97def74581d1",
+    "startDate": "2026-09-04T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-05T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "31392b36-233a-4482-a855-97def74581d1",
+    "startDate": "2026-09-12T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-26T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "6e87e01f-9144-4180-9f4a-8a0b5bd8660b",
+    "startDate": "2026-09-03T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-03T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "6e87e01f-9144-4180-9f4a-8a0b5bd8660b",
+    "startDate": "2026-09-10T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-10T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "6e87e01f-9144-4180-9f4a-8a0b5bd8660b",
+    "startDate": "2026-09-17T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-17T00:00:00.000Z",
+    "endTime": "23:59:00",
+    "description": "Abwesend",
+    "createdAt": "2026-07-22T07:36:33.237Z",
+    "updatedAt": "2026-07-22T07:36:33.237Z"
+  },
+  {
+    "id": "a7ebc79d-de2f-4b6a-833d-0e1f209120a3",
+    "userId": "6e87e01f-9144-4180-9f4a-8a0b5bd8660b",
+    "startDate": "2026-09-24T00:00:00.000Z",
+    "startTime": "00:00:00",
+    "endDate": "2026-09-24T00:00:00.000Z",
     "endTime": "23:59:00",
     "description": "Abwesend",
     "createdAt": "2026-07-22T07:36:33.237Z",
