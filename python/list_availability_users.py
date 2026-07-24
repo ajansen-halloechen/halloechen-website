@@ -25,7 +25,7 @@ def main() -> None:
     missing_user_ids = set(names.keys()) - set(user_ids) 
 
 
-    print("")
+    print()
     print("Missing Blockers:")
     for user_id in missing_user_ids:
         print(names.get(user_id, user_id))

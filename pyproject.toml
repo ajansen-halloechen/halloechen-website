@@ -12,4 +12,12 @@ dependencies = [
 [dependency-groups]
 dev = [
     "grpcio-tools>=1.81.1",
+    "ruff>=0.16.0",
+]
+
+[tool.ruff]
+extend-exclude = [
+    "**/*_pb2.py",
+    "**/*_pb2_grpc.py",
+    "**/*_pb2.pyi",
 ]

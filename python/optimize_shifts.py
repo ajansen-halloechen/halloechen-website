@@ -6,8 +6,8 @@ from __future__ import annotations
 import argparse
 import sys
 from collections import Counter, defaultdict
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Dict, List, Mapping, Optional, Sequence
 
 from model import AssignmentResult, build_and_solve
 from planning_io import (
@@ -73,7 +73,7 @@ def display_name(user_id: str, names: Mapping[str, str]) -> str:
 def build_payload(
     planning: PlanningInput,
     result: AssignmentResult,
-) -> Dict:
+) -> dict:
     assigned_by_shift = defaultdict(list)  # type: Dict[str, List[str]]
     for shift_id, user_id in result.assignments:
         assigned_by_shift[shift_id].append(user_id)
@@ -123,7 +123,7 @@ def validate_solution(planning: PlanningInput, result: AssignmentResult) -> None
         status = avail.get((user_id, shift_id))
         assert status is not None, "assignment without availability row"
         assert status != "unavailable", (
-            "assigned unavailable user {} to shift {}".format(user_id, shift_id)
+            f"assigned unavailable user {user_id} to shift {shift_id}"
         )
         assert status in ("available", "preference"), status
 
@@ -134,14 +134,12 @@ def validate_solution(planning: PlanningInput, result: AssignmentResult) -> None
     for shift in planning.shifts:
         count = len(assigned_by_shift.get(shift.id, []))
         assert count <= shift.number_of_persons, (
-            "overstaffed shift {}: {} > {}".format(
-                shift.id, count, shift.number_of_persons
-            )
+            f"overstaffed shift {shift.id}: {count} > {shift.number_of_persons}"
         )
 
     for (user_id, week), count in user_week_counts.items():
         assert count <= 1, (
-            "user {} has {} shifts in ISO week {}".format(user_id, count, week)
+            f"user {user_id} has {count} shifts in ISO week {week}"
         )
 
 
@@ -186,18 +184,9 @@ def print_summary(
             who = "(unassigned)"
         gap = ""
         if assigned_count < required:
-            gap = "  [need {} more]".format(required - assigned_count)
+            gap = f"  [need {required - assigned_count} more]"
         print(
-            "  {} {}  {}–{}{}  ({}/{})  {}".format(
-                weekday,
-                shift.date.isoformat(),
-                shift.start_time[:5],
-                shift.end_time[:5],
-                end_note,
-                assigned_count,
-                required,
-                who,
-            )
+            f"  {weekday} {shift.date.isoformat()}  {shift.start_time[:5]}–{shift.end_time[:5]}{end_note}  ({assigned_count}/{required})  {who}"
             + gap
         )
     print()
@@ -209,19 +198,19 @@ def print_summary(
         key=lambda item: (-item[1], display_name(item[0], names).lower()),
     )
     for user_id, load in load_rows:
-        print("  {:>2}  {}".format(load, display_name(user_id, names)))
+        print(f"  {load:>2}  {display_name(user_id, names)}")
     print()
 
     load_hist = Counter(loads.values())
     print("Load histogram: " + ", ".join(
-        "{}×{}".format(count, load) for load, count in sorted(load_hist.items())
+        f"{count}×{load}" for load, count in sorted(load_hist.items())
     ))
 
     unfilled = payload["unfilled"]
     if not unfilled:
         print("Unfilled shifts: none")
     else:
-        print("Unfilled shifts ({}):".format(len(unfilled)))
+        print(f"Unfilled shifts ({len(unfilled)}):")
         for row in unfilled:
             print(
                 "  {} — assigned {}/{}".format(
@@ -242,7 +231,7 @@ def main(argv=None):
 
     if result.status_name not in ("OPTIMAL", "FEASIBLE"):
         print(
-            "Solver failed with status {}".format(result.status_name),
+            f"Solver failed with status {result.status_name}",
             file=sys.stderr,
         )
         return 1
@@ -252,7 +241,7 @@ def main(argv=None):
     write_assignments_json(args.output, payload)
     print_summary(planning, payload, names)
     print()
-    print("Wrote {}".format(args.output))
+    print(f"Wrote {args.output}")
     return 0
 
 

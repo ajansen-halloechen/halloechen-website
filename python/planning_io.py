@@ -3,10 +3,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
-from typing import Dict, List, Mapping, Set, Tuple
 
 VALID_AVAILABILITIES = frozenset({"available", "preference", "unavailable"})
 ELIGIBLE_AVAILABILITIES = frozenset({"available", "preference"})
@@ -24,7 +24,7 @@ class PlannedShift:
     shift_type: str
 
     @property
-    def iso_week(self) -> Tuple[int, int]:
+    def iso_week(self) -> tuple[int, int]:
         iso = self.date.isocalendar()
         return (iso[0], iso[1])
 
@@ -39,12 +39,12 @@ class ShiftAvailability:
 
 @dataclass(frozen=True)
 class PlanningInput:
-    shifts: List[PlannedShift]
-    availabilities: List[ShiftAvailability]
-    availability_by_pair: Mapping[Tuple[str, str], str]
-    user_ids: List[str]
+    shifts: list[PlannedShift]
+    availabilities: list[ShiftAvailability]
+    availability_by_pair: Mapping[tuple[str, str], str]
+    user_ids: list[str]
     shifts_by_id: Mapping[str, PlannedShift]
-    eligible_pairs: List[Tuple[str, str]]
+    eligible_pairs: list[tuple[str, str]]
     month: str
 
 
@@ -65,14 +65,12 @@ def _load_planned_shift(raw: dict) -> PlannedShift:
     )
     missing = [k for k in required if k not in raw]
     if missing:
-        raise ValueError("planned shift missing keys: {}".format(missing))
+        raise ValueError(f"planned shift missing keys: {missing}")
 
     number_of_persons = raw["numberOfPersons"]
     if not isinstance(number_of_persons, int) or number_of_persons < 1:
         raise ValueError(
-            "numberOfPersons must be a positive int, got {!r}".format(
-                number_of_persons
-            )
+            f"numberOfPersons must be a positive int, got {number_of_persons!r}"
         )
 
     return PlannedShift(
@@ -91,11 +89,11 @@ def _load_availability(raw: dict) -> ShiftAvailability:
     required = ("id", "userId", "plannedShiftId", "availability")
     missing = [k for k in required if k not in raw]
     if missing:
-        raise ValueError("availability missing keys: {}".format(missing))
+        raise ValueError(f"availability missing keys: {missing}")
 
     availability = str(raw["availability"])
     if availability not in VALID_AVAILABILITIES:
-        raise ValueError("invalid availability status: {!r}".format(availability))
+        raise ValueError(f"invalid availability status: {availability!r}")
 
     return ShiftAvailability(
         id=str(raw["id"]),
@@ -105,11 +103,11 @@ def _load_availability(raw: dict) -> ShiftAvailability:
     )
 
 
-def load_json_list(path: Path) -> List[dict]:
+def load_json_list(path: Path) -> list[dict]:
     with path.open(encoding="utf-8") as handle:
         data = json.load(handle)
     if not isinstance(data, list):
-        raise ValueError("{} must contain a JSON array".format(path))
+        raise ValueError(f"{path} must contain a JSON array")
     return data
 
 
@@ -128,18 +126,18 @@ def load_planning_input(
     shifts_by_id = {}  # type: Dict[str, PlannedShift]
     for shift in shifts:
         if shift.id in shifts_by_id:
-            raise ValueError("duplicate planned shift id: {}".format(shift.id))
+            raise ValueError(f"duplicate planned shift id: {shift.id}")
         shifts_by_id[shift.id] = shift
 
     availability_by_pair = {}  # type: Dict[Tuple[str, str], str]
     for row in availabilities:
         if row.planned_shift_id not in shifts_by_id:
             raise ValueError(
-                "availability references unknown shift {}".format(row.planned_shift_id)
+                f"availability references unknown shift {row.planned_shift_id}"
             )
         key = (row.user_id, row.planned_shift_id)
         if key in availability_by_pair:
-            raise ValueError("duplicate availability for {}".format(key))
+            raise ValueError(f"duplicate availability for {key}")
         availability_by_pair[key] = row.availability
 
     user_ids = sorted({row.user_id for row in availabilities})
@@ -150,11 +148,11 @@ def load_planning_input(
     ]
 
     months = {
-        "{:04d}-{:02d}".format(s.date.year, s.date.month) for s in shifts
+        f"{s.date.year:04d}-{s.date.month:02d}" for s in shifts
     }  # type: Set[str]
     if len(months) != 1:
         raise ValueError(
-            "planned shifts must be within a single month, got {}".format(months)
+            f"planned shifts must be within a single month, got {months}"
         )
     month = next(iter(months))
 
@@ -187,7 +185,7 @@ def format_user_name(raw: dict) -> str:
     return str(raw.get("id", "unknown"))
 
 
-def load_user_names(path: Path) -> Dict[str, str]:
+def load_user_names(path: Path) -> dict[str, str]:
     """Map user id → display name from users.json."""
     rows = load_json_list(path)
     names = {}  # type: Dict[str, str]
@@ -196,6 +194,6 @@ def load_user_names(path: Path) -> Dict[str, str]:
             raise ValueError("user record missing id")
         user_id = str(raw["id"])
         if user_id in names:
-            raise ValueError("duplicate user id: {}".format(user_id))
+            raise ValueError(f"duplicate user id: {user_id}")
         names[user_id] = format_user_name(raw)
     return names

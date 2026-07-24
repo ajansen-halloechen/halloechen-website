@@ -21,12 +21,11 @@ just to improve fairness or spread — those only break ties.
 from __future__ import annotations
 
 from collections import defaultdict
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Tuple
 
 from ortools.sat.python import cp_model
-
-from planning_io import PlanningInput, PlannedShift
+from planning_io import PlannedShift, PlanningInput
 
 # Priority weights for the soft objective. Magnitudes are spaced so a lower-
 # priority term can never outweigh a higher one for realistic problem sizes.
@@ -40,14 +39,14 @@ W_SPREAD = 1  # penalty when one user works consecutive ISO weeks
 @dataclass(frozen=True)
 class AssignmentResult:
     status_name: str
-    assignments: List[Tuple[str, str]]  # (planned_shift_id, user_id)
+    assignments: list[tuple[str, str]]  # (planned_shift_id, user_id)
     loads: Mapping[str, int]  # user_id -> number of assigned shifts
-    objective_value: Optional[int]
+    objective_value: int | None
 
 
 def build_and_solve(
     planning: PlanningInput,
-    time_limit_seconds: Optional[float] = None,
+    time_limit_seconds: float | None = None,
 ) -> AssignmentResult:
     """Build the CP-SAT model from ``planning``, solve it, and extract assignments."""
     model = cp_model.CpModel()
@@ -60,15 +59,15 @@ def build_and_solve(
     # preference for that shift). Ineligible pairs simply do not exist in the
     # model, so they can never be chosen.
     # ------------------------------------------------------------------
-    x: Dict[Tuple[str, str], cp_model.IntVar] = {}
+    x: dict[tuple[str, str], cp_model.IntVar] = {}
     for user_id, shift_id in planning.eligible_pairs:
-        x[(user_id, shift_id)] = model.NewBoolVar("x_{}_{}".format(user_id, shift_id))
+        x[(user_id, shift_id)] = model.NewBoolVar(f"x_{user_id}_{shift_id}")
 
     # Index the same variables by shift / user / (user, week) so constraints
     # below can sum over the relevant subset without scanning all of x again.
-    vars_by_shift: Dict[str, List[cp_model.IntVar]] = defaultdict(list)
-    vars_by_user: Dict[str, List[cp_model.IntVar]] = defaultdict(list)
-    vars_by_user_week: Dict[Tuple[str, Tuple[int, int]], List[cp_model.IntVar]] = (
+    vars_by_shift: dict[str, list[cp_model.IntVar]] = defaultdict(list)
+    vars_by_user: dict[str, list[cp_model.IntVar]] = defaultdict(list)
+    vars_by_user_week: dict[tuple[str, tuple[int, int]], list[cp_model.IntVar]] = (
         defaultdict(list)
     )
 
@@ -107,7 +106,7 @@ def build_and_solve(
     # Soft objective: maximize a weighted linear combination of rewards /
     # penalties. CP-SAT maximizes, so penalties enter with a minus sign.
     # ------------------------------------------------------------------
-    objective_terms: List[cp_model.LinearExpr] = []
+    objective_terms: list[cp_model.LinearExpr] = []
 
     # (1) Fill — each assigned person-slot contributes W_FILL.
     #     Dominates all other terms, so the solver fills every slot it can.
@@ -137,12 +136,12 @@ def build_and_solve(
             for user_id, _shift_id in planning.eligible_pairs
         }
     )
-    load_vars: Dict[str, cp_model.IntVar] = {}
+    load_vars: dict[str, cp_model.IntVar] = {}
     max_possible_load = len(planning.shifts)
     if assignable_users:
         for user_id in assignable_users:
             user_vars = vars_by_user.get(user_id, [])
-            load = model.NewIntVar(0, max_possible_load, "load_{}".format(user_id))
+            load = model.NewIntVar(0, max_possible_load, f"load_{user_id}")
             if user_vars:
                 model.Add(load == sum(user_vars))
             else:
@@ -171,7 +170,7 @@ def build_and_solve(
     #
     #     Note: the hard "one shift per week" rule already prevents two shifts
     #     in the *same* week; this only looks across adjacent weeks.
-    shifts_by_user_eligible: Dict[str, List[PlannedShift]] = defaultdict(list)
+    shifts_by_user_eligible: dict[str, list[PlannedShift]] = defaultdict(list)
     for user_id, shift_id in planning.eligible_pairs:
         shifts_by_user_eligible[user_id].append(planning.shifts_by_id[shift_id])
 
@@ -191,7 +190,7 @@ def build_and_solve(
                 if var_a is None or var_b is None:
                     continue
                 both = model.NewBoolVar(
-                    "consec_{}_{}_{}".format(user_id, shift_a.id, shift_b.id)
+                    f"consec_{user_id}_{shift_a.id}_{shift_b.id}"
                 )
                 model.AddBoolAnd([var_a, var_b]).OnlyEnforceIf(both)
                 model.AddBoolOr([var_a.Not(), var_b.Not()]).OnlyEnforceIf(both.Not())
@@ -216,8 +215,8 @@ def build_and_solve(
     # OPTIMAL = proven best; FEASIBLE = valid solution found within the time
     # limit but not necessarily proven optimal. Anything else → no assignment.
     # ------------------------------------------------------------------
-    assignments: List[Tuple[str, str]] = []
-    loads: Dict[str, int] = {user_id: 0 for user_id in planning.user_ids}
+    assignments: list[tuple[str, str]] = []
+    loads: dict[str, int] = {user_id: 0 for user_id in planning.user_ids}
 
     if status in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         for (user_id, shift_id), var in x.items():
@@ -238,8 +237,8 @@ def build_and_solve(
 
 
 def _are_consecutive_iso_weeks(
-    week_a: Tuple[int, int],
-    week_b: Tuple[int, int],
+    week_a: tuple[int, int],
+    week_b: tuple[int, int],
 ) -> bool:
     """True if the two (iso_year, iso_week) pairs are adjacent on the calendar.
 
