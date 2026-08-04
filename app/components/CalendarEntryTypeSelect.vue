@@ -11,28 +11,25 @@ import {
   SelectIcon,
 } from 'reka-ui';
 import { ChevronDownIcon } from '@heroicons/vue/24/outline';
+import type { CalendarEntryType } from '~~/shared/types/calendar-entry';
+import {
+  calendarEntryTypeLabels,
+  calendarEntryTypes,
+} from '~/utils/calendar-entry';
 
-export type SelectOption = {
-  value: string;
-  label: string;
-};
+const model = defineModel<CalendarEntryType>({ required: true });
 
-const model = defineModel<string>({ required: true });
-
-const props = withDefaults(
+withDefaults(
   defineProps<{
-    id: string;
-    label: string;
-    options: SelectOption[];
+    id?: string;
+    label?: string;
     required?: boolean;
   }>(),
   {
+    id: 'calendar-entry-type',
+    label: 'Typ',
     required: false,
   },
-);
-
-const selectedOption = computed(() =>
-  props.options.find((option) => option.value === model.value),
 );
 </script>
 
@@ -50,12 +47,10 @@ const selectedOption = computed(() =>
     <SelectRoot v-model="model" :required="required">
       <SelectTrigger
         :id="id"
-        class="flex min-w-0 w-full items-center justify-between gap-2 rounded-md border border-gray-300 bg-surface px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary data-[placeholder]:text-gray-400"
+        class="flex min-w-0 w-full items-center justify-between gap-2 rounded-md border border-gray-300 bg-surface px-3 py-2 outline-none focus:border-primary focus:ring-1 focus:ring-primary"
       >
-        <SelectValue :aria-label="selectedOption?.label">
-          <slot name="value" :value="model">
-            {{ selectedOption?.label }}
-          </slot>
+        <SelectValue :aria-label="calendarEntryTypeLabels[model]">
+          <CalendarEntryTypeBadge :type="model" />
         </SelectValue>
         <SelectIcon class="shrink-0 text-primary">
           <ChevronDownIcon class="size-4" />
@@ -70,16 +65,14 @@ const selectedOption = computed(() =>
         >
           <SelectViewport class="p-1">
             <SelectItem
-              v-for="option in options"
-              :key="option.value"
-              :value="option.value"
-              :text-value="option.label"
+              v-for="entryType in calendarEntryTypes"
+              :key="entryType"
+              :value="entryType"
+              :text-value="calendarEntryTypeLabels[entryType]"
               class="relative flex cursor-pointer items-center rounded px-2 py-1.5 outline-none data-[highlighted]:bg-primary/10"
             >
               <SelectItemText>
-                <slot name="option" :option="option">
-                  {{ option.label }}
-                </slot>
+                <CalendarEntryTypeBadge :type="entryType" />
               </SelectItemText>
             </SelectItem>
           </SelectViewport>
