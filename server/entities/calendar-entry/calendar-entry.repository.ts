@@ -38,6 +38,10 @@ export const calendarEntryRepository = {
       .where(and(...conditions));
   },
 
+  async findAll() {
+    return db.select().from(calendarEntries);
+  },
+
   async create(data: CalendarEntryInsert) {
     const rows = await db.insert(calendarEntries).values(data).returning();
     return rows[0]!;

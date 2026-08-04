@@ -8,7 +8,8 @@ export default defineEventHandler(async (event: H3Event) => {
   if (
     path.startsWith('/api/auth/') ||
     path.startsWith('/api/_auth/') ||
-    path === '/api/public-calendar-entries'
+    path === '/api/public-calendar-entries' ||
+    path.startsWith('/api/calendar-feed/')
   ) {
     return;
   }

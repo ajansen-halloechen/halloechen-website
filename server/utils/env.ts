@@ -38,3 +38,8 @@ export function getSmtpConfig() {
 export function getFilesStoragePath(): string {
   return process.env.FILES_STORAGE_PATH ?? join(process.cwd(), 'files');
 }
+
+export function getCalendarFeedToken(): string | undefined {
+  const token = process.env.CALENDAR_FEED_TOKEN;
+  return token && token.length > 0 ? token : undefined;
+}

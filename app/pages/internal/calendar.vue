@@ -161,6 +161,7 @@ const table = useVueTable({
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
 const showDeleteModal = ref(false);
+const showSubscribeModal = ref(false);
 const editingId = ref<string | undefined>();
 const editingEntry = ref<CalendarEntryFormData>();
 const deletingEntry = ref<CalendarEntry>();
@@ -217,14 +218,17 @@ function openDeleteModal(entry: CalendarEntry) {
       :show-search="true"
     >
       <template #actions>
-        <UiModal v-model:open="showCreateModal" title="Eintrag hinzufügen">
-          <template #trigger>
-            <UiIconButton variant="solid" tooltip="Eintrag hinzufügen">
-              <PlusIcon class="size-6" />
-            </UiIconButton>
-          </template>
-          <CalendarEntryForm @submit="handleCreate" />
-        </UiModal>
+        <div class="flex items-center gap-1">
+          <CalendarSubscribeModal v-model:open="showSubscribeModal" />
+          <UiModal v-model:open="showCreateModal" title="Eintrag hinzufügen">
+            <template #trigger>
+              <UiIconButton variant="solid" tooltip="Eintrag hinzufügen">
+                <PlusIcon class="size-6" />
+              </UiIconButton>
+            </template>
+            <CalendarEntryForm @submit="handleCreate" />
+          </UiModal>
+        </div>
       </template>
 
       <template #toolbar>

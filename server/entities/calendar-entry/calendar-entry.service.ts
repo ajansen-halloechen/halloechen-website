@@ -1,14 +1,39 @@
+import { timingSafeEqual } from 'node:crypto';
 import { createError } from 'h3';
 import {
   dateTimeRangeValidationMessage,
   validateDateTimeRange,
 } from '~~/shared/time-range-validation';
+import { getCalendarFeedToken, getPublicSiteUrl } from '#server/utils/env';
+import { buildCalendarIcs } from '#server/utils/ics';
 import { calendarEntryRepository } from './calendar-entry.repository';
 import type {
   CalendarEntryCreate,
   CalendarEntryPatch,
   CalendarEntryType,
 } from '#shared/types/calendar-entry';
+
+function assertFeedTokenConfigured(): string {
+  const token = getCalendarFeedToken();
+  if (!token) {
+    throw createError({
+      statusCode: 503,
+      statusMessage: 'Calendar feed is not configured.',
+    });
+  }
+  return token;
+}
+
+function isValidFeedToken(provided: string): boolean {
+  const expected = getCalendarFeedToken();
+  if (!expected) return false;
+
+  const providedBuf = Buffer.from(provided);
+  const expectedBuf = Buffer.from(expected);
+  if (providedBuf.length !== expectedBuf.length) return false;
+
+  return timingSafeEqual(providedBuf, expectedBuf);
+}
 
 function assertValidDateTimeRange(
   startDate: Date,
@@ -96,5 +121,29 @@ export const calendarEntryService = {
 
     const entry = await calendarEntryRepository.remove(id);
     return entry!;
+  },
+
+  getFeedUrl() {
+    const token = assertFeedTokenConfigured();
+    return `${getPublicSiteUrl()}/api/calendar-feed/${token}.ics`;
+  },
+
+  async getIcsFeed(token: string) {
+    if (!getCalendarFeedToken()) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Calendar feed is not configured.',
+      });
+    }
+
+    if (!isValidFeedToken(token)) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: 'Not found',
+      });
+    }
+
+    const entries = await calendarEntryRepository.findAll();
+    return buildCalendarIcs(entries);
   },
 };
