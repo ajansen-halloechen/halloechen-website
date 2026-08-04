@@ -83,16 +83,15 @@ watch(selectedTypes, () => {
 const columnHelper = createColumnHelper<CalendarEntry>();
 
 const columns = [
-  columnHelper.accessor('type', {
-    header: 'Typ',
-    cell: (info) => calendarEntryTypeLabels[info.getValue()],
-    filterFn: (row, _columnId, filterValue: string[]) =>
-      filterValue.includes(row.getValue('type')),
-    enableSorting: false,
-  }),
   columnHelper.accessor('title', {
     header: 'Titel',
     enableSorting: true,
+  }),
+  columnHelper.accessor('type', {
+    header: 'Typ',
+    filterFn: (row, _columnId, filterValue: string[]) =>
+      filterValue.includes(row.getValue('type')),
+    enableSorting: false,
   }),
   columnHelper.accessor('startDate', {
     header: 'Beginn',
@@ -258,6 +257,9 @@ function openDeleteModal(entry: CalendarEntry) {
               <TrashIcon class="size-5" />
             </UiIconButton>
           </div>
+        </template>
+        <template v-else-if="cell.column.id === 'type'">
+          <CalendarEntryTypeBadge :type="row.original.type" />
         </template>
         <template v-else>
           <FlexRender

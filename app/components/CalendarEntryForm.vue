@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { CalendarEntryType } from '~~/shared/types/calendar-entry';
-import { calendarEntryTypeLabels } from '~/utils/calendar-entry';
+import {
+  calendarEntryTypeLabels,
+  calendarEntryTypes,
+} from '~/utils/calendar-entry';
 import {
   dateTimeRangeValidationMessage,
   validateDateTimeRange,
@@ -39,6 +42,11 @@ const type = ref<CalendarEntryType>(
   props.initialData?.type ?? 'publicEvent',
 );
 const rangeError = ref('');
+
+const typeOptions = calendarEntryTypes.map((value) => ({
+  value,
+  label: calendarEntryTypeLabels[value],
+}));
 
 watch(
   () => props.initialData,
@@ -93,22 +101,20 @@ function handleSubmit() {
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
     <UiInputField id="ce-title" v-model="title" label="Titel" required />
 
-    <UiInputField id="ce-type" label="Typ" required>
-      <select
-        id="ce-type"
-        v-model="type"
-        class="min-w-0 flex-1 bg-transparent outline-none"
-        required
-      >
-        <option
-          v-for="(label, value) in calendarEntryTypeLabels"
-          :key="value"
-          :value="value"
-        >
-          {{ label }}
-        </option>
-      </select>
-    </UiInputField>
+    <UiSelect
+      id="ce-type"
+      v-model="type"
+      label="Typ"
+      :options="typeOptions"
+      required
+    >
+      <template #value="{ value }">
+        <CalendarEntryTypeBadge :type="value as CalendarEntryType" />
+      </template>
+      <template #option="{ option }">
+        <CalendarEntryTypeBadge :type="option.value as CalendarEntryType" />
+      </template>
+    </UiSelect>
 
     <UiDateInput
       id="ce-start-date"
