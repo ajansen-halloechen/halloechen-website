@@ -1,3 +1,5 @@
+import type { CalendarEntry } from '~~/shared/types/calendar-entry';
+
 export type CalendarEvent = {
   id: string;
   timestamp: string;
@@ -5,33 +7,18 @@ export type CalendarEvent = {
   description?: string;
 };
 
-const calendarEvents: CalendarEvent[] = [
-  {
-    id: '1',
-    timestamp: '2026-05-01T11:00:00Z',
-    title: 'Offene Baustelle',
-    description:
-      'Wir sind noch nicht ganz fertig, aber am 1. Mai öffnen wir schon mal die Türen für Euch! Es wird Getränke und Musik geben!',
-  },
-  {
-    id: '2',
-    timestamp: '2026-05-30T12:00:00Z',
-    title: 'Eröffnung',
-    description:
-      'Es ist endlich soweit! Ab 30. Mai haben wir regulär geöffnet. Kommt vorbei! Wir freuen uns RIESIG.',
-  },
-  {
-    id: '3',
-    timestamp: '2026-06-21T13:00:00Z',
-    title: 'Fête de la Musique',
-    description:
-      'Wir haben drei Acts für Euch: TRAD BURMAWI - Singer/Songwriter aus der Nachbarschaft, jordanischer Folk; BREAKABLES - Syntheziser Duo aus Helsinki, Richtung Elektro; ByDS - Syntheziser Duo aus Mexico City, Fokus Cumbia. Weiterhin wird es wahrscheinlich auch etwas aufgelegte Musik geben!',
-  },
-];
+function toIsoDateString(date: Date | string): string {
+  if (typeof date === 'string') return date.slice(0, 10);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
 
-export function getCalendarEvents(start: Date, end: Date): CalendarEvent[] {
-  return calendarEvents.filter((event) => {
-    const eventDate = new Date(event.timestamp);
-    return eventDate >= start && eventDate <= end;
-  });
+export function calendarEntryToEvent(entry: CalendarEntry): CalendarEvent {
+  const date = toIsoDateString(entry.startDate);
+  const time = entry.startTime.slice(0, 8);
+  return {
+    id: entry.id,
+    timestamp: `${date}T${time}`,
+    title: entry.title,
+    description: entry.description || undefined,
+  };
 }
