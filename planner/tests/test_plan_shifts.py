@@ -1,6 +1,21 @@
 from planner.v1 import planner_pb2, planner_pb2_grpc, types_pb2
 
 
+def _preference(
+    user_id: str,
+    *,
+    max_shifts: int = 4,
+    consecutive_days: bool = True,
+    consecutive_weeks: bool = True,
+) -> types_pb2.UserPreference:
+    return types_pb2.UserPreference(
+        user_id=user_id,
+        max_shifts_per_month=max_shifts,
+        shifts_on_consecutive_days=consecutive_days,
+        shifts_in_consecutive_weeks=consecutive_weeks,
+    )
+
+
 def test_plan_shifts_round_trip(
     planner_stub: planner_pb2_grpc.ShiftPlannerServiceStub,
 ) -> None:
@@ -31,22 +46,14 @@ def test_plan_shifts_round_trip(
             ),
         ],
         user_preferences=[
-            types_pb2.UserPreference(
-                user_id="user-1",
-                max_shifts_per_month=4,
-                shifts_on_consecutive_days=False,
-                shifts_in_consecutive_weeks=True,
-            ),
-            types_pb2.UserPreference(
-                user_id="user-2",
-                max_shifts_per_month=4,
-                shifts_on_consecutive_days=False,
-                shifts_in_consecutive_weeks=True,
-            ),
+            _preference("user-1"),
+            _preference("user-2"),
+            _preference("user-3"),
         ],
     )
 
     response = planner_stub.PlanShifts(request)
 
     assert isinstance(response, planner_pb2.PlanShiftsResponse)
-    assert list(response.assignments) == []
+    assigned = {(a.planned_shift_id, a.user_id) for a in response.assignments}
+    assert assigned == {("shift-1", "user-1"), ("shift-1", "user-2")}
