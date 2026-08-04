@@ -34,9 +34,7 @@ const startDate = ref(props.initialData?.startDate ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '');
 const endDate = ref(props.initialData?.endDate ?? '');
 const endTime = ref(props.initialData?.endTime ?? '');
-const type = ref<CalendarEntryType>(
-  props.initialData?.type ?? 'internalEvent',
-);
+const type = ref<CalendarEntryType>(props.initialData?.type ?? 'internalEvent');
 const rangeError = ref('');
 
 watch(
@@ -112,9 +110,7 @@ function handleSubmit() {
 
     <div class="flex flex-col gap-1">
       <UiTimeInput id="ce-end-time" v-model="endTime" label="Ende (Uhrzeit)" />
-      <p class="text-sm text-gray-500">
-        Leer lassen: gleiches Datum, 23:59.
-      </p>
+      <p class="text-sm text-gray-500">Leer lassen: gleiches Datum, 23:59.</p>
       <p v-if="rangeError" class="text-sm text-red-600">
         {{ rangeError }}
       </p>

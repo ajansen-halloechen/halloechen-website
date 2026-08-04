@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  type CalendarEvent,
-  calendarEntryToEvent,
-} from '~/utils/calendar';
+import { type CalendarEvent, calendarEntryToEvent } from '~/utils/calendar';
 import type { CalendarEntry } from '~~/shared/types/calendar-entry';
 
 const today = new Date();

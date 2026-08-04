@@ -10,7 +10,10 @@ import {
   type ColumnFiltersState,
 } from '@tanstack/vue-table';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-import type { CalendarEntry, CalendarEntryType  } from '~~/shared/types/calendar-entry';
+import type {
+  CalendarEntry,
+  CalendarEntryType,
+} from '~~/shared/types/calendar-entry';
 import type { CalendarEntryFormData } from '~/components/CalendarEntryForm.vue';
 import { calendarEntryTypeLabels } from '~/utils/calendar-entry';
 
@@ -28,9 +31,10 @@ const monthParam = computed(() => {
   return `${y}-${m}`;
 });
 
-const { data: calendarEntries, refresh: refreshCalendarEntries } = await useFetch<
-  CalendarEntry[]
->('/api/calendar-entries', { query: { month: monthParam } });
+const { data: calendarEntries, refresh: refreshCalendarEntries } =
+  await useFetch<CalendarEntry[]>('/api/calendar-entries', {
+    query: { month: monthParam },
+  });
 
 function formatDate(date: Date | string): string {
   const d = date instanceof Date ? date : new Date(date);
@@ -275,10 +279,7 @@ function openDeleteModal(entry: CalendarEntry) {
     </UiDataTable>
 
     <UiModal v-model:open="showEditModal" title="Eintrag bearbeiten">
-      <CalendarEntryForm
-        :initial-data="editingEntry"
-        @submit="handleEdit"
-      />
+      <CalendarEntryForm :initial-data="editingEntry" @submit="handleEdit" />
     </UiModal>
 
     <CalendarEntryDeleteModal
