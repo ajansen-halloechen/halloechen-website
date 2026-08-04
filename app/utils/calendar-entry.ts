@@ -1,9 +1,9 @@
 import type { CalendarEntryType } from '~~/shared/types/calendar-entry';
 
 export const calendarEntryTypeLabels: Record<CalendarEntryType, string> = {
-  publicEvent: 'Veranstaltung',
   internalEvent: 'Intern',
   reservation: 'Reservierung',
+  publicEvent: 'Veranstaltung',
 };
 
 export type CalendarEntryTypeBadgeColor =
@@ -16,13 +16,13 @@ export const calendarEntryTypeColors: Record<
   CalendarEntryType,
   CalendarEntryTypeBadgeColor
 > = {
-  publicEvent: 'accent',
   internalEvent: 'neutral',
-  reservation: 'warning',
+  reservation: 'primary',
+  publicEvent: 'accent',
 };
 
 export const calendarEntryTypes: CalendarEntryType[] = [
-  'publicEvent',
   'internalEvent',
   'reservation',
+  'publicEvent',
 ];

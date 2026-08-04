@@ -35,7 +35,7 @@ const startTime = ref(props.initialData?.startTime ?? '');
 const endDate = ref(props.initialData?.endDate ?? '');
 const endTime = ref(props.initialData?.endTime ?? '');
 const type = ref<CalendarEntryType>(
-  props.initialData?.type ?? 'publicEvent',
+  props.initialData?.type ?? 'internalEvent',
 );
 const rangeError = ref('');
 
