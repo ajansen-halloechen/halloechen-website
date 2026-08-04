@@ -12,6 +12,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "grpcio-tools>=1.81.1",
+    "pytest>=9.1.1",
     "ruff>=0.16.0",
 ]
 
@@ -21,3 +22,8 @@ extend-exclude = [
     "**/*_pb2_grpc.py",
     "**/*_pb2.pyi",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["planner/tests"]
+pythonpath = ["."]
+
