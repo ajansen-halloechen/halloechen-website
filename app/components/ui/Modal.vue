@@ -25,9 +25,9 @@ const open = defineModel<boolean>('open', { default: false });
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-50 bg-black/50" />
       <DialogContent
-        class="fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg"
+        class="fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-1rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-primary bg-surface p-6 shadow-lg"
       >
-        <div class="flex items-center justify-between mb-4">
+        <div class="mb-4 flex shrink-0 items-center justify-between">
           <DialogTitle class="text-lg font-semibold">
             {{ title }}
           </DialogTitle>
@@ -37,7 +37,9 @@ const open = defineModel<boolean>('open', { default: false });
             </UiIconButton>
           </DialogClose>
         </div>
-        <slot />
+        <div class="min-h-0 overflow-y-auto">
+          <slot />
+        </div>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
