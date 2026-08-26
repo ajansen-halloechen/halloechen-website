@@ -20,6 +20,7 @@ import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
 
 const { success, error } = useToast();
+const { highlightedRowId, highlightRow } = useTableRowHighlight();
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
@@ -27,6 +28,14 @@ const { user: currentUser } = useUserSession();
 
 const { data: users, refresh: refreshUsers } =
   await useFetch<User[]>('/api/users');
+
+async function handleUserSaved(idOrEmail: string) {
+  await refreshUsers();
+  const match =
+    users.value?.find((u) => u.id === idOrEmail) ??
+    users.value?.find((u) => u.email === idOrEmail);
+  if (match) highlightRow(match.id);
+}
 
 const sorting = ref<SortingState>([{ id: 'displayName', desc: false }]);
 const columnFilters = ref<ColumnFiltersState>([]);
@@ -209,12 +218,13 @@ async function handleResendInvitation(user: User) {
       v-model:global-search="globalSearch"
       :table="table"
       :show-search="true"
+      :highlighted-row-id="highlightedRowId"
     >
       <template #actions>
         <UserInviteModal
           v-if="isAdmin"
           v-model:open="showCreateModal"
-          @success="refreshUsers()"
+          @success="handleUserSaved"
         >
           <template #trigger>
             <UiIconButton variant="solid" tooltip="Genoss*in einladen">
@@ -298,7 +308,7 @@ async function handleResendInvitation(user: User) {
     <UserRoleModal
       v-model:open="showRoleModal"
       :user="editingUser"
-      @success="refreshUsers()"
+      @success="handleUserSaved"
     />
 
     <UserDeleteModal

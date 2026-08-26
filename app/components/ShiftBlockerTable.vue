@@ -14,10 +14,13 @@ import type { User } from '~~/shared/types/user';
 import type { ShiftBlockerFormData } from '~/components/ShiftBlockerForm.vue';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
+import { monthStartFromIsoDate } from '~/utils/month';
 
 const props = defineProps<{
   showAllUsers: boolean;
 }>();
+
+const { highlightedRowId, highlightRow } = useTableRowHighlight();
 
 const { user: currentUser } = useUserSession();
 
@@ -156,6 +159,7 @@ const table = useVueTable({
     }
     return values.some((v) => v.toLowerCase().includes(search));
   },
+  getRowId: (row) => row.id,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -187,8 +191,14 @@ function openEditModal(entry: ShiftBlocker) {
   showEditModal.value = true;
 }
 
+async function revealSavedEntry(entry: ShiftBlocker) {
+  selectedMonth.value = monthStartFromIsoDate(entry.startDate);
+  await refreshShiftBlockers();
+  highlightRow(entry.id);
+}
+
 async function handleCreate(data: ShiftBlockerFormData) {
-  await $fetch('/api/shift-blockers', {
+  const entry = await $fetch<ShiftBlocker>('/api/shift-blockers', {
     method: 'POST',
     body: {
       startDate: data.startDate,
@@ -199,28 +209,31 @@ async function handleCreate(data: ShiftBlockerFormData) {
     },
   });
 
-  await refreshShiftBlockers();
   showCreateModal.value = false;
+  await revealSavedEntry(entry);
 }
 
 async function handleEdit(data: ShiftBlockerFormData) {
   if (!editingId.value) return;
 
-  await $fetch(`/api/shift-blockers/${editingId.value}`, {
-    method: 'PATCH',
-    body: {
-      startDate: data.startDate,
-      startTime: data.startTime,
-      endDate: data.endDate,
-      endTime: data.endTime,
-      description: data.description,
+  const entry = await $fetch<ShiftBlocker>(
+    `/api/shift-blockers/${editingId.value}`,
+    {
+      method: 'PATCH',
+      body: {
+        startDate: data.startDate,
+        startTime: data.startTime,
+        endDate: data.endDate,
+        endTime: data.endTime,
+        description: data.description,
+      },
     },
-  });
+  );
 
-  await refreshShiftBlockers();
   showEditModal.value = false;
   editingEntry.value = undefined;
   editingId.value = undefined;
+  await revealSavedEntry(entry);
 }
 
 function openDeleteModal(entry: ShiftBlocker) {
@@ -239,6 +252,7 @@ function openProfileModal(user: User) {
     v-model:global-search="globalSearch"
     :table="table"
     :show-search="true"
+    :highlighted-row-id="highlightedRowId"
   >
     <template #actions>
       <div class="flex items-center gap-1">

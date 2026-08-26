@@ -16,8 +16,11 @@ import type {
 } from '~~/shared/types/calendar-entry';
 import type { CalendarEntryFormData } from '~/components/CalendarEntryForm.vue';
 import { calendarEntryTypeLabels } from '~/utils/calendar-entry';
+import { monthStartFromIsoDate } from '~/utils/month';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
+
+const { highlightedRowId, highlightRow } = useTableRowHighlight();
 
 const today = new Date();
 const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -157,6 +160,7 @@ const table = useVueTable({
       v.toLowerCase().includes(search),
     );
   },
+  getRowId: (row) => row.id,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -184,28 +188,37 @@ function openEditModal(entry: CalendarEntry) {
   showEditModal.value = true;
 }
 
+async function revealSavedEntry(entry: CalendarEntry) {
+  selectedMonth.value = monthStartFromIsoDate(entry.startDate);
+  await refreshCalendarEntries();
+  highlightRow(entry.id);
+}
+
 async function handleCreate(data: CalendarEntryFormData) {
-  await $fetch('/api/calendar-entries', {
+  const entry = await $fetch<CalendarEntry>('/api/calendar-entries', {
     method: 'POST',
     body: data,
   });
 
-  await refreshCalendarEntries();
   showCreateModal.value = false;
+  await revealSavedEntry(entry);
 }
 
 async function handleEdit(data: CalendarEntryFormData) {
   if (!editingId.value) return;
 
-  await $fetch(`/api/calendar-entries/${editingId.value}`, {
-    method: 'PATCH',
-    body: data,
-  });
+  const entry = await $fetch<CalendarEntry>(
+    `/api/calendar-entries/${editingId.value}`,
+    {
+      method: 'PATCH',
+      body: data,
+    },
+  );
 
-  await refreshCalendarEntries();
   showEditModal.value = false;
   editingEntry.value = undefined;
   editingId.value = undefined;
+  await revealSavedEntry(entry);
 }
 
 function openDeleteModal(entry: CalendarEntry) {
@@ -220,6 +233,7 @@ function openDeleteModal(entry: CalendarEntry) {
       v-model:global-search="globalSearch"
       :table="table"
       :show-search="true"
+      :highlighted-row-id="highlightedRowId"
     >
       <template #actions>
         <div class="flex items-center gap-1">
