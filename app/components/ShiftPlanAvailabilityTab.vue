@@ -1,0 +1,284 @@
+<script setup lang="ts">
+import {
+  FlexRender,
+  createColumnHelper,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  useVueTable,
+  type SortingState,
+} from '@tanstack/vue-table';
+import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import type { PlannedShift } from '~~/shared/types/planned-shift';
+import type {
+  AvailabilityStatus,
+  ShiftAvailability,
+} from '~~/shared/types/shift-availability';
+import type { User } from '~~/shared/types/user';
+import { createUserAvatarColumn } from '~/utils/user-table-columns';
+import { getUserDisplayName } from '~/utils/user-display';
+import {
+  formatIsoDate,
+  formatTimeRange,
+  monthParamFromDate,
+} from '~/utils/shift-plan';
+
+const props = defineProps<{
+  selectedMonth: Date;
+  isAdmin: boolean;
+}>();
+
+const { user: currentUser } = useUserSession();
+
+const showAllUsers = ref(false);
+const showSettings = ref(false);
+
+const monthParam = computed(() => monthParamFromDate(props.selectedMonth));
+
+const availabilityQuery = computed(() => ({
+  month: monthParam.value,
+  ...(props.isAdmin && showAllUsers.value ? { allUsers: 'true' } : {}),
+}));
+
+const { data: plannedShifts } = await useFetch<PlannedShift[]>(
+  '/api/planned-shifts',
+  { query: { month: monthParam } },
+);
+
+const { data: availabilities, refresh: refreshAvailabilities } = await useFetch<
+  ShiftAvailability[]
+>('/api/shift-availabilities', { query: availabilityQuery });
+
+const { data: backendUsers } = await useFetch<User[]>('/api/users');
+
+const userMap = computed(
+  () => new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
+);
+
+const statusOptions = [
+  { value: 'available', label: 'Verfügbar' },
+  { value: 'preference', label: 'Präferenz' },
+  { value: 'unavailable', label: 'Nicht verfügbar' },
+];
+
+type AvailabilityRow = {
+  id: string;
+  plannedShiftId: string;
+  userId: string;
+  date: Date | string;
+  label: string;
+  startTime: string;
+  endTime: string;
+  plusOneDay: boolean;
+  status: AvailabilityStatus | undefined;
+};
+
+const rows = computed<AvailabilityRow[]>(() => {
+  const shifts = plannedShifts.value ?? [];
+  const avails = availabilities.value ?? [];
+
+  if (props.isAdmin && showAllUsers.value) {
+    return avails.map((a) => {
+      const shift = shifts.find((s) => s.id === a.plannedShiftId);
+      return {
+        id: a.id,
+        plannedShiftId: a.plannedShiftId,
+        userId: a.userId,
+        date: shift?.date ?? '',
+        label: shift?.label ?? '',
+        startTime: shift?.startTime ?? '',
+        endTime: shift?.endTime ?? '',
+        plusOneDay: shift?.plusOneDay ?? false,
+        status: a.status,
+      };
+    });
+  }
+
+  const userId = currentUser.value?.id;
+  if (!userId) return [];
+
+  return shifts.map((shift) => {
+    const avail = avails.find(
+      (a) => a.plannedShiftId === shift.id && a.userId === userId,
+    );
+    return {
+      id: `${shift.id}-${userId}`,
+      plannedShiftId: shift.id,
+      userId,
+      date: shift.date,
+      label: shift.label,
+      startTime: shift.startTime,
+      endTime: shift.endTime,
+      plusOneDay: shift.plusOneDay,
+      status: avail?.status,
+    };
+  });
+});
+
+const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
+const globalSearch = ref('');
+const savingIds = ref(new Set<string>());
+
+const columnHelper = createColumnHelper<AvailabilityRow>();
+const avatarColumn = createUserAvatarColumn(columnHelper);
+
+const columns = computed(() => {
+  const cols = [
+    columnHelper.accessor('date', {
+      header: 'Datum',
+      cell: (info) =>
+        info.getValue() ? formatIsoDate(info.getValue()) : '—',
+    }),
+    columnHelper.accessor('label', {
+      header: 'Bezeichnung',
+      cell: (info) => info.getValue() || '—',
+    }),
+    columnHelper.display({
+      id: 'time',
+      header: 'Zeit',
+      cell: (info) =>
+        info.row.original.startTime
+          ? formatTimeRange(
+              info.row.original.startTime,
+              info.row.original.endTime,
+              info.row.original.plusOneDay,
+            )
+          : '—',
+    }),
+    columnHelper.display({
+      id: 'status',
+      header: 'Verfügbarkeit',
+    }),
+  ];
+
+  if (props.isAdmin && showAllUsers.value) {
+    return [
+      avatarColumn,
+      columnHelper.accessor('userId', {
+        header: 'Genoss*in',
+        cell: (info) => {
+          const user = userMap.value.get(info.getValue());
+          return user ? getUserDisplayName(user) : info.getValue();
+        },
+      }),
+      ...cols,
+    ];
+  }
+
+  return cols;
+});
+
+const table = useVueTable({
+  get data() {
+    return rows.value;
+  },
+  get columns() {
+    return columns.value;
+  },
+  state: {
+    get sorting() {
+      return sorting.value;
+    },
+    get globalFilter() {
+      return globalSearch.value;
+    },
+  },
+  onSortingChange: (updater) => {
+    sorting.value =
+      typeof updater === 'function' ? updater(sorting.value) : updater;
+  },
+  globalFilterFn: (row, _columnId, filterValue: string) => {
+    const search = filterValue.toLowerCase();
+    const r = row.original;
+    const user = userMap.value.get(r.userId);
+    return [
+      r.date ? formatIsoDate(r.date) : '',
+      r.label,
+      r.startTime
+        ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay)
+        : '',
+      user ? getUserDisplayName(user) : '',
+      r.status ?? '',
+    ].some((v) => v.toLowerCase().includes(search));
+  },
+  getCoreRowModel: getCoreRowModel(),
+  getSortedRowModel: getSortedRowModel(),
+  getFilteredRowModel: getFilteredRowModel(),
+});
+
+function canEditRow(row: AvailabilityRow) {
+  return row.userId === currentUser.value?.id;
+}
+
+async function setStatus(row: AvailabilityRow, status: string | undefined) {
+  if (!status || !canEditRow(row)) return;
+  savingIds.value = new Set([...savingIds.value, row.plannedShiftId]);
+  try {
+    await $fetch('/api/shift-availabilities', {
+      method: 'PUT',
+      body: {
+        plannedShiftId: row.plannedShiftId,
+        status: status as AvailabilityStatus,
+      },
+    });
+    await refreshAvailabilities();
+  } finally {
+    const next = new Set(savingIds.value);
+    next.delete(row.plannedShiftId);
+    savingIds.value = next;
+  }
+}
+</script>
+
+<template>
+  <div class="flex flex-col gap-3">
+    <UiDataTable
+      v-model:global-search="globalSearch"
+      :table="table"
+      :show-search="true"
+    >
+      <template v-if="isAdmin" #actions>
+        <UiModal v-model:open="showSettings" title="Einstellungen">
+          <template #trigger>
+            <UiIconButton tooltip="Einstellungen">
+              <Cog6ToothIcon class="size-6" />
+            </UiIconButton>
+          </template>
+          <UiCheckbox
+            id="avail-all-users"
+            v-model="showAllUsers"
+            label="Alle Genoss*innen anzeigen"
+          />
+        </UiModal>
+      </template>
+
+      <template #cell="{ cell, row }">
+        <template v-if="cell.column.id === 'avatar'">
+          <UserCell
+            part="avatar"
+            :user="userMap.get(row.original.userId)"
+          />
+        </template>
+        <template v-else-if="cell.column.id === 'status'">
+          <UiRadioGroup
+            :model-value="row.original.status"
+            :name="`avail-${row.original.id}`"
+            :options="statusOptions"
+            :disabled="
+              !canEditRow(row.original) ||
+              savingIds.has(row.original.plannedShiftId)
+            "
+            @update:model-value="setStatus(row.original, $event)"
+          />
+        </template>
+        <template v-else>
+          <FlexRender
+            :render="cell.column.columnDef.cell"
+            :props="cell.getContext()"
+          />
+        </template>
+      </template>
+      <template #empty>Keine Schichten in diesem Monat.</template>
+    </UiDataTable>
+  </div>
+</template>
