@@ -70,3 +70,21 @@
     scroll-behavior: smooth;
   }
 }
+
+@keyframes row-highlight {
+  0%,
+  35% {
+    background-color: color-mix(
+      in oklch,
+      var(--color-success) 18%,
+      transparent
+    );
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@utility animate-row-highlight {
+  animation: row-highlight 2s ease-out;
+}

@@ -8,7 +8,7 @@ const props = defineProps<{
 const open = defineModel<boolean>('open', { default: false });
 
 const emit = defineEmits<{
-  success: [];
+  success: [id: string];
 }>();
 
 const { success, error: toastError } = useToast();
@@ -39,9 +39,10 @@ async function handleSubmit() {
       method: 'PATCH',
       body: { role: role.value },
     });
+    const userId = props.user.id;
     open.value = false;
     success('Rolle wurde geändert.');
-    emit('success');
+    emit('success', userId);
   } catch {
     toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
   } finally {
