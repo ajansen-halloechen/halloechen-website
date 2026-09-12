@@ -21,6 +21,7 @@ import {
   formatIsoDate,
   formatTimeRange,
   monthParamFromDate,
+  weekdayLabelFromDate,
 } from '~/utils/shift-plan';
 
 const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
@@ -109,6 +110,14 @@ const columns = computed(() => {
       cell: (info) =>
         info.getValue() ? formatIsoDate(info.getValue()) : '—',
     }),
+    columnHelper.accessor(
+      (row) => (row.date ? weekdayLabelFromDate(row.date) : ''),
+      {
+        id: 'weekday',
+        header: 'Tag',
+        cell: (info) => info.getValue() || '—',
+      },
+    ),
     columnHelper.accessor('label', {
       header: 'Bezeichnung',
       cell: (info) => info.getValue() || '—',
@@ -173,6 +182,7 @@ const table = useVueTable({
     const user = userMap.value.get(r.userId);
     return [
       r.date ? formatIsoDate(r.date) : '',
+      r.date ? weekdayLabelFromDate(r.date) : '',
       r.label,
       r.startTime
         ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay)

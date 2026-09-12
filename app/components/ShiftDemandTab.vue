@@ -24,6 +24,7 @@ import {
   formatTimeRange,
   monthParamFromDate,
   toIsoDateString,
+  weekdayLabelFromDate,
 } from '~/utils/shift-plan';
 
 const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
@@ -126,6 +127,10 @@ const shiftColumns = computed(() => {
       header: 'Datum',
       cell: (info) => formatIsoDate(info.getValue()),
     }),
+    shiftColumnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
+      id: 'weekday',
+      header: 'Tag',
+    }),
     shiftColumnHelper.accessor('label', {
       header: 'Bezeichnung',
       cell: (info) => info.getValue() || '—',
@@ -179,6 +184,7 @@ const shiftTable = useVueTable({
     const s = row.original;
     return [
       formatIsoDate(s.date),
+      weekdayLabelFromDate(s.date),
       s.label,
       formatTimeRange(s.startTime, s.endTime, s.plusOneDay),
       String(s.numberOfPersons),

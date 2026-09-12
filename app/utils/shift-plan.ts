@@ -8,6 +8,20 @@ export const WEEKDAY_LABELS: Record<number, string> = {
   7: 'Sonntag',
 };
 
+/** JS getDay(): 0=Sun … 6=Sat → ISO: 1=Mon … 7=Sun */
+export function isoWeekdayFromDate(date: Date | string): number {
+  const d =
+    typeof date === 'string'
+      ? new Date(`${date.slice(0, 10)}T00:00:00Z`)
+      : date;
+  const day = d.getUTCDay();
+  return day === 0 ? 7 : day;
+}
+
+export function weekdayLabelFromDate(date: Date | string): string {
+  return WEEKDAY_LABELS[isoWeekdayFromDate(date)] ?? '';
+}
+
 export function formatTimeRange(
   startTime: string,
   endTime: string,
