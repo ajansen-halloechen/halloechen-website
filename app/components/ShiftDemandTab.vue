@@ -299,11 +299,11 @@ const defaultShiftDate = computed(() => {
 <template>
   <div class="flex flex-col gap-10">
     <section class="flex flex-col gap-3">
-      <h2 class="text-lg font-semibold">Vorlagen</h2>
+      <h2 class="text-xl font-semibold">Vorlagen</h2>
       <UiDataTable
         v-model:global-search="templateSearch"
         :table="templateTable"
-        :show-search="true"
+        :show-search="false"
       >
         <template v-if="isAdmin" #actions>
           <UiModal v-model:open="showCreateTemplate" title="Vorlage erstellen">
@@ -347,11 +347,11 @@ const defaultShiftDate = computed(() => {
     </section>
 
     <section class="flex flex-col gap-3">
-      <h2 class="text-lg font-semibold">Schichten im Monat</h2>
+      <h2 class="text-xl font-semibold">Geplante Schichten</h2>
       <UiDataTable
         v-model:global-search="shiftSearch"
         :table="shiftTable"
-        :show-search="true"
+        :show-search="false"
       >
         <template v-if="isAdmin" #actions>
           <div class="flex flex-wrap gap-2">
