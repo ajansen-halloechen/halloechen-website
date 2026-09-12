@@ -71,10 +71,6 @@ const columns = [
     id: 'weekday',
     header: 'Tag',
   }),
-  columnHelper.accessor('label', {
-    header: 'Bezeichnung',
-    cell: (info) => info.getValue() || '—',
-  }),
   columnHelper.display({
     id: 'time',
     header: 'Zeit',
@@ -84,6 +80,10 @@ const columns = [
         info.row.original.endTime,
         info.row.original.plusOneDay,
       ),
+  }),
+  columnHelper.accessor('comment', {
+    header: 'Kommentar',
+    cell: (info) => info.getValue() || '—',
   }),
   columnHelper.display({
     id: 'fill',
@@ -126,8 +126,8 @@ const table = useVueTable({
     return [
       formatIsoDate(r.date),
       weekdayLabelFromDate(r.date),
-      r.label,
       formatTimeRange(r.startTime, r.endTime, r.plusOneDay),
+      r.comment ?? '',
       names,
       `${r.assignedUserIds.length}/${r.numberOfPersons}`,
     ].some((v) => v.toLowerCase().includes(search));

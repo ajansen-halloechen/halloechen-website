@@ -68,7 +68,7 @@ type AvailabilityRow = {
   plannedShiftId: string;
   userId: string;
   date: Date | string;
-  label: string;
+  comment: string | null;
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
@@ -87,7 +87,7 @@ const rows = computed<AvailabilityRow[]>(() => {
       plannedShiftId: availability.plannedShiftId,
       userId: availability.userId,
       date: shift?.date ?? '',
-      label: shift?.label ?? '',
+      comment: shift?.comment ?? null,
       startTime: shift?.startTime ?? '',
       endTime: shift?.endTime ?? '',
       plusOneDay: shift?.plusOneDay ?? false,
@@ -118,10 +118,6 @@ const columns = computed(() => {
         cell: (info) => info.getValue() || '—',
       },
     ),
-    columnHelper.accessor('label', {
-      header: 'Bezeichnung',
-      cell: (info) => info.getValue() || '—',
-    }),
     columnHelper.display({
       id: 'time',
       header: 'Zeit',
@@ -133,6 +129,10 @@ const columns = computed(() => {
               info.row.original.plusOneDay,
             )
           : '—',
+    }),
+    columnHelper.accessor('comment', {
+      header: 'Kommentar',
+      cell: (info) => info.getValue() || '—',
     }),
     columnHelper.display({
       id: 'status',
@@ -183,10 +183,10 @@ const table = useVueTable({
     return [
       r.date ? formatIsoDate(r.date) : '',
       r.date ? weekdayLabelFromDate(r.date) : '',
-      r.label,
       r.startTime
         ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay)
         : '',
+      r.comment ?? '',
       user ? getUserDisplayName(user) : '',
       r.status,
     ].some((v) => v.toLowerCase().includes(search));

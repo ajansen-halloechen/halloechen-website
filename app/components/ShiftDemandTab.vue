@@ -52,10 +52,6 @@ const templateColumnHelper = createColumnHelper<ShiftTemplate>();
 
 const templateColumns = computed(() => {
   const cols = [
-    templateColumnHelper.accessor('label', {
-      header: 'Bezeichnung',
-      cell: (info) => info.getValue() || '—',
-    }),
     templateColumnHelper.accessor('weekday', {
       header: 'Tag',
       cell: (info) => WEEKDAY_LABELS[info.getValue()] ?? info.getValue(),
@@ -69,6 +65,10 @@ const templateColumns = computed(() => {
           info.row.original.endTime,
           info.row.original.plusOneDay,
         ),
+    }),
+    templateColumnHelper.accessor('comment', {
+      header: 'Kommentar',
+      cell: (info) => info.getValue() || '—',
     }),
     templateColumnHelper.accessor('numberOfPersons', {
       header: 'Personen',
@@ -108,9 +108,9 @@ const templateTable = useVueTable({
     const search = filterValue.toLowerCase();
     const t = row.original;
     return [
-      t.label,
       WEEKDAY_LABELS[t.weekday] ?? '',
       formatTimeRange(t.startTime, t.endTime, t.plusOneDay),
+      t.comment ?? '',
       String(t.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
   },
@@ -131,10 +131,6 @@ const shiftColumns = computed(() => {
       id: 'weekday',
       header: 'Tag',
     }),
-    shiftColumnHelper.accessor('label', {
-      header: 'Bezeichnung',
-      cell: (info) => info.getValue() || '—',
-    }),
     shiftColumnHelper.display({
       id: 'time',
       header: 'Zeit',
@@ -144,6 +140,10 @@ const shiftColumns = computed(() => {
           info.row.original.endTime,
           info.row.original.plusOneDay,
         ),
+    }),
+    shiftColumnHelper.accessor('comment', {
+      header: 'Kommentar',
+      cell: (info) => info.getValue() || '—',
     }),
     shiftColumnHelper.accessor('numberOfPersons', {
       header: 'Personen',
@@ -185,8 +185,8 @@ const shiftTable = useVueTable({
     return [
       formatIsoDate(s.date),
       weekdayLabelFromDate(s.date),
-      s.label,
       formatTimeRange(s.startTime, s.endTime, s.plusOneDay),
+      s.comment ?? '',
       String(s.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
   },
@@ -212,11 +212,11 @@ const importing = ref(false);
 function openEditTemplate(t: ShiftTemplate) {
   editingTemplateId.value = t.id;
   editingTemplate.value = {
-    label: t.label,
     weekday: t.weekday,
     startTime: t.startTime.slice(0, 5),
     endTime: t.endTime.slice(0, 5),
     plusOneDay: t.plusOneDay,
+    comment: t.comment,
     numberOfPersons: t.numberOfPersons,
   };
   showEditTemplate.value = true;
@@ -421,7 +421,7 @@ const defaultShiftDate = computed(() => {
     <UiConfirmDeleteModal
       v-model:open="showDeleteTemplate"
       title="Vorlage löschen"
-      :description="`Vorlage „${deletingTemplate?.label || WEEKDAY_LABELS[deletingTemplate?.weekday ?? 1]}“ wirklich löschen?`"
+      :description="`Vorlage „${deletingTemplate?.comment || WEEKDAY_LABELS[deletingTemplate?.weekday ?? 1]}“ wirklich löschen?`"
       :loading="deletingTemplateLoading"
       @confirm="confirmDeleteTemplate"
     />

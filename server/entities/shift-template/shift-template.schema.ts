@@ -29,11 +29,11 @@ function isValidTimeRange(data: {
 
 export const shiftTemplateSchema = z.object({
   id: z.uuid(),
-  label: z.string().max(255),
   weekday: z.number().int().min(1).max(7),
   startTime: z.iso.time(),
   endTime: z.iso.time(),
   plusOneDay: z.boolean(),
+  comment: z.string().max(255).nullable(),
   numberOfPersons: z.number().int().min(1),
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -41,20 +41,20 @@ export const shiftTemplateSchema = z.object({
 
 export const shiftTemplateCreateSchema = z
   .object({
-    label: z.string().max(255).default(''),
     weekday: z.number().int().min(1).max(7),
     startTime: z.iso.time(),
     endTime: z.iso.time(),
     plusOneDay: z.boolean().default(false),
+    comment: z.string().max(255).nullable().optional().default(null),
     numberOfPersons: z.number().int().min(1),
   })
   .refine(isValidTimeRange, timeRangeRefine);
 
 export const shiftTemplatePatchSchema = z.object({
-  label: z.string().max(255).optional(),
   weekday: z.number().int().min(1).max(7).optional(),
   startTime: z.iso.time().optional(),
   endTime: z.iso.time().optional(),
   plusOneDay: z.boolean().optional(),
+  comment: z.string().max(255).nullable().optional(),
   numberOfPersons: z.number().int().min(1).optional(),
 });

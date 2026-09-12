@@ -73,10 +73,10 @@ export const plannedShiftService = {
 
     return plannedShiftRepository.create({
       date: input.date,
-      label: input.label,
       startTime: input.startTime,
       endTime: input.endTime,
       plusOneDay: input.plusOneDay,
+      comment: input.comment ?? null,
       numberOfPersons: input.numberOfPersons,
       templateId: input.templateId ?? null,
     });
@@ -101,10 +101,10 @@ export const plannedShiftService = {
 
         const shift = await plannedShiftRepository.create({
           date: day,
-          label: template.label,
           startTime: template.startTime,
           endTime: template.endTime,
           plusOneDay: template.plusOneDay,
+          comment: template.comment,
           numberOfPersons: template.numberOfPersons,
           templateId: template.id,
         });

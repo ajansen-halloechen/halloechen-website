@@ -8,10 +8,10 @@ import {
 export const plannedShiftSchema = z.object({
   id: z.uuid(),
   date: z.date(),
-  label: z.string().max(255),
   startTime: z.iso.time(),
   endTime: z.iso.time(),
   plusOneDay: z.boolean(),
+  comment: z.string().max(255).nullable(),
   numberOfPersons: z.number().int().min(1),
   templateId: z.uuid().nullable(),
   createdAt: z.date(),
@@ -21,10 +21,10 @@ export const plannedShiftSchema = z.object({
 export const plannedShiftCreateSchema = z
   .object({
     date: z.coerce.date(),
-    label: z.string().max(255).default(''),
     startTime: z.iso.time(),
     endTime: z.iso.time(),
     plusOneDay: z.boolean().default(false),
+    comment: z.string().max(255).nullable().optional().default(null),
     numberOfPersons: z.number().int().min(1),
     templateId: z.uuid().nullable().optional(),
   })

@@ -7,11 +7,11 @@ import {
 import { WEEKDAY_LABELS } from '~/utils/shift-plan';
 
 export interface ShiftTemplateFormData {
-  label: string;
   weekday: number;
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
+  comment: string | null;
   numberOfPersons: number;
 }
 
@@ -23,11 +23,11 @@ const emit = defineEmits<{
   submit: [data: ShiftTemplateFormData];
 }>();
 
-const label = ref(props.initialData?.label ?? '');
 const weekday = ref(String(props.initialData?.weekday ?? 1));
 const startTime = ref(props.initialData?.startTime ?? '18:00');
 const endTime = ref(props.initialData?.endTime ?? '23:00');
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
+const comment = ref(props.initialData?.comment ?? '');
 const numberOfPersons = ref(String(props.initialData?.numberOfPersons ?? 2));
 const rangeError = ref('');
 
@@ -35,11 +35,11 @@ watch(
   () => props.initialData,
   (data) => {
     if (!data) return;
-    label.value = data.label;
     weekday.value = String(data.weekday);
     startTime.value = data.startTime.slice(0, 5);
     endTime.value = data.endTime.slice(0, 5);
     plusOneDay.value = data.plusOneDay;
+    comment.value = data.comment ?? '';
     numberOfPersons.value = String(data.numberOfPersons);
   },
 );
@@ -68,12 +68,13 @@ function handleSubmit() {
     return;
   }
 
+  const trimmedComment = comment.value.trim();
   emit('submit', {
-    label: label.value.trim(),
     weekday: Number(weekday.value),
     startTime: startTime.value,
     endTime: endTime.value,
     plusOneDay: plusOneDay.value,
+    comment: trimmedComment || null,
     numberOfPersons: Number(numberOfPersons.value),
   });
 }
@@ -81,8 +82,6 @@ function handleSubmit() {
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
-    <UiInputField id="st-label" v-model="label" label="Bezeichnung" />
-
     <div class="flex flex-col gap-1">
       <label for="st-weekday" class="text-sm font-medium">Wochentag</label>
       <select
@@ -114,6 +113,8 @@ function handleSubmit() {
       v-model="plusOneDay"
       label="Ende am Folgetag"
     />
+
+    <UiInputField id="st-comment" v-model="comment" label="Kommentar" />
 
     <UiInputField
       id="st-persons"

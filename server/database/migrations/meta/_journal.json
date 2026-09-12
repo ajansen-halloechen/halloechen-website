@@ -78,6 +78,13 @@
       "when": 1785880760553,
       "tag": "0010_shift_planning_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785885000000,
+      "tag": "0011_rename_shift_label_to_comment",
+      "breakpoints": true
     }
   ]
 }

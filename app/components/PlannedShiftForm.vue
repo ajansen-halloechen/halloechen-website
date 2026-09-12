@@ -7,10 +7,10 @@ import {
 
 export interface PlannedShiftFormData {
   date: string;
-  label: string;
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
+  comment: string | null;
   numberOfPersons: number;
 }
 
@@ -27,10 +27,10 @@ const today = new Date();
 const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
 const date = ref(props.initialData?.date ?? props.defaultDate ?? todayIso);
-const label = ref(props.initialData?.label ?? '');
 const startTime = ref(props.initialData?.startTime ?? '18:00');
 const endTime = ref(props.initialData?.endTime ?? '23:00');
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
+const comment = ref(props.initialData?.comment ?? '');
 const numberOfPersons = ref(String(props.initialData?.numberOfPersons ?? 2));
 const rangeError = ref('');
 
@@ -53,12 +53,13 @@ function handleSubmit() {
     return;
   }
 
+  const trimmedComment = comment.value.trim();
   emit('submit', {
     date: date.value,
-    label: label.value.trim(),
     startTime: startTime.value,
     endTime: endTime.value,
     plusOneDay: plusOneDay.value,
+    comment: trimmedComment || null,
     numberOfPersons: Number(numberOfPersons.value),
   });
 }
@@ -67,7 +68,6 @@ function handleSubmit() {
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
     <UiDateInput id="ps-date" v-model="date" label="Datum" required />
-    <UiInputField id="ps-label" v-model="label" label="Bezeichnung" />
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 [&>*]:min-w-0">
       <UiTimeInput id="ps-start" v-model="startTime" label="Beginn" required />
@@ -82,6 +82,8 @@ function handleSubmit() {
       v-model="plusOneDay"
       label="Ende am Folgetag"
     />
+
+    <UiInputField id="ps-comment" v-model="comment" label="Kommentar" />
 
     <UiInputField
       id="ps-persons"
