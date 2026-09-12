@@ -12,7 +12,7 @@ import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
 import type {
   AvailabilityStatus,
-  ShiftAvailability,
+  ResolvedShiftAvailability,
 } from '~~/shared/types/shift-availability';
 import type { User } from '~~/shared/types/user';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
@@ -46,7 +46,7 @@ const { data: plannedShifts } = await useFetch<PlannedShift[]>(
 );
 
 const { data: availabilities, refresh: refreshAvailabilities } = await useFetch<
-  ShiftAvailability[]
+  ResolvedShiftAvailability[]
 >('/api/shift-availabilities', { query: availabilityQuery });
 
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
@@ -70,47 +70,26 @@ type AvailabilityRow = {
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
-  status: AvailabilityStatus | undefined;
+  status: AvailabilityStatus;
 };
 
 const rows = computed<AvailabilityRow[]>(() => {
-  const shifts = plannedShifts.value ?? [];
-  const avails = availabilities.value ?? [];
+  const shiftById = new Map(
+    (plannedShifts.value ?? []).map((shift) => [shift.id, shift]),
+  );
 
-  if (props.isAdmin && showAllUsers.value) {
-    return avails.map((a) => {
-      const shift = shifts.find((s) => s.id === a.plannedShiftId);
-      return {
-        id: a.id,
-        plannedShiftId: a.plannedShiftId,
-        userId: a.userId,
-        date: shift?.date ?? '',
-        label: shift?.label ?? '',
-        startTime: shift?.startTime ?? '',
-        endTime: shift?.endTime ?? '',
-        plusOneDay: shift?.plusOneDay ?? false,
-        status: a.status,
-      };
-    });
-  }
-
-  const userId = currentUser.value?.id;
-  if (!userId) return [];
-
-  return shifts.map((shift) => {
-    const avail = avails.find(
-      (a) => a.plannedShiftId === shift.id && a.userId === userId,
-    );
+  return (availabilities.value ?? []).map((availability) => {
+    const shift = shiftById.get(availability.plannedShiftId);
     return {
-      id: `${shift.id}-${userId}`,
-      plannedShiftId: shift.id,
-      userId,
-      date: shift.date,
-      label: shift.label,
-      startTime: shift.startTime,
-      endTime: shift.endTime,
-      plusOneDay: shift.plusOneDay,
-      status: avail?.status,
+      id: `${availability.userId}-${availability.plannedShiftId}`,
+      plannedShiftId: availability.plannedShiftId,
+      userId: availability.userId,
+      date: shift?.date ?? '',
+      label: shift?.label ?? '',
+      startTime: shift?.startTime ?? '',
+      endTime: shift?.endTime ?? '',
+      plusOneDay: shift?.plusOneDay ?? false,
+      status: availability.status,
     };
   });
 });
@@ -198,7 +177,7 @@ const table = useVueTable({
         ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay)
         : '',
       user ? getUserDisplayName(user) : '',
-      r.status ?? '',
+      r.status,
     ].some((v) => v.toLowerCase().includes(search));
   },
   getCoreRowModel: getCoreRowModel(),
