@@ -21,21 +21,19 @@ const tabs = [
 <template>
   <UiPage heading="Schichtplan" size="xl">
     <div class="flex flex-col gap-6">
-      <CalendarHeader v-model="selectedMonth" allow-past-months />
-
       <UiTabs v-model="activeTab" :tabs="tabs">
         <template #plan>
-          <ShiftPlanPlanTab :selected-month="selectedMonth" />
+          <ShiftPlanTab v-model:selected-month="selectedMonth" />
         </template>
         <template #availability>
-          <ShiftPlanAvailabilityTab
-            :selected-month="selectedMonth"
+          <ShiftAvailabilityTab
+            v-model:selected-month="selectedMonth"
             :is-admin="isAdmin"
           />
         </template>
         <template #bedarf>
-          <ShiftPlanBedarfTab
-            :selected-month="selectedMonth"
+          <ShiftDemandTab
+            v-model:selected-month="selectedMonth"
             :is-admin="isAdmin"
           />
         </template>

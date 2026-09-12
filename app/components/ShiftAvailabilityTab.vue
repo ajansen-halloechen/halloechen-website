@@ -23,8 +23,9 @@ import {
   monthParamFromDate,
 } from '~/utils/shift-plan';
 
+const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
+
 const props = defineProps<{
-  selectedMonth: Date;
   isAdmin: boolean;
 }>();
 
@@ -33,7 +34,7 @@ const { user: currentUser } = useUserSession();
 const showAllUsers = ref(false);
 const showSettings = ref(false);
 
-const monthParam = computed(() => monthParamFromDate(props.selectedMonth));
+const monthParam = computed(() => monthParamFromDate(selectedMonth.value));
 
 const availabilityQuery = computed(() => ({
   month: monthParam.value,
@@ -229,6 +230,10 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
             label="Alle Genoss*innen anzeigen"
           />
         </UiModal>
+      </template>
+
+      <template #toolbar>
+        <CalendarHeader v-model="selectedMonth" allow-past-months />
       </template>
 
       <template #cell="{ cell, row }">

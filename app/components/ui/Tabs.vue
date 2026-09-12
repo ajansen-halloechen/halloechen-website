@@ -15,7 +15,7 @@ defineProps<{
 
 const tabsStyles = tv({
   slots: {
-    list: 'flex gap-1 border-b border-primary',
+    list: 'flex justify-center gap-1 border-b border-primary',
     trigger: [
       'px-4 py-2 text-sm font-semibold text-primary/70 transition-colors',
       'border-b-2 border-transparent -mb-px',

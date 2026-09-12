@@ -8,7 +8,12 @@ import {
   useVueTable,
   type SortingState,
 } from '@tanstack/vue-table';
-import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/vue/24/outline';
+import {
+  ArrowDownTrayIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/vue/24/outline';
 import type { ShiftTemplate } from '~~/shared/types/shift-template';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
 import type { ShiftTemplateFormData } from '~/components/ShiftTemplateForm.vue';
@@ -21,15 +26,17 @@ import {
   toIsoDateString,
 } from '~/utils/shift-plan';
 
+const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
+
 const props = defineProps<{
-  selectedMonth: Date;
   isAdmin: boolean;
 }>();
 
-const monthParam = computed(() => monthParamFromDate(props.selectedMonth));
+const monthParam = computed(() => monthParamFromDate(selectedMonth.value));
 
-const { data: templates, refresh: refreshTemplates } =
-  await useFetch<ShiftTemplate[]>('/api/shift-templates');
+const { data: templates, refresh: refreshTemplates } = await useFetch<
+  ShiftTemplate[]
+>('/api/shift-templates');
 
 const { data: plannedShifts, refresh: refreshPlannedShifts } = await useFetch<
   PlannedShift[]
@@ -277,7 +284,7 @@ async function importTemplates() {
 }
 
 const defaultShiftDate = computed(() => {
-  const d = props.selectedMonth;
+  const d = selectedMonth.value;
   const today = new Date();
   if (
     d.getFullYear() === today.getFullYear() &&
@@ -301,10 +308,9 @@ const defaultShiftDate = computed(() => {
         <template v-if="isAdmin" #actions>
           <UiModal v-model:open="showCreateTemplate" title="Vorlage erstellen">
             <template #trigger>
-              <UiButton class="inline-flex items-center gap-2">
-                <PlusIcon class="size-5" />
-                Vorlage
-              </UiButton>
+              <UiIconButton variant="solid" tooltip="Vorlage erstellen">
+                <PlusIcon class="size-6" />
+              </UiIconButton>
             </template>
             <ShiftTemplateForm @submit="handleCreateTemplate" />
           </UiModal>
@@ -349,19 +355,19 @@ const defaultShiftDate = computed(() => {
       >
         <template v-if="isAdmin" #actions>
           <div class="flex flex-wrap gap-2">
-            <UiButton
-              variant="outlined"
+            <UiIconButton
+              variant="solid"
+              tooltip="Vorlagen importieren"
               :disabled="importing"
               @click="importTemplates"
             >
-              {{ importing ? 'Importiere…' : 'Vorlagen importieren' }}
-            </UiButton>
+              <ArrowDownTrayIcon class="size-6" />
+            </UiIconButton>
             <UiModal v-model:open="showCreateShift" title="Schicht hinzufügen">
               <template #trigger>
-                <UiButton class="inline-flex items-center gap-2">
-                  <PlusIcon class="size-5" />
-                  Schicht
-                </UiButton>
+                <UiIconButton variant="solid" tooltip="Schicht hinzufügen">
+                  <PlusIcon class="size-6" />
+                </UiIconButton>
               </template>
               <PlannedShiftForm
                 :default-date="defaultShiftDate"
@@ -370,6 +376,11 @@ const defaultShiftDate = computed(() => {
             </UiModal>
           </div>
         </template>
+
+        <template #toolbar>
+          <CalendarHeader v-model="selectedMonth" allow-past-months />
+        </template>
+
         <template #cell="{ cell, row }">
           <template v-if="cell.column.id === 'actions'">
             <UiIconButton

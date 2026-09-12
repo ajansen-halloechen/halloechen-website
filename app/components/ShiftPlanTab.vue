@@ -18,11 +18,9 @@ import {
   monthParamFromDate,
 } from '~/utils/shift-plan';
 
-const props = defineProps<{
-  selectedMonth: Date;
-}>();
+const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
 
-const monthParam = computed(() => monthParamFromDate(props.selectedMonth));
+const monthParam = computed(() => monthParamFromDate(selectedMonth.value));
 
 const { data: plannedShifts } = await useFetch<PlannedShift[]>(
   '/api/planned-shifts',
@@ -140,6 +138,10 @@ const table = useVueTable({
     :table="table"
     :show-search="true"
   >
+    <template #toolbar>
+      <CalendarHeader v-model="selectedMonth" allow-past-months />
+    </template>
+
     <template #cell="{ cell, row }">
       <template v-if="cell.column.id === 'assignees'">
         <div
