@@ -25,7 +25,7 @@ const emit = defineEmits<{
   confirm: [];
 }>();
 
-const accordionValue = ref<string[]>(['plan']);
+const accordionValue = ref<string[]>(['summary', 'plan']);
 
 type PreviewRow = PlannedShift & {
   assignedUserIds: string[];
@@ -89,30 +89,25 @@ const shiftsByUser = computed(() => {
 
 watch(open, (isOpen) => {
   if (isOpen) {
-    accordionValue.value = ['plan'];
+    accordionValue.value = ['summary', 'plan'];
   }
 });
-
-watch(
-  () => props.hasPlan,
-  (hasPlan) => {
-    if (hasPlan) {
-      accordionValue.value = ['summary', 'plan'];
-    }
-  },
-);
 </script>
 
 <template>
   <UiModal v-model:open="open" title="Schichten zuordnen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Mit „Planen“ wird ein Vorschlag berechnet. „Übernehmen“ ersetzt alle
-      bisherigen Zuordnungen für diesen Monat.
+      Mit „Planen“ wird ein Vorschlag berechnet.
     </p>
+    <div class="mb-4 flex justify-end">
+      <UiButton :disabled="planning || applying" @click="emit('plan')">
+        {{ planning ? 'Planen…' : 'Planen' }}
+      </UiButton>
+    </div>
 
-    <UiAccordion v-model="accordionValue">
+    <UiAccordion v-if="hasPlan" v-model="accordionValue">
       <UiAccordionItem value="summary" title="Zusammenfassung">
-        <div v-if="hasPlan" class="flex flex-col gap-3 text-sm">
+        <div class="flex flex-col gap-3 text-sm">
           <p>
             <span class="font-medium">Vollständig besetzt:</span>
             {{
@@ -142,9 +137,6 @@ watch(
           </div>
           <p v-else class="text-gray-500">Noch keine Zuordnungen.</p>
         </div>
-        <p v-else class="text-sm text-gray-500">
-          Die Zusammenfassung erscheint nach dem Planen.
-        </p>
       </UiAccordionItem>
 
       <UiAccordionItem value="plan" title="Schichtplan">
@@ -160,15 +152,8 @@ watch(
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!hasPlan">
-                <td colspan="5" class="py-8 text-center text-gray-500">
-                  Noch kein Vorschlag. Klicke auf „Planen“, um Schichten
-                  zuzuordnen.
-                </td>
-              </tr>
               <tr
                 v-for="row in rows"
-                v-else
                 :key="row.id"
                 class="border-b border-primary/10 align-top"
               >
@@ -201,27 +186,22 @@ watch(
     </UiAccordion>
 
     <template #footer>
-      <div class="flex flex-wrap justify-end gap-2">
-        <UiButton
-          variant="outlined"
-          :disabled="planning || applying"
-          @click="open = false"
-        >
-          Abbrechen
-        </UiButton>
-        <UiButton
-          variant="outlined"
-          :disabled="planning || applying"
-          @click="emit('plan')"
-        >
-          {{ planning ? 'Planen…' : 'Planen' }}
-        </UiButton>
-        <UiButton
-          :disabled="!hasPlan || planning || applying"
-          @click="emit('confirm')"
-        >
-          {{ applying ? 'Übernehmen…' : 'Übernehmen' }}
-        </UiButton>
+      <div v-if="hasPlan" class="flex flex-col gap-3">
+        <p class="text-sm text-gray-600">
+          „Übernehmen“ ersetzt alle bisherigen Zuordnungen für diesen Monat.
+        </p>
+        <div class="flex flex-wrap justify-end gap-2">
+          <UiButton
+            variant="outlined"
+            :disabled="planning || applying"
+            @click="open = false"
+          >
+            Abbrechen
+          </UiButton>
+          <UiButton :disabled="planning || applying" @click="emit('confirm')">
+            {{ applying ? 'Übernehmen…' : 'Übernehmen' }}
+          </UiButton>
+        </div>
       </div>
     </template>
   </UiModal>
