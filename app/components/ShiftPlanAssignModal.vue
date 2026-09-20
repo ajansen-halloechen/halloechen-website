@@ -23,6 +23,7 @@ const open = defineModel<boolean>('open', { default: false });
 const emit = defineEmits<{
   plan: [];
   confirm: [];
+  profile: [user: User];
 }>();
 
 const accordionValue = ref<string[]>(['summary', 'plan']);
@@ -118,22 +119,29 @@ watch(open, (isOpen) => {
           </p>
           <div v-if="shiftsByUser.length">
             <p class="mb-2 font-medium">Schichten pro Person</p>
-            <ul class="flex flex-col gap-1">
-              <li
-                v-for="entry in shiftsByUser"
-                :key="entry.userId"
-                class="flex items-center justify-between gap-3"
-              >
-                <span class="flex min-w-0 items-center gap-2">
-                  <UiUserAvatar
-                    :src="userMap.get(entry.userId)?.avatar ?? null"
-                    class="size-6"
-                  />
-                  <span class="truncate">{{ entry.label }}</span>
-                </span>
-                <span class="shrink-0 tabular-nums">{{ entry.count }}</span>
-              </li>
-            </ul>
+            <table class="text-sm">
+              <tbody>
+                <tr v-for="entry in shiftsByUser" :key="entry.userId">
+                  <td class="py-1 pr-10">
+                    <span class="flex items-center gap-2">
+                      <UiUserAvatar
+                        :src="userMap.get(entry.userId)?.avatar ?? null"
+                        class="size-6"
+                        :interactive="Boolean(userMap.get(entry.userId))"
+                        @click="
+                          userMap.get(entry.userId) &&
+                          emit('profile', userMap.get(entry.userId)!)
+                        "
+                      />
+                      <span>{{ entry.label }}</span>
+                    </span>
+                  </td>
+                  <td class="py-1 text-right tabular-nums">
+                    {{ entry.count }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p v-else class="text-gray-500">Noch keine Zuordnungen.</p>
         </div>
@@ -155,27 +163,28 @@ watch(open, (isOpen) => {
               <tr
                 v-for="row in rows"
                 :key="row.id"
-                class="border-b border-primary/10 align-top"
+                class="border-b border-primary/10"
               >
-                <td class="py-2 pr-3 whitespace-nowrap">
+                <td class="py-2 pr-3 align-middle whitespace-nowrap">
                   {{ formatIsoDate(row.date) }}
                 </td>
-                <td class="py-2 pr-3 whitespace-nowrap">
+                <td class="py-2 pr-3 align-middle whitespace-nowrap">
                   {{ weekdayLabelFromDate(row.date) }}
                 </td>
-                <td class="py-2 pr-3">
+                <td class="py-2 pr-3 align-top">
                   <ShiftAssigneesList
                     :user-ids="row.assignedUserIds"
                     :user-map="userMap"
                     avatar-class="size-7"
+                    @profile="emit('profile', $event)"
                   />
                 </td>
-                <td class="py-2 pr-3 whitespace-nowrap">
+                <td class="py-2 pr-3 align-middle whitespace-nowrap">
                   {{
                     formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
                   }}
                 </td>
-                <td class="py-2 whitespace-nowrap">
+                <td class="py-2 align-middle whitespace-nowrap">
                   {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
                 </td>
               </tr>

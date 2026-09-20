@@ -110,6 +110,13 @@ const applying = ref(false);
 const showAssignModal = ref(false);
 const hasPlan = ref(false);
 const proposedAssignments = ref<ShiftAssignmentPair[]>([]);
+const showProfileModal = ref(false);
+const profileUser = ref<User>();
+
+function openProfileModal(user: User) {
+  profileUser.value = user;
+  showProfileModal.value = true;
+}
 
 const columnHelper = createColumnHelper<PlanRow>();
 
@@ -295,6 +302,7 @@ async function applyAssignments() {
         <ShiftAssigneesList
           :user-ids="row.original.assignedUserIds"
           :user-map="userMap"
+          @profile="openProfileModal"
         />
       </template>
       <template v-else>
@@ -317,5 +325,8 @@ async function applyAssignments() {
     :has-plan="hasPlan"
     @plan="planShifts"
     @confirm="applyAssignments"
+    @profile="openProfileModal"
   />
+
+  <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />
 </template>

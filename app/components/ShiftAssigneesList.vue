@@ -2,7 +2,7 @@
 import type { User } from '~~/shared/types/user';
 import { getUserDisplayName } from '~/utils/user-display';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
     userIds: string[];
     userMap: Map<string, User>;
@@ -14,6 +14,14 @@ withDefaults(
     emptyLabel: 'Nicht besetzt',
   },
 );
+
+const emit = defineEmits<{
+  profile: [user: User];
+}>();
+
+function getUser(userId: string) {
+  return props.userMap.get(userId);
+}
 </script>
 
 <template>
@@ -24,15 +32,13 @@ withDefaults(
       class="flex min-w-0 items-center gap-2"
     >
       <UiUserAvatar
-        :src="userMap.get(userId)?.avatar ?? null"
+        :src="getUser(userId)?.avatar ?? null"
         :class="avatarClass"
+        :interactive="Boolean(getUser(userId))"
+        @click="getUser(userId) && emit('profile', getUser(userId)!)"
       />
       <span class="text-sm">
-        {{
-          userMap.get(userId)
-            ? getUserDisplayName(userMap.get(userId)!)
-            : userId
-        }}
+        {{ getUser(userId) ? getUserDisplayName(getUser(userId)!) : userId }}
       </span>
     </div>
   </div>

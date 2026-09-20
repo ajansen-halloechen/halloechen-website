@@ -34,6 +34,13 @@ const { user: currentUser } = useUserSession();
 
 const showAllUsers = ref(false);
 const showSettings = ref(false);
+const showProfileModal = ref(false);
+const profileUser = ref<User>();
+
+function openProfileModal(user: User) {
+  profileUser.value = user;
+  showProfileModal.value = true;
+}
 
 const monthParam = computed(() => monthParamFromDate(selectedMonth.value));
 
@@ -245,7 +252,11 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
 
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'avatar'">
-          <UserCell part="avatar" :user="userMap.get(row.original.userId)" />
+          <UserCell
+            part="avatar"
+            :user="userMap.get(row.original.userId)"
+            @profile="openProfileModal"
+          />
         </template>
         <template v-else-if="cell.column.id === 'status'">
           <UiRadioGroup
@@ -268,5 +279,7 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
       </template>
       <template #empty>Keine Schichten in diesem Monat.</template>
     </UiDataTable>
+
+    <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />
   </div>
 </template>
