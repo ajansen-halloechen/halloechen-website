@@ -185,11 +185,11 @@ watch(open, (isOpen) => {
       </UiAccordionItem>
     </UiAccordion>
 
+    <p v-if="hasPlan" class="my-4 text-sm text-gray-600">
+      „Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.
+    </p>
     <template #footer>
       <div v-if="hasPlan" class="flex flex-col gap-3">
-        <p class="text-sm text-gray-600">
-          „Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.
-        </p>
         <div class="flex flex-wrap justify-end gap-2">
           <UiButton
             variant="outlined"

@@ -52,14 +52,12 @@ const sizeClass = computed(() =>
         </div>
         <DialogDescription
           :class="
-            description
-              ? 'mb-4 shrink-0 text-sm text-gray-600'
-              : 'sr-only'
+            description ? 'mb-4 shrink-0 text-sm text-gray-600' : 'sr-only'
           "
         >
           {{ description ?? title }}
         </DialogDescription>
-        <div class="min-h-0 flex-1 overflow-y-auto">
+        <div class="min-h-0 flex-1 overflow-y-auto px-4">
           <slot />
         </div>
         <div v-if="$slots.footer" class="mt-4 shrink-0">
