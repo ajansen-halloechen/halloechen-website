@@ -9,11 +9,13 @@ import {
   type SortingState,
 } from '@tanstack/vue-table';
 import { Cog6ToothIcon } from '@heroicons/vue/24/outline';
+import { useDebounceFn } from '@vueuse/core';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
 import type {
   AvailabilityStatus,
   ResolvedShiftAvailability,
 } from '~~/shared/types/shift-availability';
+import type { ResolvedShiftUserPreference } from '~~/shared/types/shift-user-preference';
 import type { User } from '~~/shared/types/user';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
@@ -36,6 +38,8 @@ const showAllUsers = ref(false);
 const showSettings = ref(false);
 const showProfileModal = ref(false);
 const profileUser = ref<User>();
+const savingPreferences = ref(false);
+let syncingPreferencesFromServer = false;
 
 function openProfileModal(user: User) {
   profileUser.value = user;
@@ -58,7 +62,64 @@ const { data: availabilities, refresh: refreshAvailabilities } = await useFetch<
   ResolvedShiftAvailability[]
 >('/api/shift-availabilities', { query: availabilityQuery });
 
+const { data: preferences, refresh: refreshPreferences } =
+  await useFetch<ResolvedShiftUserPreference>('/api/shift-user-preferences');
+
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
+
+const maxShiftsPerMonth = ref('2');
+const shiftsOnConsecutiveDays = ref(false);
+const shiftsInConsecutiveWeeks = ref(false);
+
+watch(
+  preferences,
+  (prefs) => {
+    if (!prefs) return;
+    syncingPreferencesFromServer = true;
+    maxShiftsPerMonth.value = String(prefs.maxShiftsPerMonth);
+    shiftsOnConsecutiveDays.value = prefs.shiftsOnConsecutiveDays;
+    shiftsInConsecutiveWeeks.value = prefs.shiftsInConsecutiveWeeks;
+    nextTick(() => {
+      syncingPreferencesFromServer = false;
+    });
+  },
+  { immediate: true },
+);
+
+async function savePreferences() {
+  const max = Number(maxShiftsPerMonth.value);
+  if (!Number.isInteger(max) || max < 1) return;
+
+  savingPreferences.value = true;
+  try {
+    await $fetch('/api/shift-user-preferences', {
+      method: 'PUT',
+      body: {
+        maxShiftsPerMonth: max,
+        shiftsOnConsecutiveDays: shiftsOnConsecutiveDays.value,
+        shiftsInConsecutiveWeeks: shiftsInConsecutiveWeeks.value,
+      },
+    });
+    await refreshPreferences();
+  } finally {
+    savingPreferences.value = false;
+  }
+}
+
+const savePreferencesDebounced = useDebounceFn(() => {
+  if (syncingPreferencesFromServer) return;
+  void savePreferences();
+}, 300);
+
+watch(maxShiftsPerMonth, () => {
+  if (syncingPreferencesFromServer) return;
+  savePreferencesDebounced();
+});
+
+watch([shiftsOnConsecutiveDays, shiftsInConsecutiveWeeks], () => {
+  if (syncingPreferencesFromServer) return;
+  void savePreferences();
+});
 
 const userMap = computed(
   () => new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
@@ -231,18 +292,48 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
       :table="table"
       :show-search="true"
     >
-      <template v-if="isAdmin" #actions>
+      <template #actions>
         <UiModal v-model:open="showSettings" title="Einstellungen">
           <template #trigger>
             <UiIconButton variant="solid" tooltip="Einstellungen">
               <Cog6ToothIcon class="size-6" />
             </UiIconButton>
           </template>
-          <UiCheckbox
-            id="avail-all-users"
-            v-model="showAllUsers"
-            label="Alle Genoss*innen anzeigen"
-          />
+          <div class="flex flex-col gap-6">
+            <div class="flex flex-col gap-4">
+              <fieldset
+                :disabled="savingPreferences"
+                class="flex flex-col gap-4 border-0 p-0"
+              >
+                <UiInputField
+                  id="pref-max-shifts"
+                  v-model="maxShiftsPerMonth"
+                  label="Max. Schichten pro Monat"
+                  type="number"
+                />
+                <UiCheckbox
+                  id="pref-consecutive-days"
+                  v-model="shiftsOnConsecutiveDays"
+                  label="Schichten an aufeinanderfolgenden Tagen"
+                  :disabled="savingPreferences"
+                />
+                <UiCheckbox
+                  id="pref-consecutive-weeks"
+                  v-model="shiftsInConsecutiveWeeks"
+                  label="Schichten in aufeinanderfolgenden Wochen"
+                  :disabled="savingPreferences"
+                />
+              </fieldset>
+            </div>
+            <div v-if="isAdmin" class="flex flex-col gap-4">
+              <span class="text-lg font-semibold">Anzeige</span>
+              <UiCheckbox
+                id="avail-all-users"
+                v-model="showAllUsers"
+                label="Alle Genoss*innen anzeigen"
+              />
+            </div>
+          </div>
         </UiModal>
       </template>
 

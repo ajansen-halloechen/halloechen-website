@@ -11,12 +11,9 @@ import {
 } from '#server/utils/planner-client';
 import { plannedShiftService } from '../planned-shift/planned-shift.service';
 import { shiftAvailabilityService } from '../shift-availability/shift-availability.service';
+import { shiftUserPreferenceService } from '../shift-user-preference/shift-user-preference.service';
 import { db } from '#server/database';
 import { shiftAssignmentRepository } from './shift-assignment.repository';
-
-const DEFAULT_MAX_SHIFTS_PER_MONTH = 2;
-const DEFAULT_SHIFTS_ON_CONSECUTIVE_DAYS = false;
-const DEFAULT_SHIFTS_IN_CONSECUTIVE_WEEKS = true;
 
 function assertAdmin(role: string) {
   if (role !== UserRole.admin) {
@@ -68,6 +65,8 @@ export const shiftAssignmentService = {
     );
 
     const userIds = [...new Set(availabilities.map((a) => a.userId))];
+    const userPreferences =
+      await shiftUserPreferenceService.getForUsers(userIds);
 
     const assignments = await planShifts({
       month: monthStr,
@@ -81,11 +80,11 @@ export const shiftAssignmentService = {
         plannedShiftId: availability.plannedShiftId,
         status: toProtoAvailabilityStatus(availability.status),
       })),
-      userPreferences: userIds.map((userId) => ({
-        userId,
-        maxShiftsPerMonth: DEFAULT_MAX_SHIFTS_PER_MONTH,
-        shiftsOnConsecutiveDays: DEFAULT_SHIFTS_ON_CONSECUTIVE_DAYS,
-        shiftsInConsecutiveWeeks: DEFAULT_SHIFTS_IN_CONSECUTIVE_WEEKS,
+      userPreferences: userPreferences.map((pref) => ({
+        userId: pref.userId,
+        maxShiftsPerMonth: pref.maxShiftsPerMonth,
+        shiftsOnConsecutiveDays: pref.shiftsOnConsecutiveDays,
+        shiftsInConsecutiveWeeks: pref.shiftsInConsecutiveWeeks,
       })),
     });
 
