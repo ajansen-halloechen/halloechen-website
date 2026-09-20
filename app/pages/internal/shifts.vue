@@ -23,7 +23,10 @@ const tabs = [
     <div class="flex flex-col gap-6">
       <UiTabs v-model="activeTab" :tabs="tabs">
         <template #plan>
-          <ShiftPlanTab v-model:selected-month="selectedMonth" />
+          <ShiftPlanTab
+            v-model:selected-month="selectedMonth"
+            :is-admin="isAdmin"
+          />
         </template>
         <template #availability>
           <ShiftAvailabilityTab

@@ -102,5 +102,7 @@ export default defineNuxtConfig({
         secure: process.env.NUXT_SITE_ENV === 'production',
       },
     },
+    plannerHost: process.env.NUXT_PLANNER_HOST ?? '127.0.0.1',
+    plannerPort: process.env.NUXT_PLANNER_PORT ?? '50051',
   },
 });

@@ -40,6 +40,7 @@ RUN apk add --no-cache su-exec \
 
 COPY --from=builder --chown=node:node /app/.output ./.output
 COPY --from=builder --chown=node:node /app/server/database/migrations ./server/database/migrations
+COPY --from=builder --chown=node:node /app/proto ./proto
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

@@ -9,12 +9,18 @@ import {
   DialogClose,
 } from 'reka-ui';
 import { XMarkIcon } from '@heroicons/vue/24/outline';
+import { twMerge } from 'tailwind-merge';
 
-defineProps<{
+const props = defineProps<{
   title: string;
+  size?: 'lg' | 'xl';
 }>();
 
 const open = defineModel<boolean>('open', { default: false });
+
+const sizeClass = computed(() =>
+  props.size === 'xl' ? 'max-w-3xl' : 'max-w-lg',
+);
 </script>
 
 <template>
@@ -25,7 +31,12 @@ const open = defineModel<boolean>('open', { default: false });
     <DialogPortal>
       <DialogOverlay class="fixed inset-0 z-50 bg-black/50" />
       <DialogContent
-        class="fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg"
+        :class="
+          twMerge(
+            'fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg',
+            sizeClass,
+          )
+        "
       >
         <div class="flex items-center justify-between mb-4">
           <DialogTitle class="text-lg font-semibold">

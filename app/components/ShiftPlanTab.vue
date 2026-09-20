@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { SparklesIcon } from '@heroicons/vue/24/outline';
 import {
   FlexRender,
   createColumnHelper,
@@ -9,7 +10,11 @@ import {
   type SortingState,
 } from '@tanstack/vue-table';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
-import type { ShiftAssignment } from '~~/shared/types/shift-assignment';
+import type {
+  ShiftAssignment,
+  ShiftAssignmentPair,
+  ShiftAssignmentPlanResult,
+} from '~~/shared/types/shift-assignment';
 import type { User } from '~~/shared/types/user';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
@@ -19,7 +24,13 @@ import {
   weekdayLabelFromDate,
 } from '~/utils/shift-plan';
 
+const props = defineProps<{
+  isAdmin: boolean;
+}>();
+
 const selectedMonth = defineModel<Date>('selectedMonth', { required: true });
+
+const { success, error: toastError } = useToast();
 
 const monthParam = computed(() => monthParamFromDate(selectedMonth.value));
 
@@ -28,10 +39,9 @@ const { data: plannedShifts } = await useFetch<PlannedShift[]>(
   { query: { month: monthParam } },
 );
 
-const { data: assignments } = await useFetch<ShiftAssignment[]>(
-  '/api/shift-assignments',
-  { query: { month: monthParam } },
-);
+const { data: assignments, refresh: refreshAssignments } = await useFetch<
+  ShiftAssignment[]
+>('/api/shift-assignments', { query: { month: monthParam } });
 
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
 
@@ -59,6 +69,11 @@ const rows = computed<PlanRow[]>(() => {
 
 const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
 const globalSearch = ref('');
+
+const planning = ref(false);
+const applying = ref(false);
+const showAssignModal = ref(false);
+const proposedAssignments = ref<ShiftAssignmentPair[]>([]);
 
 const columnHelper = createColumnHelper<PlanRow>();
 
@@ -136,6 +151,63 @@ const table = useVueTable({
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
 });
+
+async function planShifts() {
+  if (!props.isAdmin || planning.value) return;
+
+  planning.value = true;
+  try {
+    const result = await $fetch<ShiftAssignmentPlanResult>(
+      '/api/shift-assignments/plan',
+      {
+        method: 'POST',
+        query: { month: monthParam.value },
+      },
+    );
+    proposedAssignments.value = result.assignments;
+    showAssignModal.value = true;
+  } catch (err: unknown) {
+    const statusMessage =
+      err &&
+      typeof err === 'object' &&
+      'data' in err &&
+      err.data &&
+      typeof err.data === 'object' &&
+      'statusMessage' in err.data &&
+      typeof err.data.statusMessage === 'string'
+        ? err.data.statusMessage
+        : null;
+    toastError(
+      statusMessage ??
+        'Schichten konnten nicht zugeordnet werden. Bitte versuche es erneut.',
+    );
+  } finally {
+    planning.value = false;
+  }
+}
+
+async function applyAssignments() {
+  if (!props.isAdmin || applying.value) return;
+
+  applying.value = true;
+  try {
+    await $fetch('/api/shift-assignments', {
+      method: 'PUT',
+      body: {
+        month: monthParam.value,
+        assignments: proposedAssignments.value,
+      },
+    });
+    await refreshAssignments();
+    showAssignModal.value = false;
+    proposedAssignments.value = [];
+    success('Schichtplan wurde übernommen.');
+  } catch {
+    toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+  } finally {
+    applying.value = false;
+  }
+}
 </script>
 
 <template>
@@ -146,6 +218,17 @@ const table = useVueTable({
   >
     <template #toolbar>
       <CalendarHeader v-model="selectedMonth" allow-past-months />
+    </template>
+
+    <template v-if="isAdmin" #actions>
+      <UiIconButton
+        variant="solid"
+        tooltip="Schichten zuordnen"
+        :disabled="planning || !(plannedShifts ?? []).length"
+        @click="planShifts"
+      >
+        <SparklesIcon class="size-6" />
+      </UiIconButton>
     </template>
 
     <template #cell="{ cell, row }">
@@ -183,4 +266,13 @@ const table = useVueTable({
     </template>
     <template #empty>Keine Schichten in diesem Monat.</template>
   </UiDataTable>
+
+  <ShiftPlanAssignModal
+    v-model:open="showAssignModal"
+    :planned-shifts="plannedShifts ?? []"
+    :assignments="proposedAssignments"
+    :user-map="userMap"
+    :loading="applying"
+    @confirm="applyAssignments"
+  />
 </template>
