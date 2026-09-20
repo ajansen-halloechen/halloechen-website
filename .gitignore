@@ -25,3 +25,6 @@ logs
 
 # User-uploaded files
 /files
+
+.venv/
+__pycache__/

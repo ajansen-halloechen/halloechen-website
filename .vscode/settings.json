@@ -16,5 +16,8 @@
   },
   "[yaml]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "python.testing.pytestArgs": ["planner"],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true
 }

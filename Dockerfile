@@ -14,7 +14,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     --mount=type=bind,source=package.json,target=package.json \
     --mount=type=bind,source=pnpm-lock.yaml,target=pnpm-lock.yaml \
     --mount=type=bind,source=pnpm-workspace.yaml,target=pnpm-workspace.yaml \
-    pnpm fetch --frozen-lockfile
+    pnpm fetch
 
 COPY . .
 
@@ -40,6 +40,7 @@ RUN apk add --no-cache su-exec \
 
 COPY --from=builder --chown=node:node /app/.output ./.output
 COPY --from=builder --chown=node:node /app/server/database/migrations ./server/database/migrations
+COPY --from=builder --chown=node:node /app/proto ./proto
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 

@@ -46,6 +46,7 @@ export const userSchema = z.object({
 });
 
 export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
+  isSystem: z.boolean(),
   passwordHash: z.string().nullable(),
   setupToken: z.string().nullable(),
   setupTokenExpiresAt: z.date().nullable(),
@@ -57,6 +58,7 @@ export const userInternalSchema = userSchema.omit({ isPending: true }).extend({
 export const toPublicUserSchema = userInternalSchema
   .transform(
     ({
+      isSystem: _isSystem,
       passwordHash,
       setupToken,
       setupTokenExpiresAt,

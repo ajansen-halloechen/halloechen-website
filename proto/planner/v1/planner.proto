@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package planner.v1;
+
+import "planner/v1/types.proto";
+
+// Plans one month of shifts at a time.
+service ShiftPlannerService {
+  rpc PlanShifts(PlanShiftsRequest) returns (PlanShiftsResponse);
+}
+
+message PlanShiftsRequest {
+  // YYYY-MM — planning horizon; one month per call.
+  string month = 1;
+  repeated PlannedShift planned_shifts = 2;
+  // Include AVAILABLE, PREFERENCE, and UNAVAILABLE. Only AVAILABLE/PREFERENCE may be assigned.
+  repeated Availability availabilities = 3;
+  // One entry per user that appears in availabilities (or at least every assignable user).
+  repeated UserPreference user_preferences = 4;
+}
+
+message PlanShiftsResponse {
+  // Under-filling a shift is allowed; over-filling is not.
+  repeated Assignment assignments = 1;
+}

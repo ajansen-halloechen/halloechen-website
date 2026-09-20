@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package planner.v1;
+
+// Nuxt must always set status explicitly; never rely on the zero value.
+enum AvailabilityStatus {
+  AVAILABILITY_STATUS_UNSPECIFIED = 0;
+  AVAILABILITY_STATUS_AVAILABLE = 1;
+  AVAILABILITY_STATUS_PREFERENCE = 2;
+  AVAILABILITY_STATUS_UNAVAILABLE = 3;
+}
+
+// Slot to fill for one calendar day. Template, times, and type stay on the Nuxt side.
+message PlannedShift {
+  string id = 1;
+  // YYYY-MM-DD — calendar day of the shift start (used for consecutive-day/week rules).
+  string date = 2;
+  int32 number_of_persons = 3;
+}
+
+// One row per (user, shift) the app knows about.
+message Availability {
+  string user_id = 1;
+  string planned_shift_id = 2;
+  AvailabilityStatus status = 3;
+}
+
+// Per-user preferences for the planned month.
+message UserPreference {
+  string user_id = 1;
+  // Hard upper bound on assignments for this user in the month.
+  int32 max_shifts_per_month = 2;
+  // true = consecutive calendar days allowed; false = forbidden.
+  bool shifts_on_consecutive_days = 3;
+  // true = consecutive ISO weeks allowed; false = forbidden.
+  bool shifts_in_consecutive_weeks = 4;
+}
+
+message Assignment {
+  string planned_shift_id = 1;
+  string user_id = 2;
+}

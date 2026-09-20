@@ -8,7 +8,7 @@ type UserColumns = typeof users.$inferSelect;
 
 export const userRepository = {
   async findAll() {
-    return db.select().from(users);
+    return db.select().from(users).where(eq(users.isSystem, false));
   },
 
   async findById(id: string) {

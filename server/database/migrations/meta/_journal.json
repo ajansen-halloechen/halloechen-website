@@ -78,6 +78,34 @@
       "when": 1785876069361,
       "tag": "0010_outstanding_cammi",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785880760553,
+      "tag": "0011_shift_planning_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1785885000000,
+      "tag": "0012_rename_shift_label_to_comment",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789910000000,
+      "tag": "0013_shift_user_preferences",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1790000000000,
+      "tag": "0014_user_is_system",
+      "breakpoints": true
     }
   ]
 }

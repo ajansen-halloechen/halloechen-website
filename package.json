@@ -2,6 +2,7 @@
   "name": "halloechen-website",
   "type": "module",
   "private": true,
+  "packageManager": "pnpm@11.6.0",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -13,9 +14,12 @@
     "format": "prettier --config .prettierrc --write \"**/*.{ts,vue,md,yml,yaml}\"",
     "db:generate": "drizzle-kit generate --config ./drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config ./drizzle.config.ts",
-    "db:rollback": "drizzle-kit migrate:rollback --config ./drizzle.config.ts"
+    "db:rollback": "drizzle-kit migrate:rollback --config ./drizzle.config.ts",
+    "db:seed-users": "node scripts/seed-random-users.mjs"
   },
   "dependencies": {
+    "@grpc/grpc-js": "^1.14.5",
+    "@grpc/proto-loader": "^0.8.1",
     "@heroicons/vue": "^2.2.0",
     "@internationalized/date": "^3.12.1",
     "@nuxtjs/robots": "6.1.1",

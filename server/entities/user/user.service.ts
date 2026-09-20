@@ -198,6 +198,17 @@ export const userService = {
   async patch(id: string, input: UserPatch) {
     const { password, oldPassword, ...fields } = input;
 
+    const current = await userRepository.findById(id);
+    if (!current) {
+      throw createError({ statusCode: 404, statusMessage: 'User not found' });
+    }
+    if (current.isSystem) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'System users cannot be modified',
+      });
+    }
+
     if (fields.email) {
       const existing = await userRepository.findByEmail(fields.email);
       if (existing && existing.id !== id) {
@@ -210,8 +221,7 @@ export const userService = {
 
     const data: Record<string, unknown> = { ...fields };
     if (password) {
-      const current = await userRepository.findById(id);
-      if (!current || !current.passwordHash) {
+      if (!current.passwordHash) {
         throw createError({
           statusCode: 400,
           statusMessage: 'User has no password set',
@@ -261,6 +271,17 @@ export const userService = {
   },
 
   async remove(id: string) {
+    const existing = await userRepository.findById(id);
+    if (!existing) {
+      throw createError({ statusCode: 404, statusMessage: 'User not found' });
+    }
+    if (existing.isSystem) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'System users cannot be deleted',
+      });
+    }
+
     const user = await userRepository.remove(id);
     if (!user) {
       throw createError({ statusCode: 404, statusMessage: 'User not found' });
@@ -277,6 +298,9 @@ export const userService = {
   ): Promise<boolean> {
     const existing = await userRepository.findByEmail(email);
     if (existing) {
+      if (!existing.isSystem) {
+        await userRepository.update(existing.id, { isSystem: true });
+      }
       return false;
     }
 
@@ -287,6 +311,7 @@ export const userService = {
       lastName,
       passwordHash,
       role,
+      isSystem: true,
     });
     return true;
   },
