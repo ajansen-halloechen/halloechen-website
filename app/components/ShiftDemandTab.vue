@@ -304,8 +304,8 @@ const defaultShiftDate = computed(() => {
 
 <template>
   <div class="flex flex-col gap-10">
-    <section class="flex flex-col gap-3">
-      <h2 class="text-xl font-semibold">Vorlagen</h2>
+    <section class="flex flex-col gap-4">
+      <h2 class="text-center text-xl font-semibold">Vorlagen</h2>
       <UiDataTable
         v-model:global-search="templateSearch"
         :table="templateTable"
@@ -352,8 +352,8 @@ const defaultShiftDate = computed(() => {
       </UiDataTable>
     </section>
 
-    <section class="flex flex-col gap-3">
-      <h2 class="text-xl font-semibold">Geplante Schichten</h2>
+    <section class="flex flex-col gap-4">
+      <h2 class="text-center text-xl font-semibold">Geplante Schichten</h2>
       <UiDataTable
         v-model:global-search="shiftSearch"
         :table="shiftTable"

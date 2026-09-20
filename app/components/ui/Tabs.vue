@@ -10,9 +10,9 @@ defineProps<{
 
 const tabsStyles = tv({
   slots: {
-    list: 'flex justify-center gap-1 border-b-3 border-primary',
+    list: 'flex justify-center md:gap-4 border-b-3 border-primary',
     trigger: [
-      'px-4 py-2 text-lg font-semibold transition-colors mb-1',
+      'px-4 py-2 text-md md:text-lg font-semibold transition-colors mb-1',
       'hover:text-accent',
       'data-[state=active]:text-accent',
       'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:rounded-md',

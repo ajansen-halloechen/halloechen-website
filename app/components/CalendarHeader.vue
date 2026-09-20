@@ -48,7 +48,7 @@ function goNextMonth() {
     >
       <ChevronLeftIcon class="h-6 w-6" />
     </UiIconButton>
-    <div class="text-xl font-semibold capitalize">
+    <div class="text-lg font-semibold capitalize">
       {{ monthLabel }}
     </div>
     <UiIconButton aria-label="Next month" @click="goNextMonth">
