@@ -1,4 +1,5 @@
 import {
+  boolean,
   integer,
   pgEnum,
   pgTable,
@@ -17,6 +18,7 @@ export const users = pgTable('users', {
   phoneNumber: varchar('phone_number', { length: 50 }),
   avatar: varchar('avatar', { length: 512 }),
   role: userRoleEnum('role').default('user').notNull(),
+  isSystem: boolean('is_system').notNull().default(false),
   passwordHash: varchar('password_hash', { length: 255 }),
   setupToken: varchar('setup_token', { length: 255 }).unique(),
   setupTokenExpiresAt: timestamp('setup_token_expires_at', {
