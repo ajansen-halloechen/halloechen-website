@@ -95,13 +95,13 @@ watch(open, (isOpen) => {
 </script>
 
 <template>
-  <UiModal v-model:open="open" title="Schichten zuordnen" size="xl">
+  <UiModal v-model:open="open" title="Schichten zuweisen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Mit „Planen“ wird ein Vorschlag berechnet.
+      Mit „Zuweisen“ wird ein Vorschlag für die Schichtbesetzung ermittelt.
     </p>
     <div class="mb-4 flex justify-end">
       <UiButton :disabled="planning || applying" @click="emit('plan')">
-        {{ planning ? 'Planen…' : 'Planen' }}
+        {{ planning ? 'Zuweisen…' : 'Zuweisen' }}
       </UiButton>
     </div>
 

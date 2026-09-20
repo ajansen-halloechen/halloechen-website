@@ -232,7 +232,7 @@ async function applyAssignments() {
     <template v-if="isAdmin" #actions>
       <UiIconButton
         variant="solid"
-        tooltip="Schichten zuordnen"
+        tooltip="Schichten zuweisen"
         :disabled="!(plannedShifts ?? []).length"
         @click="openAssignModal"
       >
