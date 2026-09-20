@@ -6,6 +6,7 @@ import {
   DialogOverlay,
   DialogContent,
   DialogTitle,
+  DialogDescription,
   DialogClose,
 } from 'reka-ui';
 import { XMarkIcon } from '@heroicons/vue/24/outline';
@@ -13,6 +14,7 @@ import { twMerge } from 'tailwind-merge';
 
 const props = defineProps<{
   title: string;
+  description?: string;
   size?: 'lg' | 'xl';
 }>();
 
@@ -48,6 +50,15 @@ const sizeClass = computed(() =>
             </UiIconButton>
           </DialogClose>
         </div>
+        <DialogDescription
+          :class="
+            description
+              ? 'mb-4 shrink-0 text-sm text-gray-600'
+              : 'sr-only'
+          "
+        >
+          {{ description ?? title }}
+        </DialogDescription>
         <div class="min-h-0 flex-1 overflow-y-auto">
           <slot />
         </div>
