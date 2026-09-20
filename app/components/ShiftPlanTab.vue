@@ -83,6 +83,10 @@ const columns = [
     header: 'Datum',
     cell: (info) => formatIsoDate(info.getValue()),
   }),
+  columnHelper.display({
+    id: 'assignees',
+    header: 'Zugewiesen',
+  }),
   columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
     id: 'weekday',
     header: 'Tag',
@@ -106,10 +110,6 @@ const columns = [
     header: 'Besetzung',
     cell: (info) =>
       `${info.row.original.assignedUserIds.length}/${info.row.original.numberOfPersons}`,
-  }),
-  columnHelper.display({
-    id: 'assignees',
-    header: 'Zugewiesen',
   }),
 ];
 

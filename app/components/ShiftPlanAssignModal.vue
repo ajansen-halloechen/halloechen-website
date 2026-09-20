@@ -145,10 +145,10 @@ watch(open, (isOpen) => {
             <thead>
               <tr class="border-b border-primary/20">
                 <th class="py-2 pr-3 font-semibold">Datum</th>
+                <th class="py-2 pr-3 font-semibold">Zugewiesen</th>
                 <th class="py-2 pr-3 font-semibold">Tag</th>
                 <th class="py-2 pr-3 font-semibold">Zeit</th>
-                <th class="py-2 pr-3 font-semibold">Besetzung</th>
-                <th class="py-2 font-semibold">Zugewiesen</th>
+                <th class="py-2 font-semibold">Besetzung</th>
               </tr>
             </thead>
             <tbody>
@@ -160,6 +160,13 @@ watch(open, (isOpen) => {
                 <td class="py-2 pr-3 whitespace-nowrap">
                   {{ formatIsoDate(row.date) }}
                 </td>
+                <td class="py-2 pr-3">
+                  <ShiftAssigneesList
+                    :user-ids="row.assignedUserIds"
+                    :user-map="userMap"
+                    avatar-class="size-7"
+                  />
+                </td>
                 <td class="py-2 pr-3 whitespace-nowrap">
                   {{ weekdayLabelFromDate(row.date) }}
                 </td>
@@ -168,15 +175,8 @@ watch(open, (isOpen) => {
                     formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
                   }}
                 </td>
-                <td class="py-2 pr-3 whitespace-nowrap">
+                <td class="py-2 whitespace-nowrap">
                   {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
-                </td>
-                <td class="py-2">
-                  <ShiftAssigneesList
-                    :user-ids="row.assignedUserIds"
-                    :user-map="userMap"
-                    avatar-class="size-7"
-                  />
                 </td>
               </tr>
             </tbody>
