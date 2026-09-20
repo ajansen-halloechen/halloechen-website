@@ -71,6 +71,15 @@ jobs:
     needs: validate
     if: needs.validate.outputs.should_build == 'true'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - name: website
+            dockerfile: Dockerfile
+            image_suffix: ""
+          - name: planner
+            dockerfile: Dockerfile.planner
+            image_suffix: "-planner"
     steps:
       - name: Checkout release tag
         uses: actions/checkout@v7
@@ -91,18 +100,20 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.tag }}
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ needs.validate.outputs.kind == 'dev' && 'dev-latest' || 'latest' }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ needs.validate.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}${{ matrix.image_suffix }}:${{ needs.validate.outputs.kind == 'dev' && 'dev-latest' || 'latest' }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
       - name: Make package public
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          IMAGE_SUFFIX: ${{ matrix.image_suffix }}
         run: |
-          PACKAGE_NAME="${IMAGE_NAME##*/}"
+          PACKAGE_NAME="${IMAGE_NAME##*/}${IMAGE_SUFFIX}"
           STATUS=$(gh api "/user/packages/container/${PACKAGE_NAME}" --jq '.visibility' 2>/dev/null || echo "unknown")
           echo "Current visibility for ${PACKAGE_NAME}: ${STATUS}"
           if [ "$STATUS" != "public" ]; then

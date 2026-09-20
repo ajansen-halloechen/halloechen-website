@@ -6,6 +6,11 @@ node_modules
 .data
 .cache
 dist
+.venv
+__pycache__
+.pytest_cache
+.ruff_cache
+*.pyc
 
 # Git and editor metadata
 .git
