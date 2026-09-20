@@ -73,6 +73,7 @@ const globalSearch = ref('');
 const planning = ref(false);
 const applying = ref(false);
 const showAssignModal = ref(false);
+const hasPlan = ref(false);
 const proposedAssignments = ref<ShiftAssignmentPair[]>([]);
 
 const columnHelper = createColumnHelper<PlanRow>();
@@ -152,6 +153,13 @@ const table = useVueTable({
   getFilteredRowModel: getFilteredRowModel(),
 });
 
+function openAssignModal() {
+  if (!props.isAdmin) return;
+  proposedAssignments.value = [];
+  hasPlan.value = false;
+  showAssignModal.value = true;
+}
+
 async function planShifts() {
   if (!props.isAdmin || planning.value) return;
 
@@ -165,7 +173,7 @@ async function planShifts() {
       },
     );
     proposedAssignments.value = result.assignments;
-    showAssignModal.value = true;
+    hasPlan.value = true;
   } catch (err: unknown) {
     const statusMessage =
       err &&
@@ -187,7 +195,7 @@ async function planShifts() {
 }
 
 async function applyAssignments() {
-  if (!props.isAdmin || applying.value) return;
+  if (!props.isAdmin || applying.value || !hasPlan.value) return;
 
   applying.value = true;
   try {
@@ -201,6 +209,7 @@ async function applyAssignments() {
     await refreshAssignments();
     showAssignModal.value = false;
     proposedAssignments.value = [];
+    hasPlan.value = false;
     success('Schichtplan wurde übernommen.');
   } catch {
     toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
@@ -224,8 +233,8 @@ async function applyAssignments() {
       <UiIconButton
         variant="solid"
         tooltip="Schichten zuordnen"
-        :disabled="planning || !(plannedShifts ?? []).length"
-        @click="planShifts"
+        :disabled="!(plannedShifts ?? []).length"
+        @click="openAssignModal"
       >
         <SparklesIcon class="size-6" />
       </UiIconButton>
@@ -233,29 +242,10 @@ async function applyAssignments() {
 
     <template #cell="{ cell, row }">
       <template v-if="cell.column.id === 'assignees'">
-        <div
-          v-if="row.original.assignedUserIds.length"
-          class="flex flex-wrap items-center gap-2"
-        >
-          <div
-            v-for="userId in row.original.assignedUserIds"
-            :key="userId"
-            class="flex items-center gap-2"
-          >
-            <UiUserAvatar
-              :src="userMap.get(userId)?.avatar ?? null"
-              class="size-8"
-            />
-            <span class="text-sm">
-              {{
-                userMap.get(userId)
-                  ? getUserDisplayName(userMap.get(userId)!)
-                  : userId
-              }}
-            </span>
-          </div>
-        </div>
-        <span v-else class="text-sm text-gray-500">Nicht besetzt</span>
+        <ShiftAssigneesList
+          :user-ids="row.original.assignedUserIds"
+          :user-map="userMap"
+        />
       </template>
       <template v-else>
         <FlexRender
@@ -272,7 +262,10 @@ async function applyAssignments() {
     :planned-shifts="plannedShifts ?? []"
     :assignments="proposedAssignments"
     :user-map="userMap"
-    :loading="applying"
+    :planning="planning"
+    :applying="applying"
+    :has-plan="hasPlan"
+    @plan="planShifts"
     @confirm="applyAssignments"
   />
 </template>

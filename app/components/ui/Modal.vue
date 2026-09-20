@@ -33,12 +33,12 @@ const sizeClass = computed(() =>
       <DialogContent
         :class="
           twMerge(
-            'fixed left-1/2 top-1/2 z-50 w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 rounded-lg border border-primary bg-surface p-6 shadow-lg',
+            'fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100vh-2rem)] w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-primary bg-surface p-6 shadow-lg',
             sizeClass,
           )
         "
       >
-        <div class="flex items-center justify-between mb-4">
+        <div class="mb-4 flex shrink-0 items-center justify-between">
           <DialogTitle class="text-lg font-semibold">
             {{ title }}
           </DialogTitle>
@@ -48,7 +48,12 @@ const sizeClass = computed(() =>
             </UiIconButton>
           </DialogClose>
         </div>
-        <slot />
+        <div class="min-h-0 flex-1 overflow-y-auto">
+          <slot />
+        </div>
+        <div v-if="$slots.footer" class="mt-4 shrink-0">
+          <slot name="footer" />
+        </div>
       </DialogContent>
     </DialogPortal>
   </DialogRoot>

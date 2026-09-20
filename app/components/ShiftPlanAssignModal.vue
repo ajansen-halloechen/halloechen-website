@@ -13,14 +13,19 @@ const props = defineProps<{
   plannedShifts: PlannedShift[];
   assignments: ShiftAssignmentPair[];
   userMap: Map<string, User>;
-  loading?: boolean;
+  planning?: boolean;
+  applying?: boolean;
+  hasPlan?: boolean;
 }>();
 
 const open = defineModel<boolean>('open', { default: false });
 
 const emit = defineEmits<{
+  plan: [];
   confirm: [];
 }>();
+
+const accordionValue = ref<string[]>(['plan']);
 
 type PreviewRow = PlannedShift & {
   assignedUserIds: string[];
@@ -45,83 +50,179 @@ const rows = computed<PreviewRow[]>(() => {
       return dateA.localeCompare(dateB);
     });
 });
+
+const totalRequiredSlots = computed(() =>
+  props.plannedShifts.reduce((sum, shift) => sum + shift.numberOfPersons, 0),
+);
+
+const totalAssignedSlots = computed(() => props.assignments.length);
+
+const fullyStaffedShiftCount = computed(
+  () =>
+    rows.value.filter(
+      (row) => row.assignedUserIds.length >= row.numberOfPersons,
+    ).length,
+);
+
+const allShiftsFullyAssigned = computed(
+  () =>
+    props.plannedShifts.length > 0 &&
+    fullyStaffedShiftCount.value === props.plannedShifts.length,
+);
+
+const shiftsByUser = computed(() => {
+  const counts = new Map<string, number>();
+  for (const assignment of props.assignments) {
+    counts.set(assignment.userId, (counts.get(assignment.userId) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([userId, count]) => ({
+      userId,
+      count,
+      label: props.userMap.get(userId)
+        ? getUserDisplayName(props.userMap.get(userId)!)
+        : userId,
+    }))
+    .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+});
+
+watch(open, (isOpen) => {
+  if (isOpen) {
+    accordionValue.value = ['plan'];
+  }
+});
+
+watch(
+  () => props.hasPlan,
+  (hasPlan) => {
+    if (hasPlan) {
+      accordionValue.value = ['summary', 'plan'];
+    }
+  },
+);
 </script>
 
 <template>
-  <UiModal v-model:open="open" title="Empfohlener Schichtplan" size="xl">
+  <UiModal v-model:open="open" title="Schichten zuordnen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Bitte prüfe den Vorschlag. Mit „Übernehmen“ werden alle bisherigen
-      Zuordnungen für diesen Monat ersetzt.
+      Mit „Planen“ wird ein Vorschlag berechnet. „Übernehmen“ ersetzt alle
+      bisherigen Zuordnungen für diesen Monat.
     </p>
 
-    <div class="max-h-[60vh] overflow-auto">
-      <table class="w-full text-left text-sm">
-        <thead class="sticky top-0 bg-surface">
-          <tr class="border-b border-primary/20">
-            <th class="py-2 pr-3 font-semibold">Datum</th>
-            <th class="py-2 pr-3 font-semibold">Tag</th>
-            <th class="py-2 pr-3 font-semibold">Zeit</th>
-            <th class="py-2 pr-3 font-semibold">Besetzung</th>
-            <th class="py-2 font-semibold">Zugewiesen</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="row in rows"
-            :key="row.id"
-            class="border-b border-primary/10 align-top"
-          >
-            <td class="py-2 pr-3 whitespace-nowrap">
-              {{ formatIsoDate(row.date) }}
-            </td>
-            <td class="py-2 pr-3 whitespace-nowrap">
-              {{ weekdayLabelFromDate(row.date) }}
-            </td>
-            <td class="py-2 pr-3 whitespace-nowrap">
-              {{
-                formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
-              }}
-            </td>
-            <td class="py-2 pr-3 whitespace-nowrap">
-              {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
-            </td>
-            <td class="py-2">
-              <div
-                v-if="row.assignedUserIds.length"
-                class="flex flex-wrap items-center gap-2"
+    <UiAccordion v-model="accordionValue">
+      <UiAccordionItem value="summary" title="Zusammenfassung">
+        <div v-if="hasPlan" class="flex flex-col gap-3 text-sm">
+          <p>
+            <span class="font-medium">Vollständig besetzt:</span>
+            {{
+              allShiftsFullyAssigned
+                ? `Ja (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
+                : `Nein (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
+            }}
+          </p>
+          <div v-if="shiftsByUser.length">
+            <p class="mb-2 font-medium">Schichten pro Person</p>
+            <ul class="flex flex-col gap-1">
+              <li
+                v-for="entry in shiftsByUser"
+                :key="entry.userId"
+                class="flex items-center justify-between gap-3"
               >
-                <div
-                  v-for="userId in row.assignedUserIds"
-                  :key="userId"
-                  class="flex items-center gap-2"
-                >
+                <span class="flex min-w-0 items-center gap-2">
                   <UiUserAvatar
-                    :src="userMap.get(userId)?.avatar ?? null"
-                    class="size-7"
+                    :src="userMap.get(entry.userId)?.avatar ?? null"
+                    class="size-6"
                   />
-                  <span>
-                    {{
-                      userMap.get(userId)
-                        ? getUserDisplayName(userMap.get(userId)!)
-                        : userId
-                    }}
-                  </span>
-                </div>
-              </div>
-              <span v-else class="text-gray-500">Nicht besetzt</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+                  <span class="truncate">{{ entry.label }}</span>
+                </span>
+                <span class="shrink-0 tabular-nums">{{ entry.count }}</span>
+              </li>
+            </ul>
+          </div>
+          <p v-else class="text-gray-500">Noch keine Zuordnungen.</p>
+        </div>
+        <p v-else class="text-sm text-gray-500">
+          Die Zusammenfassung erscheint nach dem Planen.
+        </p>
+      </UiAccordionItem>
 
-    <div class="mt-6 flex justify-end gap-2">
-      <UiButton variant="outlined" :disabled="loading" @click="open = false">
-        Abbrechen
-      </UiButton>
-      <UiButton :disabled="loading" @click="emit('confirm')">
-        {{ loading ? 'Übernehmen…' : 'Übernehmen' }}
-      </UiButton>
-    </div>
+      <UiAccordionItem value="plan" title="Schichtplan">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead>
+              <tr class="border-b border-primary/20">
+                <th class="py-2 pr-3 font-semibold">Datum</th>
+                <th class="py-2 pr-3 font-semibold">Tag</th>
+                <th class="py-2 pr-3 font-semibold">Zeit</th>
+                <th class="py-2 pr-3 font-semibold">Besetzung</th>
+                <th class="py-2 font-semibold">Zugewiesen</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!hasPlan">
+                <td colspan="5" class="py-8 text-center text-gray-500">
+                  Noch kein Vorschlag. Klicke auf „Planen“, um Schichten
+                  zuzuordnen.
+                </td>
+              </tr>
+              <tr
+                v-for="row in rows"
+                v-else
+                :key="row.id"
+                class="border-b border-primary/10 align-top"
+              >
+                <td class="py-2 pr-3 whitespace-nowrap">
+                  {{ formatIsoDate(row.date) }}
+                </td>
+                <td class="py-2 pr-3 whitespace-nowrap">
+                  {{ weekdayLabelFromDate(row.date) }}
+                </td>
+                <td class="py-2 pr-3 whitespace-nowrap">
+                  {{
+                    formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
+                  }}
+                </td>
+                <td class="py-2 pr-3 whitespace-nowrap">
+                  {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
+                </td>
+                <td class="py-2">
+                  <ShiftAssigneesList
+                    :user-ids="row.assignedUserIds"
+                    :user-map="userMap"
+                    avatar-class="size-7"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </UiAccordionItem>
+    </UiAccordion>
+
+    <template #footer>
+      <div class="flex flex-wrap justify-end gap-2">
+        <UiButton
+          variant="outlined"
+          :disabled="planning || applying"
+          @click="open = false"
+        >
+          Abbrechen
+        </UiButton>
+        <UiButton
+          variant="outlined"
+          :disabled="planning || applying"
+          @click="emit('plan')"
+        >
+          {{ planning ? 'Planen…' : 'Planen' }}
+        </UiButton>
+        <UiButton
+          :disabled="!hasPlan || planning || applying"
+          @click="emit('confirm')"
+        >
+          {{ applying ? 'Übernehmen…' : 'Übernehmen' }}
+        </UiButton>
+      </div>
+    </template>
   </UiModal>
 </template>
