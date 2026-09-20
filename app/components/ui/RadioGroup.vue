@@ -30,7 +30,7 @@ const props = withDefaults(
 const radio = tv({
   slots: {
     root: 'flex gap-4',
-    item: 'flex items-center gap-2',
+    item: 'flex shrink-0 items-center gap-2',
     control: [
       'flex size-5 shrink-0 items-center justify-center rounded border border-gray-300',
       'bg-surface transition-colors outline-none',
@@ -39,11 +39,11 @@ const radio = tv({
       'disabled:cursor-not-allowed disabled:opacity-50',
     ],
     indicator: 'size-2.5 rounded-sm bg-on-primary',
-    label: 'cursor-pointer select-none text-sm',
+    label: 'cursor-pointer select-none whitespace-nowrap text-sm',
   },
   variants: {
     orientation: {
-      horizontal: { root: 'flex-row flex-wrap' },
+      horizontal: { root: 'flex-row flex-nowrap' },
       vertical: { root: 'flex-col' },
     },
   },

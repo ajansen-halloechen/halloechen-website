@@ -107,8 +107,7 @@ const columns = computed(() => {
   const cols = [
     columnHelper.accessor('date', {
       header: 'Datum',
-      cell: (info) =>
-        info.getValue() ? formatIsoDate(info.getValue()) : '—',
+      cell: (info) => (info.getValue() ? formatIsoDate(info.getValue()) : '—'),
     }),
     columnHelper.accessor(
       (row) => (row.date ? weekdayLabelFromDate(row.date) : ''),
@@ -183,9 +182,7 @@ const table = useVueTable({
     return [
       r.date ? formatIsoDate(r.date) : '',
       r.date ? weekdayLabelFromDate(r.date) : '',
-      r.startTime
-        ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay)
-        : '',
+      r.startTime ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay) : '',
       r.comment ?? '',
       user ? getUserDisplayName(user) : '',
       r.status,
@@ -230,7 +227,7 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
       <template v-if="isAdmin" #actions>
         <UiModal v-model:open="showSettings" title="Einstellungen">
           <template #trigger>
-            <UiIconButton tooltip="Einstellungen">
+            <UiIconButton variant="solid" tooltip="Einstellungen">
               <Cog6ToothIcon class="size-6" />
             </UiIconButton>
           </template>
@@ -248,10 +245,7 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
 
       <template #cell="{ cell, row }">
         <template v-if="cell.column.id === 'avatar'">
-          <UserCell
-            part="avatar"
-            :user="userMap.get(row.original.userId)"
-          />
+          <UserCell part="avatar" :user="userMap.get(row.original.userId)" />
         </template>
         <template v-else-if="cell.column.id === 'status'">
           <UiRadioGroup
