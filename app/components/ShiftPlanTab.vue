@@ -8,6 +8,7 @@ import {
   getFilteredRowModel,
   useVueTable,
   type SortingState,
+  type ColumnFiltersState,
 } from '@tanstack/vue-table';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
 import type {
@@ -68,7 +69,41 @@ const rows = computed<PlanRow[]>(() => {
 });
 
 const sorting = ref<SortingState>([{ id: 'date', desc: false }]);
+const columnFilters = ref<ColumnFiltersState>([]);
 const globalSearch = ref('');
+
+const selectedUsers = ref<string[]>([]);
+
+const uniqueUserIds = computed(() =>
+  [
+    ...new Set(rows.value.flatMap((r) => r.assignedUserIds)),
+  ].sort(),
+);
+
+watch(
+  uniqueUserIds,
+  (ids) => {
+    selectedUsers.value = [...ids];
+  },
+  { immediate: true },
+);
+
+const userFilterOptions = computed(() =>
+  uniqueUserIds.value.map((id) => ({
+    value: id,
+    label: userMap.value.get(id)
+      ? getUserDisplayName(userMap.value.get(id)!)
+      : id,
+  })),
+);
+
+watch(selectedUsers, () => {
+  const filters: ColumnFiltersState = [];
+  if (selectedUsers.value.length < uniqueUserIds.value.length) {
+    filters.push({ id: 'assignees', value: [...selectedUsers.value] });
+  }
+  columnFilters.value = filters;
+});
 
 const planning = ref(false);
 const applying = ref(false);
@@ -83,9 +118,12 @@ const columns = [
     header: 'Datum',
     cell: (info) => formatIsoDate(info.getValue()),
   }),
-  columnHelper.display({
+  columnHelper.accessor('assignedUserIds', {
     id: 'assignees',
     header: 'Zugewiesen',
+    filterFn: (row, _columnId, filterValue: string[]) =>
+      row.original.assignedUserIds.some((id) => filterValue.includes(id)),
+    enableSorting: false,
   }),
   columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
     id: 'weekday',
@@ -121,6 +159,9 @@ const table = useVueTable({
   state: {
     get sorting() {
       return sorting.value;
+    },
+    get columnFilters() {
+      return columnFilters.value;
     },
     get globalFilter() {
       return globalSearch.value;
@@ -238,6 +279,15 @@ async function applyAssignments() {
       >
         <SparklesIcon class="size-6" />
       </UiIconButton>
+    </template>
+
+    <template #column-filter="{ column }">
+      <UiFilterPopover
+        v-if="column.id === 'assignees'"
+        v-model="selectedUsers"
+        :options="userFilterOptions"
+        aria-label="Nach zugewiesener Person filtern"
+      />
     </template>
 
     <template #cell="{ cell, row }">
