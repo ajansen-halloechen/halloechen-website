@@ -11,6 +11,7 @@ import { ChevronUpIcon, ChevronDownIcon } from '@heroicons/vue/24/outline';
 defineProps<{
   table: Table<T>;
   showSearch?: boolean;
+  highlightedRowId?: string | null;
 }>();
 
 const globalSearch = defineModel<string>('globalSearch', { default: '' });
@@ -93,7 +94,11 @@ const globalSearch = defineModel<string>('globalSearch', { default: '' });
           <tr
             v-for="row in table.getRowModel().rows"
             :key="row.id"
+            :data-row-id="row.id"
             class="hover:bg-primary/10"
+            :class="{
+              'animate-row-highlight': highlightedRowId === row.id,
+            }"
           >
             <td
               v-for="cell in row.getVisibleCells()"

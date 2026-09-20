@@ -5,11 +5,7 @@ import {
 import type { TopBarItem } from '~/types/top-bar';
 
 const internalBaseNavItems: TopBarItem[] = [
-  // {
-  //   id: 'events',
-  //   label: 'Veranstaltungen',
-  //   to: '/internal/events',
-  // },
+  { id: 'calendar', label: 'Kalender', to: '/internal/calendar' },
   { id: 'shifts', label: 'Schichten', to: '/internal/shifts' },
   {
     id: 'working-hours',

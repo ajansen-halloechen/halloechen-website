@@ -1,26 +1,31 @@
 <script setup lang="ts">
-import { type CalendarEvent, getCalendarEvents } from '~/utils/calendar';
+import { type CalendarEvent, calendarEntryToEvent } from '~/utils/calendar';
+import type { CalendarEntry } from '~~/shared/types/calendar-entry';
 
 const today = new Date();
 const currentMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
 
 const selectedMonth = ref(new Date(currentMonthStart));
 
-const eventsForMonth = computed<CalendarEvent[]>(() => {
-  const monthStart = selectedMonth.value;
-  const monthEnd = new Date(
-    monthStart.getFullYear(),
-    monthStart.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999,
-  );
+const monthParam = computed(() => {
+  const d = selectedMonth.value;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  return `${y}-${m}`;
+});
 
-  return getCalendarEvents(monthStart, monthEnd).sort(
-    (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  );
+const { data: calendarEntries } = await useFetch<CalendarEntry[]>(
+  '/api/public-calendar-entries',
+  { query: { month: monthParam } },
+);
+
+const eventsForMonth = computed<CalendarEvent[]>(() => {
+  return (calendarEntries.value ?? [])
+    .map(calendarEntryToEvent)
+    .sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
 });
 </script>
 

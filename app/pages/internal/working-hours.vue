@@ -16,8 +16,11 @@ import type { WorkingHour } from '~~/shared/types/working-hour';
 import type { WorkingHourFormData } from '~/components/WorkingHourForm.vue';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
+import { monthStartFromIsoDate } from '~/utils/month';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
+
+const { highlightedRowId, highlightRow } = useTableRowHighlight();
 
 const { user: currentUser } = useUserSession();
 
@@ -229,6 +232,7 @@ const table = useVueTable({
       v.toLowerCase().includes(search),
     );
   },
+  getRowId: (row) => row.id,
   getCoreRowModel: getCoreRowModel(),
   getSortedRowModel: getSortedRowModel(),
   getFilteredRowModel: getFilteredRowModel(),
@@ -256,10 +260,16 @@ function openEditModal(entry: WorkingHour) {
   showEditModal.value = true;
 }
 
+async function revealSavedEntry(entry: WorkingHour) {
+  selectedMonth.value = monthStartFromIsoDate(entry.date);
+  await refreshWorkingHours();
+  highlightRow(entry.id);
+}
+
 async function handleCreate(data: WorkingHourFormData) {
   const activityId = await ensureActivityExists(data.activityName);
 
-  await $fetch('/api/working-hours', {
+  const entry = await $fetch<WorkingHour>('/api/working-hours', {
     method: 'POST',
     body: {
       activityId,
@@ -271,8 +281,8 @@ async function handleCreate(data: WorkingHourFormData) {
     },
   });
 
-  await refreshWorkingHours();
   showCreateModal.value = false;
+  await revealSavedEntry(entry);
 }
 
 async function handleEdit(data: WorkingHourFormData) {
@@ -280,22 +290,25 @@ async function handleEdit(data: WorkingHourFormData) {
 
   const activityId = await ensureActivityExists(data.activityName);
 
-  await $fetch(`/api/working-hours/${editingId.value}`, {
-    method: 'PATCH',
-    body: {
-      activityId,
-      date: data.date,
-      startTime: data.startTime,
-      endTime: data.endTime,
-      breakInHours: data.breakInHours,
-      plusOneDay: data.plusOneDay,
+  const entry = await $fetch<WorkingHour>(
+    `/api/working-hours/${editingId.value}`,
+    {
+      method: 'PATCH',
+      body: {
+        activityId,
+        date: data.date,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        breakInHours: data.breakInHours,
+        plusOneDay: data.plusOneDay,
+      },
     },
-  });
+  );
 
-  await refreshWorkingHours();
   showEditModal.value = false;
   editingEntry.value = undefined;
   editingId.value = undefined;
+  await revealSavedEntry(entry);
 }
 
 function openDeleteModal(entry: WorkingHour) {
@@ -315,6 +328,7 @@ function openProfileModal(user: User) {
       v-model:global-search="globalSearch"
       :table="table"
       :show-search="true"
+      :highlighted-row-id="highlightedRowId"
     >
       <template #actions>
         <UiModal v-model:open="showCreateModal" title="Arbeitszeit erfassen">

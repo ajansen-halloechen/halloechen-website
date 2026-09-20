@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { User } from '~~/shared/types/user';
+
 const open = defineModel<boolean>('open', { default: false });
 
 const emit = defineEmits<{
-  success: [];
+  success: [id: string];
 }>();
 
 const { success, warning, error: toastError } = useToast();
@@ -33,14 +35,14 @@ async function handleSubmit() {
   loading.value = true;
 
   try {
-    await $fetch('/api/users', {
+    const user = await $fetch<User>('/api/users', {
       method: 'POST',
       body: { email: email.value, role: role.value },
     });
     resetForm();
     open.value = false;
     success('Einladung wurde versendet.');
-    emit('success');
+    emit('success', user.id);
   } catch (e: unknown) {
     if (
       typeof e === 'object' &&
@@ -55,12 +57,13 @@ async function handleSubmit() {
       'statusCode' in e &&
       (e as { statusCode: unknown }).statusCode === 502
     ) {
+      const invitedEmail = email.value;
       resetForm();
       open.value = false;
       warning(
         'Die Genoss*in wurde angelegt, aber die E-Mail konnte nicht versendet werden. Bitte „Einladung erneut senden“ verwenden.',
       );
-      emit('success');
+      emit('success', invitedEmail);
     } else {
       toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
     }

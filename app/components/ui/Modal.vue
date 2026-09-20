@@ -35,7 +35,7 @@ const sizeClass = computed(() =>
       <DialogContent
         :class="
           twMerge(
-            'fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100vh-2rem)] w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-primary bg-surface p-6 shadow-lg',
+            'fixed left-1/2 top-1/2 z-50 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-1rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-lg border border-primary bg-surface p-6 shadow-lg',
             sizeClass,
           )
         "

@@ -5,7 +5,12 @@ import { validateSessionUser } from '#server/utils/validate-session';
 export default defineEventHandler(async (event: H3Event) => {
   const path: string = getRequestURL(event).pathname;
 
-  if (path.startsWith('/api/auth/') || path.startsWith('/api/_auth/')) {
+  if (
+    path.startsWith('/api/auth/') ||
+    path.startsWith('/api/_auth/') ||
+    path === '/api/public-calendar-entries' ||
+    path.startsWith('/api/calendar-feed/')
+  ) {
     return;
   }
 
