@@ -118,16 +118,16 @@ const columns = [
     header: 'Datum',
     cell: (info) => formatIsoDate(info.getValue()),
   }),
+  columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
+    id: 'weekday',
+    header: 'Tag',
+  }),
   columnHelper.accessor('assignedUserIds', {
     id: 'assignees',
     header: 'Zugewiesen',
     filterFn: (row, _columnId, filterValue: string[]) =>
       row.original.assignedUserIds.some((id) => filterValue.includes(id)),
     enableSorting: false,
-  }),
-  columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
-    id: 'weekday',
-    header: 'Tag',
   }),
   columnHelper.display({
     id: 'time',

@@ -97,11 +97,11 @@ watch(open, (isOpen) => {
 <template>
   <UiModal v-model:open="open" title="Schichten zuweisen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Mit „Zuweisen“ wird ein Vorschlag für die Schichtbesetzung ermittelt.
+      Mit Planen wird ein Vorschlag für die Schichtbesetzung ermittelt.
     </p>
     <div class="mb-4 flex justify-end">
       <UiButton :disabled="planning || applying" @click="emit('plan')">
-        {{ planning ? 'Zuweisen…' : 'Zuweisen' }}
+        {{ planning ? 'Planen…' : 'Planen' }}
       </UiButton>
     </div>
 
@@ -145,8 +145,8 @@ watch(open, (isOpen) => {
             <thead>
               <tr class="border-b border-primary/20">
                 <th class="py-2 pr-3 font-semibold">Datum</th>
-                <th class="py-2 pr-3 font-semibold">Zugewiesen</th>
                 <th class="py-2 pr-3 font-semibold">Tag</th>
+                <th class="py-2 pr-3 font-semibold">Zugewiesen</th>
                 <th class="py-2 pr-3 font-semibold">Zeit</th>
                 <th class="py-2 font-semibold">Besetzung</th>
               </tr>
@@ -160,15 +160,15 @@ watch(open, (isOpen) => {
                 <td class="py-2 pr-3 whitespace-nowrap">
                   {{ formatIsoDate(row.date) }}
                 </td>
+                <td class="py-2 pr-3 whitespace-nowrap">
+                  {{ weekdayLabelFromDate(row.date) }}
+                </td>
                 <td class="py-2 pr-3">
                   <ShiftAssigneesList
                     :user-ids="row.assignedUserIds"
                     :user-map="userMap"
                     avatar-class="size-7"
                   />
-                </td>
-                <td class="py-2 pr-3 whitespace-nowrap">
-                  {{ weekdayLabelFromDate(row.date) }}
                 </td>
                 <td class="py-2 pr-3 whitespace-nowrap">
                   {{
@@ -188,7 +188,7 @@ watch(open, (isOpen) => {
     <template #footer>
       <div v-if="hasPlan" class="flex flex-col gap-3">
         <p class="text-sm text-gray-600">
-          „Übernehmen“ ersetzt alle bisherigen Zuordnungen für diesen Monat.
+          „Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.
         </p>
         <div class="flex flex-wrap justify-end gap-2">
           <UiButton

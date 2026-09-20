@@ -118,6 +118,10 @@ const columns = computed(() => {
       },
     ),
     columnHelper.display({
+      id: 'status',
+      header: 'Verfügbarkeit',
+    }),
+    columnHelper.display({
       id: 'time',
       header: 'Zeit',
       cell: (info) =>
@@ -132,10 +136,6 @@ const columns = computed(() => {
     columnHelper.accessor('comment', {
       header: 'Kommentar',
       cell: (info) => info.getValue() || '—',
-    }),
-    columnHelper.display({
-      id: 'status',
-      header: 'Verfügbarkeit',
     }),
   ];
 
