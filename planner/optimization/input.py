@@ -80,6 +80,8 @@ class PlanningProblem:
     eligible_pairs: list[tuple[str, str]]
     user_ids: list[str]
     preferences_by_user: Mapping[str, UserPreference]
+    # (user_id, planned_shift_id) pairs that must stay assigned.
+    fixed_assignments: frozenset[tuple[str, str]]
 
 
 def _parse_date(value: str) -> date:
@@ -166,7 +168,37 @@ def planning_problem_from_request(
             raise PlanningInputError(f"duplicate availability for {key}")
         availability_by_pair[key] = kind
 
-    user_ids = sorted({user_id for user_id, _shift_id in availability_by_pair})
+    fixed_assignments: set[tuple[str, str]] = set()
+    fixed_count_by_shift: dict[str, int] = {}
+    for raw in request.fixed_assignments:
+        user_id = raw.user_id.strip()
+        shift_id = raw.planned_shift_id.strip()
+        if not user_id or not shift_id:
+            raise PlanningInputError(
+                "fixed assignment user_id and planned_shift_id required"
+            )
+        if shift_id not in shifts_by_id:
+            raise PlanningInputError(
+                f"fixed assignment references unknown shift {shift_id}"
+            )
+        key = (user_id, shift_id)
+        if key in fixed_assignments:
+            raise PlanningInputError(f"duplicate fixed assignment for {key}")
+        fixed_assignments.add(key)
+        fixed_count_by_shift[shift_id] = fixed_count_by_shift.get(shift_id, 0) + 1
+
+    for shift_id, count in fixed_count_by_shift.items():
+        capacity = shifts_by_id[shift_id].number_of_persons
+        if count > capacity:
+            raise PlanningInputError(
+                f"fixed assignments exceed capacity for shift {shift_id}: "
+                f"{count} > {capacity}"
+            )
+
+    user_ids = sorted(
+        {user_id for user_id, _shift_id in availability_by_pair}
+        | {user_id for user_id, _shift_id in fixed_assignments}
+    )
     preferences_by_user: dict[str, UserPreference] = {}
     for raw in request.user_preferences:
         user_id = raw.user_id.strip()
@@ -213,4 +245,5 @@ def planning_problem_from_request(
         eligible_pairs=eligible_pairs,
         user_ids=user_ids,
         preferences_by_user=preferences_by_user,
+        fixed_assignments=frozenset(fixed_assignments),
     )

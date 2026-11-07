@@ -1,6 +1,9 @@
 import { UserRole } from '#shared/types/user';
 import type { AvailabilityStatus } from '#shared/types/shift-availability';
-import type { ShiftAssignmentReplace } from '#shared/types/shift-assignment';
+import type {
+  ShiftAssignmentPlanMode,
+  ShiftAssignmentReplace,
+} from '#shared/types/shift-assignment';
 import type { ShiftType } from '#shared/types/shift-type';
 import {
   ForbiddenError,
@@ -61,6 +64,7 @@ export const shiftAssignmentService = {
     actor: { id: string; role: string },
     year: number,
     month: number,
+    mode: ShiftAssignmentPlanMode = 'replace',
   ) {
     assertAdmin(actor.role);
 
@@ -70,6 +74,35 @@ export const shiftAssignmentService = {
       throw new ValidationError('Keine Schichten in diesem Monat.');
     }
 
+    const existingAssignments =
+      mode === 'fill'
+        ? await shiftAssignmentRepository.findByPlannedShiftIds(
+            shifts.map((s) => s.id),
+          )
+        : [];
+
+    if (mode === 'fill') {
+      const assignedByShift = new Map<string, number>();
+      for (const assignment of existingAssignments) {
+        assignedByShift.set(
+          assignment.plannedShiftId,
+          (assignedByShift.get(assignment.plannedShiftId) ?? 0) + 1,
+        );
+      }
+      const hasOpenSlots = shifts.some(
+        (shift) =>
+          (assignedByShift.get(shift.id) ?? 0) < shift.numberOfPersons,
+      );
+      if (!hasOpenSlots) {
+        return {
+          assignments: existingAssignments.map((assignment) => ({
+            plannedShiftId: assignment.plannedShiftId,
+            userId: assignment.userId,
+          })),
+        };
+      }
+    }
+
     const availabilities = await shiftAvailabilityService.getByMonth(
       actor,
       year,
@@ -77,7 +110,12 @@ export const shiftAssignmentService = {
       { allUsers: true },
     );
 
-    const userIds = [...new Set(availabilities.map((a) => a.userId))];
+    const userIds = [
+      ...new Set([
+        ...availabilities.map((a) => a.userId),
+        ...existingAssignments.map((a) => a.userId),
+      ]),
+    ];
     const userPreferences =
       await shiftUserPreferenceService.getForUsers(userIds);
 
@@ -101,6 +139,10 @@ export const shiftAssignmentService = {
         maxCleaningShiftsPerMonth: pref.maxCleaningShiftsPerMonth,
         shiftsOnConsecutiveDays: pref.shiftsOnConsecutiveDays,
         shiftsInConsecutiveWeeks: pref.shiftsInConsecutiveWeeks,
+      })),
+      fixedAssignments: existingAssignments.map((assignment) => ({
+        plannedShiftId: assignment.plannedShiftId,
+        userId: assignment.userId,
       })),
     });
 

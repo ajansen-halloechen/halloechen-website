@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { PlannedShift } from '~~/shared/types/planned-shift';
-import type { ShiftAssignmentPair } from '~~/shared/types/shift-assignment';
+import type {
+  ShiftAssignmentPair,
+  ShiftAssignmentPlanMode,
+} from '~~/shared/types/shift-assignment';
 import type { User } from '~~/shared/types/user';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
@@ -16,12 +19,15 @@ const props = defineProps<{
   planning?: boolean;
   applying?: boolean;
   hasPlan?: boolean;
+  hasExistingAssignments?: boolean;
+  hasOpenSlots?: boolean;
+  planMode?: ShiftAssignmentPlanMode | null;
 }>();
 
 const open = defineModel<boolean>('open', { default: false });
 
 const emit = defineEmits<{
-  plan: [];
+  plan: [mode: ShiftAssignmentPlanMode];
   confirm: [];
   profile: [user: User];
 }>();
@@ -88,6 +94,31 @@ const shiftsByUser = computed(() => {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 });
 
+const introText = computed(() => {
+  if (props.hasExistingAssignments) {
+    return 'Neu planen ersetzt alle Zuweisungen. Auffüllen behält bestehende Zuweisungen und besetzt offene Schichten.';
+  }
+  return 'Mit Planen wird ein Vorschlag für die Schichtbesetzung ermittelt.';
+});
+
+const confirmText = computed(() => {
+  if (props.planMode === 'fill') {
+    return '„Übernehmen“ behält bestehende Zuweisungen und ergänzt die neuen Vorschläge.';
+  }
+  return '„Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.';
+});
+
+const replaceLabel = computed(() => {
+  if (props.planning && props.planMode === 'replace') {
+    return props.hasExistingAssignments ? 'Neu planen…' : 'Planen…';
+  }
+  return props.hasExistingAssignments ? 'Neu planen' : 'Planen';
+});
+
+const fillLabel = computed(() =>
+  props.planning && props.planMode === 'fill' ? 'Auffüllen…' : 'Auffüllen',
+);
+
 watch(open, (isOpen) => {
   if (isOpen) {
     accordionValue.value = ['summary', 'plan'];
@@ -98,11 +129,22 @@ watch(open, (isOpen) => {
 <template>
   <UiModal v-model:open="open" title="Schichten zuweisen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Mit Planen wird ein Vorschlag für die Schichtbesetzung ermittelt.
+      {{ introText }}
     </p>
-    <div class="mb-4 flex justify-end">
-      <UiButton :disabled="planning || applying" @click="emit('plan')">
-        {{ planning ? 'Planen…' : 'Planen' }}
+    <div class="mb-4 flex flex-wrap justify-end gap-2">
+      <UiButton
+        :disabled="planning || applying"
+        @click="emit('plan', 'replace')"
+      >
+        {{ replaceLabel }}
+      </UiButton>
+      <UiButton
+        v-if="hasExistingAssignments"
+        variant="outlined"
+        :disabled="planning || applying || !hasOpenSlots"
+        @click="emit('plan', 'fill')"
+      >
+        {{ fillLabel }}
       </UiButton>
     </div>
 
@@ -195,7 +237,7 @@ watch(open, (isOpen) => {
     </UiAccordion>
 
     <p v-if="hasPlan" class="my-4 text-sm text-gray-600">
-      „Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.
+      {{ confirmText }}
     </p>
     <template #footer>
       <div v-if="hasPlan" class="flex flex-col gap-3">

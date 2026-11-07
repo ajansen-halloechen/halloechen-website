@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from planner.v1 import types_pb2 as planner_dot_v1_dot_types__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18planner/v1/planner.proto\x12\nplanner.v1\x1a\x16planner/v1/types.proto\"\xbc\x01\n\x11PlanShiftsRequest\x12\r\n\x05month\x18\x01 \x01(\t\x12\x30\n\x0eplanned_shifts\x18\x02 \x03(\x0b\x32\x18.planner.v1.PlannedShift\x12\x30\n\x0e\x61vailabilities\x18\x03 \x03(\x0b\x32\x18.planner.v1.Availability\x12\x34\n\x10user_preferences\x18\x04 \x03(\x0b\x32\x1a.planner.v1.UserPreference\"A\n\x12PlanShiftsResponse\x12+\n\x0b\x61ssignments\x18\x01 \x03(\x0b\x32\x16.planner.v1.Assignment2b\n\x13ShiftPlannerService\x12K\n\nPlanShifts\x12\x1d.planner.v1.PlanShiftsRequest\x1a\x1e.planner.v1.PlanShiftsResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x18planner/v1/planner.proto\x12\nplanner.v1\x1a\x16planner/v1/types.proto\"\xef\x01\n\x11PlanShiftsRequest\x12\r\n\x05month\x18\x01 \x01(\t\x12\x30\n\x0eplanned_shifts\x18\x02 \x03(\x0b\x32\x18.planner.v1.PlannedShift\x12\x30\n\x0e\x61vailabilities\x18\x03 \x03(\x0b\x32\x18.planner.v1.Availability\x12\x34\n\x10user_preferences\x18\x04 \x03(\x0b\x32\x1a.planner.v1.UserPreference\x12\x31\n\x11\x66ixed_assignments\x18\x05 \x03(\x0b\x32\x16.planner.v1.Assignment\"A\n\x12PlanShiftsResponse\x12+\n\x0b\x61ssignments\x18\x01 \x03(\x0b\x32\x16.planner.v1.Assignment2b\n\x13ShiftPlannerService\x12K\n\nPlanShifts\x12\x1d.planner.v1.PlanShiftsRequest\x1a\x1e.planner.v1.PlanShiftsResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,9 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'planner.v1.planner_pb2', _g
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_PLANSHIFTSREQUEST']._serialized_start=65
-  _globals['_PLANSHIFTSREQUEST']._serialized_end=253
-  _globals['_PLANSHIFTSRESPONSE']._serialized_start=255
-  _globals['_PLANSHIFTSRESPONSE']._serialized_end=320
-  _globals['_SHIFTPLANNERSERVICE']._serialized_start=322
-  _globals['_SHIFTPLANNERSERVICE']._serialized_end=420
+  _globals['_PLANSHIFTSREQUEST']._serialized_end=304
+  _globals['_PLANSHIFTSRESPONSE']._serialized_start=306
+  _globals['_PLANSHIFTSRESPONSE']._serialized_end=371
+  _globals['_SHIFTPLANNERSERVICE']._serialized_start=373
+  _globals['_SHIFTPLANNERSERVICE']._serialized_end=471
 # @@protoc_insertion_point(module_scope)

@@ -47,7 +47,7 @@ def add_preference_objective(ctx: OptimizationContext) -> list[cp_model.LinearEx
     pref_vars = [
         var
         for (user_id, shift_id), var in ctx.x.items()
-        if ctx.problem.availability_by_pair[(user_id, shift_id)]
+        if ctx.problem.availability_by_pair.get((user_id, shift_id))
         == AvailabilityKind.PREFERENCE
     ]
     if not pref_vars:

@@ -18,6 +18,8 @@ export const shiftAssignmentReplaceSchema = z.object({
   assignments: z.array(shiftAssignmentPairSchema),
 });
 
+export const shiftAssignmentPlanModeSchema = z.enum(['replace', 'fill']);
+
 export const shiftAssignmentPlanResultSchema = z.object({
   assignments: z.array(shiftAssignmentPairSchema),
 });

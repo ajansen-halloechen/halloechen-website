@@ -19,7 +19,11 @@ def add_shift_capacity(ctx: OptimizationContext) -> None:
 
 
 def add_max_shifts_per_month(ctx: OptimizationContext) -> None:
-    """Per-type monthly caps: sum of x[u,s] for shifts of each type <= max for that type."""
+    """Per-type monthly caps: sum of x[u,s] for shifts of each type <= max for that type.
+
+    Effective cap is max(preference, fixed_count) so already-committed assignments
+    that exceed a preference do not make fill mode infeasible.
+    """
     for user_id, preference in ctx.problem.preferences_by_user.items():
         for shift_type in ShiftType:
             typed_vars = [
@@ -30,7 +34,14 @@ def add_max_shifts_per_month(ctx: OptimizationContext) -> None:
             ]
             if not typed_vars:
                 continue
-            ctx.model.Add(sum(typed_vars) <= preference.max_for_type(shift_type))
+            fixed_count = sum(
+                1
+                for uid, shift_id in ctx.problem.fixed_assignments
+                if uid == user_id
+                and ctx.problem.shifts_by_id[shift_id].type is shift_type
+            )
+            cap = max(preference.max_for_type(shift_type), fixed_count)
+            ctx.model.Add(sum(typed_vars) <= cap)
 
 
 def add_no_bar_and_support_same_day(ctx: OptimizationContext) -> None:
@@ -82,6 +93,10 @@ def _eligible_shifts_for_user(
         if uid != user_id:
             continue
         shifts_by_id[shift_id] = ctx.problem.shifts_by_id[shift_id]
+    for uid, shift_id in ctx.problem.fixed_assignments:
+        if uid != user_id:
+            continue
+        shifts_by_id[shift_id] = ctx.problem.shifts_by_id[shift_id]
     return sorted(shifts_by_id.values(), key=lambda s: s.date)
 
 
@@ -91,6 +106,12 @@ def _forbid_both(
     shift_a_id: str,
     shift_b_id: str,
 ) -> None:
+    # Both already committed: keep them; do not make fill mode infeasible.
+    if (
+        (user_id, shift_a_id) in ctx.problem.fixed_assignments
+        and (user_id, shift_b_id) in ctx.problem.fixed_assignments
+    ):
+        return
     var_a = ctx.x.get((user_id, shift_a_id))
     var_b = ctx.x.get((user_id, shift_b_id))
     if var_a is None or var_b is None:

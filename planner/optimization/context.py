@@ -24,11 +24,18 @@ class OptimizationContext:
 
 
 def create_context(problem: PlanningProblem) -> OptimizationContext:
-    """Create decision variables and indexes; does not add constraints."""
+    """Create decision variables and indexes; pin fixed assignments to 1."""
     model = cp_model.CpModel()
     x: dict[tuple[str, str], cp_model.IntVar] = {}
     for user_id, shift_id in problem.eligible_pairs:
         x[(user_id, shift_id)] = model.NewBoolVar(f"x_{user_id}_{shift_id}")
+
+    # Fixed pairs may lack availability; still create a var and force it on.
+    for user_id, shift_id in problem.fixed_assignments:
+        key = (user_id, shift_id)
+        if key not in x:
+            x[key] = model.NewBoolVar(f"x_fixed_{user_id}_{shift_id}")
+        model.Add(x[key] == 1)
 
     vars_by_shift: dict[str, list[cp_model.IntVar]] = defaultdict(list)
     vars_by_user: dict[str, list[cp_model.IntVar]] = defaultdict(list)

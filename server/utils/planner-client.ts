@@ -47,6 +47,7 @@ export type PlanShiftsInput = {
   plannedShifts: PlannerPlannedShift[];
   availabilities: PlannerAvailability[];
   userPreferences: PlannerUserPreference[];
+  fixedAssignments?: PlannerAssignment[];
 };
 
 type PlanShiftsResponse = {
@@ -140,6 +141,7 @@ export async function planShifts(
         plannedShifts: input.plannedShifts,
         availabilities: input.availabilities,
         userPreferences: input.userPreferences,
+        fixedAssignments: input.fixedAssignments ?? [],
       },
       (error, res) => {
         if (error) {

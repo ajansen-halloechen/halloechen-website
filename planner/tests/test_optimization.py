@@ -6,6 +6,7 @@ import grpc
 import pytest
 
 from planner.optimization import planning_problem_from_request, solve
+from planner.optimization.input import PlanningInputError
 from planner.v1 import planner_pb2, planner_pb2_grpc, types_pb2
 
 
@@ -332,3 +333,170 @@ def test_invalid_request_returns_invalid_argument(
     with pytest.raises(grpc.RpcError) as exc_info:
         planner_stub.PlanShifts(request)
     assert exc_info.value.code() == grpc.StatusCode.INVALID_ARGUMENT
+
+
+def test_fixed_assignments_kept_and_open_slots_filled() -> None:
+    """Fill mode pins existing assignments and only fills remaining capacity."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[_shift("s1", "2026-08-03", persons=2)],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1"), _pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert set(result.assignments) == {("s1", "u1"), ("s1", "u2")}
+
+
+def test_fixed_assignments_respect_remaining_capacity() -> None:
+    """A fully fixed shift must not gain extra people."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[_shift("s1", "2026-08-03", persons=1)],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1"), _pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert result.assignments == [("s1", "u1")]
+
+
+def test_fixed_assignment_without_availability_is_kept() -> None:
+    """Pinned assignments survive even when the user is no longer eligible."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[_shift("s1", "2026-08-03", persons=2)],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_UNAVAILABLE),
+            _avail("u2", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1"), _pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert set(result.assignments) == {("s1", "u1"), ("s1", "u2")}
+
+
+def test_fixed_blocks_new_consecutive_day_assignment() -> None:
+    """Hard consecutive-day rule still applies between fixed and new fills."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("s1", "2026-08-03"),
+            _shift("s2", "2026-08-04"),
+        ],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[
+            _pref("u1", consecutive_days=False),
+            _pref("u2"),
+        ],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert ("s1", "u1") in result.assignments
+    assert ("s2", "u1") not in result.assignments
+    assert ("s2", "u2") in result.assignments
+
+
+def test_fixed_pair_that_violates_consecutive_days_is_kept() -> None:
+    """Two already-committed consecutive-day assignments stay pinned."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("s1", "2026-08-03"),
+            _shift("s2", "2026-08-04"),
+        ],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1", consecutive_days=False)],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+            types_pb2.Assignment(planned_shift_id="s2", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert set(result.assignments) == {("s1", "u1"), ("s2", "u1")}
+
+
+def test_fixed_exceeding_max_cap_is_kept_but_blocks_more() -> None:
+    """Effective max is raised to fixed count; no additional shifts of that type."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("s1", "2026-08-03"),
+            _shift("s2", "2026-08-10"),
+        ],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1", max_bar=0), _pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert ("s1", "u1") in result.assignments
+    assert ("s2", "u1") not in result.assignments
+    assert ("s2", "u2") in result.assignments
+
+
+def test_fixed_over_capacity_is_invalid() -> None:
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[_shift("s1", "2026-08-03", persons=1)],
+        availabilities=[
+            _avail("u1", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1"), _pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u2"),
+        ],
+    )
+    with pytest.raises(PlanningInputError, match="capacity"):
+        planning_problem_from_request(request)
+
+
+def test_fixed_only_user_without_availability_needs_preference() -> None:
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[_shift("s1", "2026-08-03", persons=2)],
+        availabilities=[
+            _avail("u2", "s1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u2")],
+        fixed_assignments=[
+            types_pb2.Assignment(planned_shift_id="s1", user_id="u1"),
+        ],
+    )
+    with pytest.raises(PlanningInputError, match="missing user_preferences"):
+        planning_problem_from_request(request)

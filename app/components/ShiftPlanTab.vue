@@ -14,6 +14,7 @@ import type { PlannedShift } from '~~/shared/types/planned-shift';
 import type {
   ShiftAssignment,
   ShiftAssignmentPair,
+  ShiftAssignmentPlanMode,
   ShiftAssignmentPlanResult,
 } from '~~/shared/types/shift-assignment';
 import { SHIFT_TYPE_LABELS } from '~~/shared/types/shift-type';
@@ -108,9 +109,27 @@ const planning = ref(false);
 const applying = ref(false);
 const showAssignModal = ref(false);
 const hasPlan = ref(false);
+const planMode = ref<ShiftAssignmentPlanMode | null>(null);
 const proposedAssignments = ref<ShiftAssignmentPair[]>([]);
 const showProfileModal = ref(false);
 const profileUser = ref<User>();
+
+const hasExistingAssignments = computed(
+  () => (assignments.value ?? []).length > 0,
+);
+
+const hasOpenSlots = computed(() => {
+  const assignedByShift = new Map<string, number>();
+  for (const assignment of assignments.value ?? []) {
+    assignedByShift.set(
+      assignment.plannedShiftId,
+      (assignedByShift.get(assignment.plannedShiftId) ?? 0) + 1,
+    );
+  }
+  return (plannedShifts.value ?? []).some(
+    (shift) => (assignedByShift.get(shift.id) ?? 0) < shift.numberOfPersons,
+  );
+});
 
 function openProfileModal(user: User) {
   profileUser.value = user;
@@ -209,19 +228,21 @@ function openAssignModal() {
   if (!props.isAdmin) return;
   proposedAssignments.value = [];
   hasPlan.value = false;
+  planMode.value = null;
   showAssignModal.value = true;
 }
 
-async function planShifts() {
+async function planShifts(mode: ShiftAssignmentPlanMode) {
   if (!props.isAdmin || planning.value) return;
 
   planning.value = true;
+  planMode.value = mode;
   try {
     const result = await $fetch<ShiftAssignmentPlanResult>(
       '/api/shift-assignments/plan',
       {
         method: 'POST',
-        query: { month: monthParam.value },
+        query: { month: monthParam.value, mode },
       },
     );
     proposedAssignments.value = result.assignments;
@@ -262,7 +283,12 @@ async function applyAssignments() {
     showAssignModal.value = false;
     proposedAssignments.value = [];
     hasPlan.value = false;
-    success('Schichtplan wurde übernommen.');
+    success(
+      planMode.value === 'fill'
+        ? 'Offene Schichten wurden aufgefüllt.'
+        : 'Schichtplan wurde übernommen.',
+    );
+    planMode.value = null;
   } catch {
     toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
   } finally {
@@ -327,6 +353,9 @@ async function applyAssignments() {
     :planning="planning"
     :applying="applying"
     :has-plan="hasPlan"
+    :has-existing-assignments="hasExistingAssignments"
+    :has-open-slots="hasOpenSlots"
+    :plan-mode="planMode"
     @plan="planShifts"
     @confirm="applyAssignments"
     @profile="openProfileModal"

@@ -16,7 +16,10 @@ message PlanShiftsRequest {
   // Include AVAILABLE, PREFERENCE, and UNAVAILABLE. Only AVAILABLE/PREFERENCE may be assigned.
   repeated Availability availabilities = 3;
   // One entry per user that appears in availabilities (or at least every assignable user).
+  // Users who only appear in fixed_assignments also need preferences.
   repeated UserPreference user_preferences = 4;
+  // Existing assignments to keep pinned (fill-open mode). Solver may only fill remaining slots.
+  repeated Assignment fixed_assignments = 5;
 }
 
 message PlanShiftsResponse {
