@@ -21,6 +21,7 @@ from planner.optimization.objectives import (
     add_fairness_objective,
     add_fill_objective,
     add_preference_objective,
+    add_same_day_soft_penalty,
 )
 
 
@@ -49,6 +50,7 @@ def solve(
         *add_fill_objective(ctx),
         *add_preference_objective(ctx),
         *add_fairness_objective(ctx),
+        *add_same_day_soft_penalty(ctx),
         *add_consecutive_weeks_soft_penalty(ctx),
     ]
     if objective_terms:

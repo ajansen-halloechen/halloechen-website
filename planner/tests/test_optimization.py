@@ -153,8 +153,78 @@ def test_no_bar_and_support_same_day() -> None:
     assert result.status_name in ("OPTIMAL", "FEASIBLE")
     assert len(result.assignments) == 1
     assert result.loads["u1"] == 1
-    assigned_ids = {shift_id for shift_id, _ in result.assignments}
-    assert len(assigned_ids & {"bar1", "support1"}) == 1
+    # Bar fill is weighted higher, so the single assignment prefers bar.
+    assert result.assignments == [("bar1", "u1")]
+
+
+def test_cleaning_and_bar_same_day_allowed() -> None:
+    """Cleaning may share a day with bar; fill still prefers assigning both."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("bar1", "2026-08-03", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift(
+                "clean1",
+                "2026-08-03",
+                shift_type=types_pb2.SHIFT_TYPE_CLEANING,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "bar1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "clean1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1")],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert set(result.assignments) == {("bar1", "u1"), ("clean1", "u1")}
+
+
+def test_same_day_spread_prefers_other_user_for_cleaning() -> None:
+    """Soft same-day penalty: prefer giving cleaning to someone without a bar shift."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("bar1", "2026-08-03", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift(
+                "clean1",
+                "2026-08-03",
+                shift_type=types_pb2.SHIFT_TYPE_CLEANING,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "bar1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "clean1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u2", "clean1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1"), _pref("u2")],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert set(result.assignments) == {("bar1", "u1"), ("clean1", "u2")}
+
+
+def test_bar_fill_preferred_over_support_when_scarce() -> None:
+    """When consecutive weeks force a single pick, prefer bar over support."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("bar1", "2026-08-03", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift(
+                "support1",
+                "2026-08-10",
+                shift_type=types_pb2.SHIFT_TYPE_BAR_SUPPORT,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "bar1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "support1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1", consecutive_weeks=False)],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert result.assignments == [("bar1", "u1")]
 
 
 def test_zero_max_forbids_type() -> None:
