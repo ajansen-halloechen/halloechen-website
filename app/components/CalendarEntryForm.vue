@@ -7,7 +7,7 @@ import {
 
 export interface CalendarEntryFormData {
   title: string;
-  description: string;
+  comment: string;
   startDate: string;
   startTime: string;
   endDate: string;
@@ -29,7 +29,7 @@ const today = new Date();
 const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
 const title = ref(props.initialData?.title ?? '');
-const description = ref(props.initialData?.description ?? '');
+const comment = ref(props.initialData?.comment ?? '');
 const startDate = ref(props.initialData?.startDate ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '');
 const endDate = ref(props.initialData?.endDate ?? '');
@@ -42,7 +42,7 @@ watch(
   (data) => {
     if (data) {
       title.value = data.title;
-      description.value = data.description;
+      comment.value = data.comment;
       startDate.value = data.startDate;
       startTime.value = data.startTime;
       endDate.value = data.endDate;
@@ -76,7 +76,7 @@ function handleSubmit() {
 
   emit('submit', {
     title: title.value.trim(),
-    description: description.value.trim(),
+    comment: comment.value.trim(),
     startDate: startDate.value,
     startTime: startTime.value,
     endDate: resolvedEndDate,
@@ -116,11 +116,7 @@ function handleSubmit() {
       </p>
     </div>
 
-    <UiInputField
-      id="ce-description"
-      v-model="description"
-      label="Beschreibung"
-    />
+    <UiInputField id="ce-comment" v-model="comment" label="Kommentar" />
 
     <div class="flex justify-end gap-2 mt-2">
       <UiButton type="submit"> Speichern </UiButton>

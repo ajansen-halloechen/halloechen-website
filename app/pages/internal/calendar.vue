@@ -14,9 +14,17 @@ import type {
   CalendarEntry,
   CalendarEntryType,
 } from '~~/shared/types/calendar-entry';
+import type { User } from '~~/shared/types/user';
+import { addDays } from '~~/shared/time-range-validation';
 import type { CalendarEntryFormData } from '~/components/CalendarEntryForm.vue';
 import { calendarEntryTypeLabels } from '~/utils/calendar-entry';
 import { monthStartFromIsoDate } from '~/utils/month';
+import {
+  formatIsoDate,
+  formatTimeRange,
+  weekdayLabelFromDate,
+} from '~/utils/shift-plan';
+import { getUserDisplayName } from '~/utils/user-display';
 
 definePageMeta({ layout: 'internal', middleware: ['auth'] });
 
@@ -34,31 +42,31 @@ const monthParam = computed(() => {
   return `${y}-${m}`;
 });
 
+const { data: backendUsers } = await useFetch<User[]>('/api/users');
 const { data: calendarEntries, refresh: refreshCalendarEntries } =
   await useFetch<CalendarEntry[]>('/api/calendar-entries', {
     query: { month: monthParam },
   });
 
-function formatDate(date: Date | string): string {
-  const d = date instanceof Date ? date : new Date(date);
-  return d.toLocaleDateString('de-DE', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-}
-
-function formatTime(time: string): string {
-  return time.slice(0, 5);
-}
+const userMap = computed(
+  () => new Map((backendUsers.value ?? []).map((u) => [u.id, u])),
+);
 
 function toIsoDateString(date: Date | string): string {
   if (typeof date === 'string') return date.slice(0, 10);
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
-function formatDateTime(date: Date | string, time: string): string {
-  return `${formatDate(date)} ${formatTime(time)}`;
+function formatEntryTime(entry: CalendarEntry): string {
+  const startIso = toIsoDateString(entry.startDate);
+  const endIso = toIsoDateString(entry.endDate);
+  const plusOneDay = endIso === addDays(startIso, 1);
+  return formatTimeRange(entry.startTime, entry.endTime, plusOneDay);
+}
+
+function getCreatorName(userId: string): string {
+  const user = userMap.value.get(userId);
+  return user ? getUserDisplayName(user) : userId;
 }
 
 const sorting = ref<SortingState>([{ id: 'startDate', desc: false }]);
@@ -90,6 +98,21 @@ watch(selectedTypes, () => {
 const columnHelper = createColumnHelper<CalendarEntry>();
 
 const columns = [
+  columnHelper.accessor('startDate', {
+    header: 'Datum',
+    cell: (info) => formatIsoDate(info.getValue()),
+    enableSorting: true,
+    enableGlobalFilter: false,
+  }),
+  columnHelper.accessor((row) => weekdayLabelFromDate(row.startDate), {
+    id: 'weekday',
+    header: 'Tag',
+  }),
+  columnHelper.display({
+    id: 'time',
+    header: 'Zeit',
+    cell: (info) => formatEntryTime(info.row.original),
+  }),
   columnHelper.accessor('title', {
     header: 'Titel',
     enableSorting: true,
@@ -100,21 +123,13 @@ const columns = [
       filterValue.includes(row.getValue('type')),
     enableSorting: false,
   }),
-  columnHelper.accessor('startDate', {
-    header: 'Beginn',
-    cell: (info) =>
-      formatDateTime(info.getValue(), info.row.original.startTime),
-    enableSorting: true,
-    enableGlobalFilter: false,
+  columnHelper.accessor('createdByUserId', {
+    header: 'Erstellt von',
+    cell: (info) => getCreatorName(info.getValue()),
+    enableSorting: false,
   }),
-  columnHelper.display({
-    id: 'end',
-    header: 'Ende',
-    cell: (info) =>
-      formatDateTime(info.row.original.endDate, info.row.original.endTime),
-  }),
-  columnHelper.accessor('description', {
-    header: 'Beschreibung',
+  columnHelper.accessor('comment', {
+    header: 'Kommentar',
     cell: (info) => {
       const value = info.getValue();
       if (!value) return '—';
@@ -154,11 +169,15 @@ const table = useVueTable({
     const search = filterValue.toLowerCase();
     const entry = row.original;
     const typeLabel = calendarEntryTypeLabels[entry.type];
-    const start = formatDateTime(entry.startDate, entry.startTime);
-    const end = formatDateTime(entry.endDate, entry.endTime);
-    return [typeLabel, entry.title, entry.description, start, end].some((v) =>
-      v.toLowerCase().includes(search),
-    );
+    return [
+      typeLabel,
+      entry.title,
+      entry.comment,
+      formatIsoDate(entry.startDate),
+      weekdayLabelFromDate(entry.startDate),
+      formatEntryTime(entry),
+      getCreatorName(entry.createdByUserId),
+    ].some((v) => v.toLowerCase().includes(search));
   },
   getRowId: (row) => row.id,
   getCoreRowModel: getCoreRowModel(),
@@ -178,7 +197,7 @@ function openEditModal(entry: CalendarEntry) {
   editingId.value = entry.id;
   editingEntry.value = {
     title: entry.title,
-    description: entry.description,
+    comment: entry.comment,
     startDate: toIsoDateString(entry.startDate),
     startTime: entry.startTime.slice(0, 5),
     endDate: toIsoDateString(entry.endDate),

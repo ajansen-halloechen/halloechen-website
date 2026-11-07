@@ -4,7 +4,7 @@ export type CalendarEvent = {
   id: string;
   timestamp: string;
   title: string;
-  description?: string;
+  comment?: string;
 };
 
 function toIsoDateString(date: Date | string): string {
@@ -19,6 +19,6 @@ export function calendarEntryToEvent(entry: CalendarEntry): CalendarEvent {
     id: entry.id,
     timestamp: `${date}T${time}`,
     title: entry.title,
-    description: entry.description || undefined,
+    comment: entry.comment || undefined,
   };
 }

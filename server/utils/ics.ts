@@ -9,7 +9,7 @@ const TYPE_LABELS: Record<CalendarEntryType, string> = {
 type IcsEventInput = {
   id: string;
   title: string;
-  description: string;
+  comment: string;
   startDate: Date;
   startTime: string;
   endDate: Date;
@@ -64,8 +64,8 @@ function formatIcsUtcStamp(date: Date): string {
 function buildEventLines(entry: IcsEventInput): string[] {
   const typeLabel = TYPE_LABELS[entry.type];
   const summary = `[${typeLabel}] ${entry.title}`;
-  const description = entry.description
-    ? `${typeLabel}\n${entry.description}`
+  const description = entry.comment
+    ? `${typeLabel}\n${entry.comment}`
     : typeLabel;
 
   return [

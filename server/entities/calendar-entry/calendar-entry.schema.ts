@@ -13,7 +13,7 @@ export const calendarEntryTypeSchema = z.enum([
 export const calendarEntrySchema = z.object({
   id: z.uuid(),
   title: z.string().min(1).max(255),
-  description: z.string().max(2000),
+  comment: z.string().max(2000),
   startDate: z.date(),
   startTime: z.iso.time(),
   endDate: z.date(),
@@ -29,7 +29,7 @@ const DEFAULT_END_TIME = '23:59:00';
 export const calendarEntryCreateSchema = z
   .object({
     title: z.string().min(1).max(255),
-    description: z.string().max(2000).default(''),
+    comment: z.string().max(2000).default(''),
     startDate: z.coerce.date(),
     startTime: z.iso.time(),
     endDate: z.coerce.date().optional(),
@@ -48,7 +48,7 @@ export const calendarEntryCreateSchema = z
 
 export const calendarEntryPatchSchema = z.object({
   title: z.string().min(1).max(255).optional(),
-  description: z.string().max(2000).optional(),
+  comment: z.string().max(2000).optional(),
   startDate: z.coerce.date().optional(),
   startTime: z.iso.time().optional(),
   endDate: z.coerce.date().optional(),
