@@ -33,6 +33,20 @@ def add_max_shifts_per_month(ctx: OptimizationContext) -> None:
             ctx.model.Add(sum(typed_vars) <= preference.max_for_type(shift_type))
 
 
+def add_no_bar_and_support_same_day(ctx: OptimizationContext) -> None:
+    """A user may not be assigned both a bar and a bar-support shift on the same day."""
+    for user_id in ctx.problem.preferences_by_user:
+        ordered = _eligible_shifts_for_user(ctx, user_id)
+        for i, shift_a in enumerate(ordered):
+            for shift_b in ordered[i + 1 :]:
+                if shift_a.date != shift_b.date:
+                    continue
+                types = {shift_a.type, shift_b.type}
+                if types != {ShiftType.BAR, ShiftType.BAR_SUPPORT}:
+                    continue
+                _forbid_both(ctx, user_id, shift_a.id, shift_b.id)
+
+
 def add_no_consecutive_days(ctx: OptimizationContext) -> None:
     """Forbid both ends of consecutive-calendar-day pairs when preference is false."""
     for user_id, preference in ctx.problem.preferences_by_user.items():

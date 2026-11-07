@@ -9,6 +9,7 @@ from ortools.sat.python import cp_model
 
 from planner.optimization.constraints import (
     add_max_shifts_per_month,
+    add_no_bar_and_support_same_day,
     add_no_consecutive_days,
     add_no_consecutive_weeks,
     add_shift_capacity,
@@ -40,6 +41,7 @@ def solve(
 
     add_shift_capacity(ctx)
     add_max_shifts_per_month(ctx)
+    add_no_bar_and_support_same_day(ctx)
     add_no_consecutive_days(ctx)
     add_no_consecutive_weeks(ctx)
 

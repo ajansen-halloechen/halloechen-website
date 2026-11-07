@@ -131,6 +131,32 @@ def test_per_type_max_shifts_independent() -> None:
     assert result.loads["u1"] == 3
 
 
+def test_no_bar_and_support_same_day() -> None:
+    """Same user cannot take both a bar and a bar-support shift on one day."""
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("bar1", "2026-08-03", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift(
+                "support1",
+                "2026-08-03",
+                shift_type=types_pb2.SHIFT_TYPE_BAR_SUPPORT,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "bar1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "support1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1")],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert len(result.assignments) == 1
+    assert result.loads["u1"] == 1
+    assigned_ids = {shift_id for shift_id, _ in result.assignments}
+    assert len(assigned_ids & {"bar1", "support1"}) == 1
+
+
 def test_zero_max_forbids_type() -> None:
     request = planner_pb2.PlanShiftsRequest(
         month="2026-08",
