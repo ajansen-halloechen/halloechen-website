@@ -26,7 +26,5 @@ export const shiftUserPreferences = pgTable(
       .notNull()
       .$onUpdate(() => new Date()),
   },
-  (table) => [
-    unique('shift_user_preferences_user_unique').on(table.userId),
-  ],
+  (table) => [unique('shift_user_preferences_user_unique').on(table.userId)],
 );

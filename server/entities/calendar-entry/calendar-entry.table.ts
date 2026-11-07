@@ -18,7 +18,7 @@ export const calendarEntryTypeEnum = pgEnum('calendar_entry_type', [
 export const calendarEntries = pgTable('calendar_entries', {
   id: uuid('id').defaultRandom().primaryKey(),
   title: varchar('title', { length: 255 }).notNull(),
-  description: varchar('description', { length: 2000 }).notNull().default(''),
+  comment: varchar('comment', { length: 2000 }).notNull().default(''),
   startDate: date('start_date', { mode: 'date' }).notNull(),
   startTime: time('start_time').notNull(),
   endDate: date('end_date', { mode: 'date' }).notNull(),

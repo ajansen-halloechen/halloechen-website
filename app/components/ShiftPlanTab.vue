@@ -75,9 +75,7 @@ const globalSearch = ref('');
 const selectedUsers = ref<string[]>([]);
 
 const uniqueUserIds = computed(() =>
-  [
-    ...new Set(rows.value.flatMap((r) => r.assignedUserIds)),
-  ].sort(),
+  [...new Set(rows.value.flatMap((r) => r.assignedUserIds))].sort(),
 );
 
 watch(

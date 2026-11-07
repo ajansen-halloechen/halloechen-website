@@ -27,8 +27,8 @@ const props = defineProps<{
         <div class="font-semibold">
           {{ props.event.title }}
         </div>
-        <div v-if="props.event.description" class="text-md text-gray-700">
-          {{ props.event.description }}
+        <div v-if="props.event.comment" class="text-md text-gray-700">
+          {{ props.event.comment }}
         </div>
       </div>
     </div>

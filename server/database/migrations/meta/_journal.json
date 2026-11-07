@@ -106,6 +106,13 @@
       "when": 1790000000000,
       "tag": "0014_user_is_system",
       "breakpoints": true
+    },
+    {
+      "idx": 15,
+      "version": "7",
+      "when": 1791000000000,
+      "tag": "0015_rename_calendar_description_to_comment",
+      "breakpoints": true
     }
   ]
 }

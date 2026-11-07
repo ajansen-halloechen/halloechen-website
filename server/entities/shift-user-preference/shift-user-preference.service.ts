@@ -25,9 +25,7 @@ export const shiftUserPreferenceService = {
     return stored;
   },
 
-  async getForUsers(
-    userIds: string[],
-  ): Promise<ResolvedShiftUserPreference[]> {
+  async getForUsers(userIds: string[]): Promise<ResolvedShiftUserPreference[]> {
     const stored = await shiftUserPreferenceRepository.findByUserIds(userIds);
     const byUserId = new Map(stored.map((pref) => [pref.userId, pref]));
 
