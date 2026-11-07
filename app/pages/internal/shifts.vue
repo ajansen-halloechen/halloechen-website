@@ -19,7 +19,7 @@ const tabs = [
 </script>
 
 <template>
-  <UiPage heading="Schichtplan" size="xl">
+  <UiPage heading="Schichten" size="xl">
     <div class="flex flex-col gap-6">
       <UiTabs v-model="activeTab" :tabs="tabs">
         <template #plan>
