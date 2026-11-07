@@ -349,6 +349,12 @@ async function applyAssignments() {
     v-model:open="showAssignModal"
     :planned-shifts="plannedShifts ?? []"
     :assignments="proposedAssignments"
+    :existing-assignments="
+      (assignments ?? []).map((a) => ({
+        plannedShiftId: a.plannedShiftId,
+        userId: a.userId,
+      }))
+    "
     :user-map="userMap"
     :planning="planning"
     :applying="applying"

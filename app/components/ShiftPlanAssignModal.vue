@@ -15,6 +15,7 @@ import {
 const props = defineProps<{
   plannedShifts: PlannedShift[];
   assignments: ShiftAssignmentPair[];
+  existingAssignments?: ShiftAssignmentPair[];
   userMap: Map<string, User>;
   planning?: boolean;
   applying?: boolean;
@@ -38,15 +39,51 @@ type PreviewRow = PlannedShift & {
   assignedUserIds: string[];
 };
 
+function assignmentKey(assignment: ShiftAssignmentPair): string {
+  return `${assignment.plannedShiftId}:${assignment.userId}`;
+}
+
+const isFillPreview = computed(() => props.planMode === 'fill');
+
+const existingAssignmentKeys = computed(() => {
+  const keys = new Set<string>();
+  for (const assignment of props.existingAssignments ?? []) {
+    keys.add(assignmentKey(assignment));
+  }
+  return keys;
+});
+
+/** Newly proposed pairs in fill mode; full proposal otherwise. */
+const previewAssignments = computed(() => {
+  if (!isFillPreview.value) return props.assignments;
+  return props.assignments.filter(
+    (assignment) => !existingAssignmentKeys.value.has(assignmentKey(assignment)),
+  );
+});
+
+const filledShiftIds = computed(() => {
+  if (!isFillPreview.value) {
+    return new Set(props.plannedShifts.map((shift) => shift.id));
+  }
+  return new Set(
+    previewAssignments.value.map((assignment) => assignment.plannedShiftId),
+  );
+});
+
 const rows = computed<PreviewRow[]>(() => {
   const byShift = new Map<string, string[]>();
-  for (const assignment of props.assignments) {
+  // For fill preview rows, show only newly filled assignees.
+  const source = isFillPreview.value
+    ? previewAssignments.value
+    : props.assignments;
+  for (const assignment of source) {
     const list = byShift.get(assignment.plannedShiftId) ?? [];
     list.push(assignment.userId);
     byShift.set(assignment.plannedShiftId, list);
   }
 
   return [...props.plannedShifts]
+    .filter((shift) => filledShiftIds.value.has(shift.id))
     .map((shift) => ({
       ...shift,
       assignedUserIds: byShift.get(shift.id) ?? [],
@@ -58,28 +95,40 @@ const rows = computed<PreviewRow[]>(() => {
     });
 });
 
-const totalRequiredSlots = computed(() =>
-  props.plannedShifts.reduce((sum, shift) => sum + shift.numberOfPersons, 0),
-);
+const totalRequiredSlots = computed(() => {
+  if (isFillPreview.value) {
+    return previewAssignments.value.length;
+  }
+  return props.plannedShifts.reduce(
+    (sum, shift) => sum + shift.numberOfPersons,
+    0,
+  );
+});
 
-const totalAssignedSlots = computed(() => props.assignments.length);
+const totalAssignedSlots = computed(() => previewAssignments.value.length);
 
-const fullyStaffedShiftCount = computed(
-  () =>
-    rows.value.filter(
-      (row) => row.assignedUserIds.length >= row.numberOfPersons,
-    ).length,
-);
+const fullyStaffedShiftCount = computed(() => {
+  if (isFillPreview.value) {
+    return rows.value.length;
+  }
+  return rows.value.filter(
+    (row) => row.assignedUserIds.length >= row.numberOfPersons,
+  ).length;
+});
 
-const allShiftsFullyAssigned = computed(
-  () =>
+const allShiftsFullyAssigned = computed(() => {
+  if (isFillPreview.value) {
+    return previewAssignments.value.length > 0;
+  }
+  return (
     props.plannedShifts.length > 0 &&
-    fullyStaffedShiftCount.value === props.plannedShifts.length,
-);
+    fullyStaffedShiftCount.value === props.plannedShifts.length
+  );
+});
 
 const shiftsByUser = computed(() => {
   const counts = new Map<string, number>();
-  for (const assignment of props.assignments) {
+  for (const assignment of previewAssignments.value) {
     counts.set(assignment.userId, (counts.get(assignment.userId) ?? 0) + 1);
   }
 
@@ -92,6 +141,20 @@ const shiftsByUser = computed(() => {
         : userId,
     }))
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+});
+
+const summaryFillText = computed(() => {
+  if (isFillPreview.value) {
+    const slotCount = previewAssignments.value.length;
+    const shiftCount = rows.value.length;
+    if (slotCount === 0) {
+      return 'Keine neuen Zuweisungen.';
+    }
+    return `${slotCount} neue Zuweisung${slotCount === 1 ? '' : 'en'} in ${shiftCount} Schicht${shiftCount === 1 ? '' : 'en'}`;
+  }
+  return allShiftsFullyAssigned.value
+    ? `Ja (${totalAssignedSlots.value}/${totalRequiredSlots.value} Schichten)`
+    : `Nein (${totalAssignedSlots.value}/${totalRequiredSlots.value} Schichten)`;
 });
 
 const introText = computed(() => {
@@ -152,15 +215,19 @@ watch(open, (isOpen) => {
       <UiAccordionItem value="summary" title="Zusammenfassung">
         <div class="flex flex-col gap-3 text-sm">
           <p>
-            <span class="font-medium">Vollständig besetzt:</span>
-            {{
-              allShiftsFullyAssigned
-                ? `Ja (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
-                : `Nein (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
-            }}
+            <span class="font-medium">
+              {{ isFillPreview ? 'Neu besetzt:' : 'Vollständig besetzt:' }}
+            </span>
+            {{ summaryFillText }}
           </p>
           <div v-if="shiftsByUser.length">
-            <p class="mb-2 font-medium">Schichten pro Person</p>
+            <p class="mb-2 font-medium">
+              {{
+                isFillPreview
+                  ? 'Neue Schichten pro Person'
+                  : 'Schichten pro Person'
+              }}
+            </p>
             <table class="text-sm">
               <tbody>
                 <tr v-for="entry in shiftsByUser" :key="entry.userId">
@@ -189,16 +256,26 @@ watch(open, (isOpen) => {
         </div>
       </UiAccordionItem>
 
-      <UiAccordionItem value="plan" title="Schichtplan">
-        <div class="overflow-x-auto">
+      <UiAccordionItem
+        value="plan"
+        :title="isFillPreview ? 'Neu besetzte Schichten' : 'Schichtplan'"
+      >
+        <div v-if="rows.length === 0" class="text-sm text-gray-500">
+          Keine neuen Zuweisungen.
+        </div>
+        <div v-else class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead>
               <tr class="border-b border-primary/20">
                 <th class="py-2 pr-3 font-semibold">Datum</th>
                 <th class="py-2 pr-3 font-semibold">Tag</th>
-                <th class="py-2 pr-3 font-semibold">Zugewiesen</th>
+                <th class="py-2 pr-3 font-semibold">
+                  {{ isFillPreview ? 'Neu zugewiesen' : 'Zugewiesen' }}
+                </th>
                 <th class="py-2 pr-3 font-semibold">Zeit</th>
-                <th class="py-2 font-semibold">Besetzung</th>
+                <th v-if="!isFillPreview" class="py-2 font-semibold">
+                  Besetzung
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -226,7 +303,10 @@ watch(open, (isOpen) => {
                     formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
                   }}
                 </td>
-                <td class="py-2 align-middle whitespace-nowrap">
+                <td
+                  v-if="!isFillPreview"
+                  class="py-2 align-middle whitespace-nowrap"
+                >
                   {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
                 </td>
               </tr>
