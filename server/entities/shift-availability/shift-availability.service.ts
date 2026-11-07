@@ -53,7 +53,9 @@ export const shiftAvailabilityService = {
   ): Promise<ResolvedShiftAvailability[]> {
     const allUsers = options?.allUsers === true;
     if (allUsers && actor.role !== UserRole.admin) {
-      throw new ForbiddenError('Admin access required to view all availabilities');
+      throw new ForbiddenError(
+        'Admin access required to view all availabilities',
+      );
     }
 
     const shifts = await plannedShiftService.getByMonth(year, month);

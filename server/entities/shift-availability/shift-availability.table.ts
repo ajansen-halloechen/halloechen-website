@@ -1,10 +1,4 @@
-import {
-  pgEnum,
-  pgTable,
-  timestamp,
-  unique,
-  uuid,
-} from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, timestamp, unique, uuid } from 'drizzle-orm/pg-core';
 import { users } from '../user/user.table';
 import { plannedShifts } from '../planned-shift/planned-shift.table';
 

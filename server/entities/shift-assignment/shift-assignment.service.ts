@@ -1,10 +1,7 @@
 import { UserRole } from '#shared/types/user';
 import type { AvailabilityStatus } from '#shared/types/shift-availability';
 import type { ShiftAssignmentReplace } from '#shared/types/shift-assignment';
-import {
-  ForbiddenError,
-  ValidationError,
-} from '#server/utils/domain-errors';
+import { ForbiddenError, ValidationError } from '#server/utils/domain-errors';
 import {
   AvailabilityStatusProto,
   planShifts,

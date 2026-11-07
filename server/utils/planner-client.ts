@@ -1,10 +1,7 @@
 import { join } from 'node:path';
 import * as grpc from '@grpc/grpc-js';
 import * as protoLoader from '@grpc/proto-loader';
-import {
-  ConflictError,
-  ValidationError,
-} from '#server/utils/domain-errors';
+import { ConflictError, ValidationError } from '#server/utils/domain-errors';
 
 export const AvailabilityStatusProto = {
   AVAILABLE: 1,

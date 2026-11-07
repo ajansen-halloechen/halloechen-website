@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import {
-  RadioGroupIndicator,
-  RadioGroupItem,
-  RadioGroupRoot,
-} from 'reka-ui';
+import { RadioGroupIndicator, RadioGroupItem, RadioGroupRoot } from 'reka-ui';
 import { tv } from 'tailwind-variants';
 
 export type RadioOption = {
@@ -60,11 +56,7 @@ const styles = computed(() => radio({ orientation: props.orientation }));
     :orientation="orientation"
     :class="styles.root()"
   >
-    <div
-      v-for="option in options"
-      :key="option.value"
-      :class="styles.item()"
-    >
+    <div v-for="option in options" :key="option.value" :class="styles.item()">
       <RadioGroupItem
         :id="`${name ?? 'radio'}-${option.value}`"
         :value="option.value"

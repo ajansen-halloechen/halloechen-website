@@ -10,11 +10,7 @@ export default defineEventHandler(async (event) => {
   const body = await readValidatedBody(event, shiftTemplatePatchSchema.parse);
 
   try {
-    return await shiftTemplateService.patch(
-      event.context.user!.role,
-      id,
-      body,
-    );
+    return await shiftTemplateService.patch(event.context.user!.role, id, body);
   } catch (error) {
     mapDomainErrorToHttp(error);
   }
