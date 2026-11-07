@@ -4,6 +4,11 @@ import {
   validateDateTimeRange,
   workingHourToDateTimeRange,
 } from '~~/shared/time-range-validation';
+import {
+  SHIFT_TYPE_LABELS,
+  SHIFT_TYPES,
+  type ShiftType,
+} from '~~/shared/types/shift-type';
 import { WEEKDAY_LABELS } from '~/utils/shift-plan';
 
 export interface ShiftTemplateFormData {
@@ -11,6 +16,7 @@ export interface ShiftTemplateFormData {
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
+  type: ShiftType;
   comment: string | null;
   numberOfPersons: number;
 }
@@ -27,6 +33,7 @@ const weekday = ref(String(props.initialData?.weekday ?? 1));
 const startTime = ref(props.initialData?.startTime ?? '18:00');
 const endTime = ref(props.initialData?.endTime ?? '23:00');
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
+const type = ref(props.initialData?.type ?? 'bar');
 const comment = ref(props.initialData?.comment ?? '');
 const numberOfPersons = ref(String(props.initialData?.numberOfPersons ?? 2));
 const rangeError = ref('');
@@ -39,6 +46,7 @@ watch(
     startTime.value = data.startTime.slice(0, 5);
     endTime.value = data.endTime.slice(0, 5);
     plusOneDay.value = data.plusOneDay;
+    type.value = data.type;
     comment.value = data.comment ?? '';
     numberOfPersons.value = String(data.numberOfPersons);
   },
@@ -51,6 +59,11 @@ watch([startTime, endTime, plusOneDay], () => {
 const weekdayOptions = Object.entries(WEEKDAY_LABELS).map(([value, name]) => ({
   value,
   label: name,
+}));
+
+const typeOptions = SHIFT_TYPES.map((value) => ({
+  value,
+  label: SHIFT_TYPE_LABELS[value],
 }));
 
 function handleSubmit() {
@@ -74,6 +87,7 @@ function handleSubmit() {
     startTime: startTime.value,
     endTime: endTime.value,
     plusOneDay: plusOneDay.value,
+    type: type.value as ShiftType,
     comment: trimmedComment || null,
     numberOfPersons: Number(numberOfPersons.value),
   });
@@ -112,6 +126,14 @@ function handleSubmit() {
       id="st-plus-one"
       v-model="plusOneDay"
       label="Ende am Folgetag"
+    />
+
+    <UiSelect
+      id="st-type"
+      v-model="type"
+      label="Typ"
+      :options="typeOptions"
+      required
     />
 
     <UiInputField id="st-comment" v-model="comment" label="Kommentar" />

@@ -4,13 +4,17 @@ from planner.v1 import planner_pb2, planner_pb2_grpc, types_pb2
 def _preference(
     user_id: str,
     *,
-    max_shifts: int = 4,
+    max_bar: int = 4,
+    max_bar_support: int = 4,
+    max_cleaning: int = 4,
     consecutive_days: bool = True,
     consecutive_weeks: bool = True,
 ) -> types_pb2.UserPreference:
     return types_pb2.UserPreference(
         user_id=user_id,
-        max_shifts_per_month=max_shifts,
+        max_bar_shifts_per_month=max_bar,
+        max_bar_support_shifts_per_month=max_bar_support,
+        max_cleaning_shifts_per_month=max_cleaning,
         shifts_on_consecutive_days=consecutive_days,
         shifts_in_consecutive_weeks=consecutive_weeks,
     )
@@ -26,6 +30,7 @@ def test_plan_shifts_round_trip(
                 id="shift-1",
                 date="2026-08-06",
                 number_of_persons=2,
+                type=types_pb2.SHIFT_TYPE_BAR,
             ),
         ],
         availabilities=[

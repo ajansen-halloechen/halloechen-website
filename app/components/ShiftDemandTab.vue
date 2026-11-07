@@ -16,6 +16,7 @@ import {
 } from '@heroicons/vue/24/outline';
 import type { ShiftTemplate } from '~~/shared/types/shift-template';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
+import { SHIFT_TYPE_LABELS } from '~~/shared/types/shift-type';
 import type { ShiftTemplateFormData } from '~/components/ShiftTemplateForm.vue';
 import type { PlannedShiftFormData } from '~/components/PlannedShiftForm.vue';
 import {
@@ -66,6 +67,10 @@ const templateColumns = computed(() => {
           info.row.original.plusOneDay,
         ),
     }),
+    templateColumnHelper.accessor('type', {
+      header: 'Typ',
+      cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
+    }),
     templateColumnHelper.accessor('comment', {
       header: 'Kommentar',
       cell: (info) => info.getValue() || '—',
@@ -110,6 +115,7 @@ const templateTable = useVueTable({
     return [
       WEEKDAY_LABELS[t.weekday] ?? '',
       formatTimeRange(t.startTime, t.endTime, t.plusOneDay),
+      SHIFT_TYPE_LABELS[t.type] ?? t.type,
       t.comment ?? '',
       String(t.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
@@ -140,6 +146,10 @@ const shiftColumns = computed(() => {
           info.row.original.endTime,
           info.row.original.plusOneDay,
         ),
+    }),
+    shiftColumnHelper.accessor('type', {
+      header: 'Typ',
+      cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
     }),
     shiftColumnHelper.accessor('comment', {
       header: 'Kommentar',
@@ -186,6 +196,7 @@ const shiftTable = useVueTable({
       formatIsoDate(s.date),
       weekdayLabelFromDate(s.date),
       formatTimeRange(s.startTime, s.endTime, s.plusOneDay),
+      SHIFT_TYPE_LABELS[s.type] ?? s.type,
       s.comment ?? '',
       String(s.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
@@ -216,6 +227,7 @@ function openEditTemplate(t: ShiftTemplate) {
     startTime: t.startTime.slice(0, 5),
     endTime: t.endTime.slice(0, 5),
     plusOneDay: t.plusOneDay,
+    type: t.type,
     comment: t.comment,
     numberOfPersons: t.numberOfPersons,
   };

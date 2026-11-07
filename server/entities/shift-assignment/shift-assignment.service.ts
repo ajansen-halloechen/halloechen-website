@@ -1,10 +1,15 @@
 import { UserRole } from '#shared/types/user';
 import type { AvailabilityStatus } from '#shared/types/shift-availability';
 import type { ShiftAssignmentReplace } from '#shared/types/shift-assignment';
-import { ForbiddenError, ValidationError } from '#server/utils/domain-errors';
+import type { ShiftType } from '#shared/types/shift-type';
+import {
+  ForbiddenError,
+  ValidationError,
+} from '#server/utils/domain-errors';
 import {
   AvailabilityStatusProto,
   planShifts,
+  ShiftTypeProto,
 } from '#server/utils/planner-client';
 import { plannedShiftService } from '../planned-shift/planned-shift.service';
 import { shiftAvailabilityService } from '../shift-availability/shift-availability.service';
@@ -31,6 +36,17 @@ function toProtoAvailabilityStatus(status: AvailabilityStatus): number {
       return AvailabilityStatusProto.PREFERENCE;
     case 'unavailable':
       return AvailabilityStatusProto.UNAVAILABLE;
+  }
+}
+
+function toProtoShiftType(type: ShiftType): number {
+  switch (type) {
+    case 'bar':
+      return ShiftTypeProto.BAR;
+    case 'cleaning':
+      return ShiftTypeProto.CLEANING;
+    case 'bar-support':
+      return ShiftTypeProto.BAR_SUPPORT;
   }
 }
 
@@ -71,6 +87,7 @@ export const shiftAssignmentService = {
         id: shift.id,
         date: toIsoDateString(shift.date),
         numberOfPersons: shift.numberOfPersons,
+        type: toProtoShiftType(shift.type),
       })),
       availabilities: availabilities.map((availability) => ({
         userId: availability.userId,
@@ -79,7 +96,9 @@ export const shiftAssignmentService = {
       })),
       userPreferences: userPreferences.map((pref) => ({
         userId: pref.userId,
-        maxShiftsPerMonth: pref.maxShiftsPerMonth,
+        maxBarShiftsPerMonth: pref.maxBarShiftsPerMonth,
+        maxBarSupportShiftsPerMonth: pref.maxBarSupportShiftsPerMonth,
+        maxCleaningShiftsPerMonth: pref.maxCleaningShiftsPerMonth,
         shiftsOnConsecutiveDays: pref.shiftsOnConsecutiveDays,
         shiftsInConsecutiveWeeks: pref.shiftsInConsecutiveWeeks,
       })),

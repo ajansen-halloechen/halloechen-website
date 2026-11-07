@@ -4,6 +4,9 @@ import {
   validateDateTimeRange,
   workingHourToDateTimeRange,
 } from '~~/shared/time-range-validation';
+import { SHIFT_TYPES } from '#shared/types/shift-type';
+
+export const shiftTypeSchema = z.enum(SHIFT_TYPES);
 
 const timeRangeRefine = {
   message: dateTimeRangeValidationMessage('end_before_start'),
@@ -33,6 +36,7 @@ export const shiftTemplateSchema = z.object({
   startTime: z.iso.time(),
   endTime: z.iso.time(),
   plusOneDay: z.boolean(),
+  type: shiftTypeSchema,
   comment: z.string().max(255).nullable(),
   numberOfPersons: z.number().int().min(1),
   createdAt: z.date(),
@@ -45,6 +49,7 @@ export const shiftTemplateCreateSchema = z
     startTime: z.iso.time(),
     endTime: z.iso.time(),
     plusOneDay: z.boolean().default(false),
+    type: shiftTypeSchema.default('bar'),
     comment: z.string().max(255).nullable().optional().default(null),
     numberOfPersons: z.number().int().min(1),
   })
@@ -55,6 +60,7 @@ export const shiftTemplatePatchSchema = z.object({
   startTime: z.iso.time().optional(),
   endTime: z.iso.time().optional(),
   plusOneDay: z.boolean().optional(),
+  type: shiftTypeSchema.optional(),
   comment: z.string().max(255).nullable().optional(),
   numberOfPersons: z.number().int().min(1).optional(),
 });

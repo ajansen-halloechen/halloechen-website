@@ -16,6 +16,10 @@ import type {
   ResolvedShiftAvailability,
 } from '~~/shared/types/shift-availability';
 import type { ResolvedShiftUserPreference } from '~~/shared/types/shift-user-preference';
+import {
+  SHIFT_TYPE_LABELS,
+  type ShiftType,
+} from '~~/shared/types/shift-type';
 import type { User } from '~~/shared/types/user';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
@@ -67,7 +71,9 @@ const { data: preferences, refresh: refreshPreferences } =
 
 const { data: backendUsers } = await useFetch<User[]>('/api/users');
 
-const maxShiftsPerMonth = ref('2');
+const maxBarShiftsPerMonth = ref('2');
+const maxBarSupportShiftsPerMonth = ref('1');
+const maxCleaningShiftsPerMonth = ref('1');
 const shiftsOnConsecutiveDays = ref(false);
 const shiftsInConsecutiveWeeks = ref(false);
 
@@ -76,7 +82,11 @@ watch(
   (prefs) => {
     if (!prefs) return;
     syncingPreferencesFromServer = true;
-    maxShiftsPerMonth.value = String(prefs.maxShiftsPerMonth);
+    maxBarShiftsPerMonth.value = String(prefs.maxBarShiftsPerMonth);
+    maxBarSupportShiftsPerMonth.value = String(
+      prefs.maxBarSupportShiftsPerMonth,
+    );
+    maxCleaningShiftsPerMonth.value = String(prefs.maxCleaningShiftsPerMonth);
     shiftsOnConsecutiveDays.value = prefs.shiftsOnConsecutiveDays;
     shiftsInConsecutiveWeeks.value = prefs.shiftsInConsecutiveWeeks;
     nextTick(() => {
@@ -86,16 +96,26 @@ watch(
   { immediate: true },
 );
 
+function parseNonNegativeInt(value: string): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) return null;
+  return parsed;
+}
+
 async function savePreferences() {
-  const max = Number(maxShiftsPerMonth.value);
-  if (!Number.isInteger(max) || max < 1) return;
+  const maxBar = parseNonNegativeInt(maxBarShiftsPerMonth.value);
+  const maxBarSupport = parseNonNegativeInt(maxBarSupportShiftsPerMonth.value);
+  const maxCleaning = parseNonNegativeInt(maxCleaningShiftsPerMonth.value);
+  if (maxBar === null || maxBarSupport === null || maxCleaning === null) return;
 
   savingPreferences.value = true;
   try {
     await $fetch('/api/shift-user-preferences', {
       method: 'PUT',
       body: {
-        maxShiftsPerMonth: max,
+        maxBarShiftsPerMonth: maxBar,
+        maxBarSupportShiftsPerMonth: maxBarSupport,
+        maxCleaningShiftsPerMonth: maxCleaning,
         shiftsOnConsecutiveDays: shiftsOnConsecutiveDays.value,
         shiftsInConsecutiveWeeks: shiftsInConsecutiveWeeks.value,
       },
@@ -111,10 +131,17 @@ const savePreferencesDebounced = useDebounceFn(() => {
   void savePreferences();
 }, 300);
 
-watch(maxShiftsPerMonth, () => {
-  if (syncingPreferencesFromServer) return;
-  savePreferencesDebounced();
-});
+watch(
+  [
+    maxBarShiftsPerMonth,
+    maxBarSupportShiftsPerMonth,
+    maxCleaningShiftsPerMonth,
+  ],
+  () => {
+    if (syncingPreferencesFromServer) return;
+    savePreferencesDebounced();
+  },
+);
 
 watch([shiftsOnConsecutiveDays, shiftsInConsecutiveWeeks], () => {
   if (syncingPreferencesFromServer) return;
@@ -136,6 +163,7 @@ type AvailabilityRow = {
   plannedShiftId: string;
   userId: string;
   date: Date | string;
+  type: ShiftType | null;
   comment: string | null;
   startTime: string;
   endTime: string;
@@ -155,6 +183,7 @@ const rows = computed<AvailabilityRow[]>(() => {
       plannedShiftId: availability.plannedShiftId,
       userId: availability.userId,
       date: shift?.date ?? '',
+      type: shift?.type ?? null,
       comment: shift?.comment ?? null,
       startTime: shift?.startTime ?? '',
       endTime: shift?.endTime ?? '',
@@ -200,6 +229,13 @@ const columns = computed(() => {
               info.row.original.plusOneDay,
             )
           : '—',
+    }),
+    columnHelper.accessor('type', {
+      header: 'Typ',
+      cell: (info) => {
+        const value = info.getValue();
+        return value ? (SHIFT_TYPE_LABELS[value] ?? value) : '—';
+      },
     }),
     columnHelper.accessor('comment', {
       header: 'Kommentar',
@@ -251,6 +287,7 @@ const table = useVueTable({
       r.date ? formatIsoDate(r.date) : '',
       r.date ? weekdayLabelFromDate(r.date) : '',
       r.startTime ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay) : '',
+      r.type ? (SHIFT_TYPE_LABELS[r.type] ?? r.type) : '',
       r.comment ?? '',
       user ? getUserDisplayName(user) : '',
       r.status,
@@ -306,9 +343,21 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
                 class="flex flex-col gap-4 border-0 p-0"
               >
                 <UiInputField
-                  id="pref-max-shifts"
-                  v-model="maxShiftsPerMonth"
-                  label="Max. Schichten pro Monat"
+                  id="pref-max-bar-shifts"
+                  v-model="maxBarShiftsPerMonth"
+                  label="Max. Barschichten im Monat"
+                  type="number"
+                />
+                <UiInputField
+                  id="pref-max-bar-support-shifts"
+                  v-model="maxBarSupportShiftsPerMonth"
+                  label="Max. Springer*innenschichten im Monat"
+                  type="number"
+                />
+                <UiInputField
+                  id="pref-max-cleaning-shifts"
+                  v-model="maxCleaningShiftsPerMonth"
+                  label="Max. Putzschichten im Monat"
                   type="number"
                 />
                 <UiCheckbox

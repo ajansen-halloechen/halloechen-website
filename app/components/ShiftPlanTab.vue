@@ -16,6 +16,7 @@ import type {
   ShiftAssignmentPair,
   ShiftAssignmentPlanResult,
 } from '~~/shared/types/shift-assignment';
+import { SHIFT_TYPE_LABELS } from '~~/shared/types/shift-type';
 import type { User } from '~~/shared/types/user';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
@@ -144,6 +145,10 @@ const columns = [
         info.row.original.plusOneDay,
       ),
   }),
+  columnHelper.accessor('type', {
+    header: 'Typ',
+    cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
+  }),
   columnHelper.accessor('comment', {
     header: 'Kommentar',
     cell: (info) => info.getValue() || '—',
@@ -189,6 +194,7 @@ const table = useVueTable({
       formatIsoDate(r.date),
       weekdayLabelFromDate(r.date),
       formatTimeRange(r.startTime, r.endTime, r.plusOneDay),
+      SHIFT_TYPE_LABELS[r.type] ?? r.type,
       r.comment ?? '',
       names,
       `${r.assignedUserIds.length}/${r.numberOfPersons}`,

@@ -4,12 +4,18 @@ import {
   validateDateTimeRange,
   workingHourToDateTimeRange,
 } from '~~/shared/time-range-validation';
+import {
+  SHIFT_TYPE_LABELS,
+  SHIFT_TYPES,
+  type ShiftType,
+} from '~~/shared/types/shift-type';
 
 export interface PlannedShiftFormData {
   date: string;
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
+  type: ShiftType;
   comment: string | null;
   numberOfPersons: number;
 }
@@ -30,9 +36,15 @@ const date = ref(props.initialData?.date ?? props.defaultDate ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '18:00');
 const endTime = ref(props.initialData?.endTime ?? '23:00');
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
+const type = ref(props.initialData?.type ?? 'bar');
 const comment = ref(props.initialData?.comment ?? '');
 const numberOfPersons = ref(String(props.initialData?.numberOfPersons ?? 2));
 const rangeError = ref('');
+
+const typeOptions = SHIFT_TYPES.map((value) => ({
+  value,
+  label: SHIFT_TYPE_LABELS[value],
+}));
 
 watch([date, startTime, endTime, plusOneDay], () => {
   rangeError.value = '';
@@ -59,6 +71,7 @@ function handleSubmit() {
     startTime: startTime.value,
     endTime: endTime.value,
     plusOneDay: plusOneDay.value,
+    type: type.value as ShiftType,
     comment: trimmedComment || null,
     numberOfPersons: Number(numberOfPersons.value),
   });
@@ -81,6 +94,14 @@ function handleSubmit() {
       id="ps-plus-one"
       v-model="plusOneDay"
       label="Ende am Folgetag"
+    />
+
+    <UiSelect
+      id="ps-type"
+      v-model="type"
+      label="Typ"
+      :options="typeOptions"
+      required
     />
 
     <UiInputField id="ps-comment" v-model="comment" label="Kommentar" />

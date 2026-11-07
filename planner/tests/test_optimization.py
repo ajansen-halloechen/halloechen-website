@@ -12,13 +12,17 @@ from planner.v1 import planner_pb2, planner_pb2_grpc, types_pb2
 def _pref(
     user_id: str,
     *,
-    max_shifts: int = 10,
+    max_bar: int = 10,
+    max_bar_support: int = 10,
+    max_cleaning: int = 10,
     consecutive_days: bool = True,
     consecutive_weeks: bool = True,
 ) -> types_pb2.UserPreference:
     return types_pb2.UserPreference(
         user_id=user_id,
-        max_shifts_per_month=max_shifts,
+        max_bar_shifts_per_month=max_bar,
+        max_bar_support_shifts_per_month=max_bar_support,
+        max_cleaning_shifts_per_month=max_cleaning,
         shifts_on_consecutive_days=consecutive_days,
         shifts_in_consecutive_weeks=consecutive_weeks,
     )
@@ -36,11 +40,17 @@ def _avail(
     )
 
 
-def _shift(shift_id: str, day: str, persons: int = 1) -> types_pb2.PlannedShift:
+def _shift(
+    shift_id: str,
+    day: str,
+    persons: int = 1,
+    shift_type: int = types_pb2.SHIFT_TYPE_BAR,
+) -> types_pb2.PlannedShift:
     return types_pb2.PlannedShift(
         id=shift_id,
         date=day,
         number_of_persons=persons,
+        type=shift_type,
     )
 
 
@@ -64,7 +74,7 @@ def test_capacity_allows_underfill_forbids_overfill() -> None:
     assert all(shift_id == "s1" for shift_id, _ in result.assignments)
 
 
-def test_max_shifts_per_month() -> None:
+def test_max_bar_shifts_per_month() -> None:
     request = planner_pb2.PlanShiftsRequest(
         month="2026-08",
         planned_shifts=[
@@ -77,12 +87,68 @@ def test_max_shifts_per_month() -> None:
             _avail("u1", "s2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
             _avail("u1", "s3", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
         ],
-        user_preferences=[_pref("u1", max_shifts=1)],
+        user_preferences=[_pref("u1", max_bar=1)],
     )
     result = _solve(request)
     assert result.status_name in ("OPTIMAL", "FEASIBLE")
     assert len(result.assignments) == 1
     assert result.loads["u1"] == 1
+
+
+def test_per_type_max_shifts_independent() -> None:
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift("bar1", "2026-08-03", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift("bar2", "2026-08-10", shift_type=types_pb2.SHIFT_TYPE_BAR),
+            _shift(
+                "clean1",
+                "2026-08-17",
+                shift_type=types_pb2.SHIFT_TYPE_CLEANING,
+            ),
+            _shift(
+                "support1",
+                "2026-08-24",
+                shift_type=types_pb2.SHIFT_TYPE_BAR_SUPPORT,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "bar1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "bar2", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "clean1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+            _avail("u1", "support1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[
+            _pref("u1", max_bar=1, max_bar_support=1, max_cleaning=1),
+        ],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assigned_ids = {shift_id for shift_id, _ in result.assignments}
+    assert len(assigned_ids & {"bar1", "bar2"}) == 1
+    assert "clean1" in assigned_ids
+    assert "support1" in assigned_ids
+    assert result.loads["u1"] == 3
+
+
+def test_zero_max_forbids_type() -> None:
+    request = planner_pb2.PlanShiftsRequest(
+        month="2026-08",
+        planned_shifts=[
+            _shift(
+                "clean1",
+                "2026-08-03",
+                shift_type=types_pb2.SHIFT_TYPE_CLEANING,
+            ),
+        ],
+        availabilities=[
+            _avail("u1", "clean1", types_pb2.AVAILABILITY_STATUS_AVAILABLE),
+        ],
+        user_preferences=[_pref("u1", max_cleaning=0)],
+    )
+    result = _solve(request)
+    assert result.status_name in ("OPTIMAL", "FEASIBLE")
+    assert result.assignments == []
 
 
 def test_consecutive_days_hard_forbid() -> None:

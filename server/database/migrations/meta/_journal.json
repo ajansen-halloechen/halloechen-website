@@ -113,6 +113,13 @@
       "when": 1791000000000,
       "tag": "0015_rename_calendar_description_to_comment",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1791100000000,
+      "tag": "0016_shift_types_and_per_type_limits",
+      "breakpoints": true
     }
   ]
 }

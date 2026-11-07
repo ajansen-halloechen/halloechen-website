@@ -5,7 +5,11 @@ import { shiftUserPreferences } from './shift-user-preference.table';
 type ShiftUserPreferenceInsert = typeof shiftUserPreferences.$inferInsert;
 type ShiftUserPreferenceUpdate = Pick<
   ShiftUserPreferenceInsert,
-  'maxShiftsPerMonth' | 'shiftsOnConsecutiveDays' | 'shiftsInConsecutiveWeeks'
+  | 'maxBarShiftsPerMonth'
+  | 'maxBarSupportShiftsPerMonth'
+  | 'maxCleaningShiftsPerMonth'
+  | 'shiftsOnConsecutiveDays'
+  | 'shiftsInConsecutiveWeeks'
 >;
 
 export const shiftUserPreferenceRepository = {

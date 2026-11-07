@@ -6,7 +6,7 @@ Each public function adds exactly one constraint family.
 from __future__ import annotations
 
 from planner.optimization.context import OptimizationContext
-from planner.optimization.input import PlannedShift
+from planner.optimization.input import PlannedShift, ShiftType
 from planner.optimization.weeks import are_consecutive_iso_weeks
 
 
@@ -19,12 +19,18 @@ def add_shift_capacity(ctx: OptimizationContext) -> None:
 
 
 def add_max_shifts_per_month(ctx: OptimizationContext) -> None:
-    """sum_s x[u, s] <= max_shifts_per_month[u] for every user with a preference."""
+    """Per-type monthly caps: sum of x[u,s] for shifts of each type <= max for that type."""
     for user_id, preference in ctx.problem.preferences_by_user.items():
-        user_vars = ctx.vars_by_user.get(user_id, [])
-        if not user_vars:
-            continue
-        ctx.model.Add(sum(user_vars) <= preference.max_shifts_per_month)
+        for shift_type in ShiftType:
+            typed_vars = [
+                var
+                for (uid, shift_id), var in ctx.x.items()
+                if uid == user_id
+                and ctx.problem.shifts_by_id[shift_id].type is shift_type
+            ]
+            if not typed_vars:
+                continue
+            ctx.model.Add(sum(typed_vars) <= preference.max_for_type(shift_type))
 
 
 def add_no_consecutive_days(ctx: OptimizationContext) -> None:
