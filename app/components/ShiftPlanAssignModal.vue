@@ -12,18 +12,23 @@ import {
   weekdayLabelFromDate,
 } from '~/utils/shift-plan';
 
-const props = defineProps<{
-  plannedShifts: PlannedShift[];
-  assignments: ShiftAssignmentPair[];
-  existingAssignments?: ShiftAssignmentPair[];
-  userMap: Map<string, User>;
-  planning?: boolean;
-  applying?: boolean;
-  hasPlan?: boolean;
-  hasExistingAssignments?: boolean;
-  hasOpenSlots?: boolean;
-  planMode?: ShiftAssignmentPlanMode | null;
-}>();
+const props = withDefaults(
+  defineProps<{
+    plannedShifts: PlannedShift[];
+    assignments: ShiftAssignmentPair[];
+    existingAssignments?: readonly ShiftAssignmentPair[];
+    userMap: Map<string, User>;
+    planning?: boolean;
+    applying?: boolean;
+    hasPlan?: boolean;
+    hasExistingAssignments?: boolean;
+    hasOpenSlots?: boolean;
+    planMode?: ShiftAssignmentPlanMode | null;
+  }>(),
+  {
+    existingAssignments: () => [],
+  },
+);
 
 const open = defineModel<boolean>('open', { default: false });
 
@@ -34,6 +39,8 @@ const emit = defineEmits<{
 }>();
 
 const accordionValue = ref<string[]>(['summary', 'plan']);
+
+const noNewAssignmentsText = 'Keine neuen Zuweisungen.';
 
 type PreviewRow = PlannedShift & {
   assignedUserIds: string[];
@@ -47,7 +54,7 @@ const isFillPreview = computed(() => props.planMode === 'fill');
 
 const existingAssignmentKeys = computed(() => {
   const keys = new Set<string>();
-  for (const assignment of props.existingAssignments ?? []) {
+  for (const assignment of props.existingAssignments) {
     keys.add(assignmentKey(assignment));
   }
   return keys;
@@ -61,29 +68,19 @@ const previewAssignments = computed(() => {
   );
 });
 
-const filledShiftIds = computed(() => {
-  if (!isFillPreview.value) {
-    return new Set(props.plannedShifts.map((shift) => shift.id));
-  }
-  return new Set(
-    previewAssignments.value.map((assignment) => assignment.plannedShiftId),
-  );
-});
-
 const rows = computed<PreviewRow[]>(() => {
   const byShift = new Map<string, string[]>();
-  // For fill preview rows, show only newly filled assignees.
-  const source = isFillPreview.value
-    ? previewAssignments.value
-    : props.assignments;
-  for (const assignment of source) {
+  for (const assignment of previewAssignments.value) {
     const list = byShift.get(assignment.plannedShiftId) ?? [];
     list.push(assignment.userId);
     byShift.set(assignment.plannedShiftId, list);
   }
 
-  return [...props.plannedShifts]
-    .filter((shift) => filledShiftIds.value.has(shift.id))
+  const shifts = isFillPreview.value
+    ? props.plannedShifts.filter((shift) => byShift.has(shift.id))
+    : props.plannedShifts;
+
+  return shifts
     .map((shift) => ({
       ...shift,
       assignedUserIds: byShift.get(shift.id) ?? [],
@@ -95,36 +92,24 @@ const rows = computed<PreviewRow[]>(() => {
     });
 });
 
-const totalRequiredSlots = computed(() => {
-  if (isFillPreview.value) {
-    return previewAssignments.value.length;
-  }
-  return props.plannedShifts.reduce(
-    (sum, shift) => sum + shift.numberOfPersons,
-    0,
-  );
-});
+const totalRequiredSlots = computed(() =>
+  props.plannedShifts.reduce((sum, shift) => sum + shift.numberOfPersons, 0),
+);
 
 const totalAssignedSlots = computed(() => previewAssignments.value.length);
 
-const fullyStaffedShiftCount = computed(() => {
-  if (isFillPreview.value) {
-    return rows.value.length;
-  }
-  return rows.value.filter(
-    (row) => row.assignedUserIds.length >= row.numberOfPersons,
-  ).length;
-});
+const fullyStaffedShiftCount = computed(
+  () =>
+    rows.value.filter(
+      (row) => row.assignedUserIds.length >= row.numberOfPersons,
+    ).length,
+);
 
-const allShiftsFullyAssigned = computed(() => {
-  if (isFillPreview.value) {
-    return previewAssignments.value.length > 0;
-  }
-  return (
+const allShiftsFullyAssigned = computed(
+  () =>
     props.plannedShifts.length > 0 &&
-    fullyStaffedShiftCount.value === props.plannedShifts.length
-  );
-});
+    fullyStaffedShiftCount.value === props.plannedShifts.length,
+);
 
 const shiftsByUser = computed(() => {
   const counts = new Map<string, number>();
@@ -143,12 +128,12 @@ const shiftsByUser = computed(() => {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 });
 
-const summaryFillText = computed(() => {
+const summaryStatusText = computed(() => {
   if (isFillPreview.value) {
     const slotCount = previewAssignments.value.length;
     const shiftCount = rows.value.length;
     if (slotCount === 0) {
-      return 'Keine neuen Zuweisungen.';
+      return noNewAssignmentsText;
     }
     return `${slotCount} neue Zuweisung${slotCount === 1 ? '' : 'en'} in ${shiftCount} Schicht${shiftCount === 1 ? '' : 'en'}`;
   }
@@ -218,7 +203,7 @@ watch(open, (isOpen) => {
             <span class="font-medium">
               {{ isFillPreview ? 'Neu besetzt:' : 'Vollständig besetzt:' }}
             </span>
-            {{ summaryFillText }}
+            {{ summaryStatusText }}
           </p>
           <div v-if="shiftsByUser.length">
             <p class="mb-2 font-medium">
@@ -261,7 +246,7 @@ watch(open, (isOpen) => {
         :title="isFillPreview ? 'Neu besetzte Schichten' : 'Schichtplan'"
       >
         <div v-if="rows.length === 0" class="text-sm text-gray-500">
-          Keine neuen Zuweisungen.
+          {{ noNewAssignmentsText }}
         </div>
         <div v-else class="overflow-x-auto">
           <table class="w-full text-left text-sm">
