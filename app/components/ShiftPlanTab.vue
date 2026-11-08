@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { SparklesIcon } from '@heroicons/vue/24/outline';
+import {
+  PencilIcon,
+  SparklesIcon,
+  TrashIcon,
+} from '@heroicons/vue/24/outline';
 import {
   FlexRender,
   createColumnHelper,
@@ -114,6 +118,12 @@ const proposedAssignments = ref<ShiftAssignmentPair[]>([]);
 const showProfileModal = ref(false);
 const profileUser = ref<User>();
 
+const showEditModal = ref(false);
+const editingRow = ref<PlanRow>();
+const showDeleteModal = ref(false);
+const deletingRow = ref<PlanRow>();
+const deletingLoading = ref(false);
+
 const hasExistingAssignments = computed(
   () => (assignments.value ?? []).length > 0,
 );
@@ -136,55 +146,103 @@ function openProfileModal(user: User) {
   showProfileModal.value = true;
 }
 
+function openEditModal(row: PlanRow) {
+  if (!props.isAdmin) return;
+  editingRow.value = row;
+  showEditModal.value = true;
+}
+
+function openDeleteModal(row: PlanRow) {
+  if (!props.isAdmin || row.assignedUserIds.length === 0) return;
+  deletingRow.value = row;
+  showDeleteModal.value = true;
+}
+
+function assignmentContextLabel(row: PlanRow) {
+  return `${formatIsoDate(row.date)} · ${shiftTypeLabels[row.type]} · ${formatTimeRange(row.startTime, row.endTime, row.plusOneDay)}`;
+}
+
+async function confirmDeleteAssignments() {
+  if (!deletingRow.value) return;
+  deletingLoading.value = true;
+  try {
+    await $fetch(
+      `/api/shift-assignments/by-planned-shift/${deletingRow.value.id}`,
+      { method: 'DELETE' },
+    );
+    await refreshAssignments();
+    showDeleteModal.value = false;
+    deletingRow.value = undefined;
+    success('Zuweisungen wurden entfernt.');
+  } catch {
+    toastError('Ein Fehler ist aufgetreten. Bitte versuche es erneut.');
+  } finally {
+    deletingLoading.value = false;
+  }
+}
+
 const columnHelper = createColumnHelper<PlanRow>();
 
-const columns = [
-  columnHelper.accessor('date', {
-    header: 'Datum',
-    cell: (info) => formatIsoDate(info.getValue()),
-  }),
-  columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
-    id: 'weekday',
-    header: 'Tag',
-  }),
-  columnHelper.accessor('assignedUserIds', {
-    id: 'assignees',
-    header: 'Zugewiesen',
-    filterFn: (row, _columnId, filterValue: string[]) =>
-      row.original.assignedUserIds.some((id) => filterValue.includes(id)),
-    enableSorting: false,
-  }),
-  columnHelper.display({
-    id: 'time',
-    header: 'Zeit',
-    cell: (info) =>
-      formatTimeRange(
-        info.row.original.startTime,
-        info.row.original.endTime,
-        info.row.original.plusOneDay,
-      ),
-  }),
-  columnHelper.accessor('type', {
-    header: 'Typ',
-    enableSorting: false,
-  }),
-  columnHelper.accessor('comment', {
-    header: 'Kommentar',
-    cell: (info) => info.getValue() || '—',
-  }),
-  columnHelper.display({
-    id: 'fill',
-    header: 'Besetzung',
-    cell: (info) =>
-      `${info.row.original.assignedUserIds.length}/${info.row.original.numberOfPersons}`,
-  }),
-];
+const columns = computed(() => {
+  const cols = [
+    columnHelper.accessor('date', {
+      header: 'Datum',
+      cell: (info) => formatIsoDate(info.getValue()),
+    }),
+    columnHelper.accessor((row) => weekdayLabelFromDate(row.date), {
+      id: 'weekday',
+      header: 'Tag',
+    }),
+    columnHelper.accessor('assignedUserIds', {
+      id: 'assignees',
+      header: 'Zugewiesen',
+      filterFn: (row, _columnId, filterValue: string[]) =>
+        row.original.assignedUserIds.some((id) => filterValue.includes(id)),
+      enableSorting: false,
+    }),
+    columnHelper.display({
+      id: 'time',
+      header: 'Zeit',
+      cell: (info) =>
+        formatTimeRange(
+          info.row.original.startTime,
+          info.row.original.endTime,
+          info.row.original.plusOneDay,
+        ),
+    }),
+    columnHelper.accessor('type', {
+      header: 'Typ',
+      enableSorting: false,
+    }),
+    columnHelper.accessor('comment', {
+      header: 'Kommentar',
+      cell: (info) => info.getValue() || '—',
+    }),
+    columnHelper.display({
+      id: 'fill',
+      header: 'Besetzung',
+      cell: (info) =>
+        `${info.row.original.assignedUserIds.length}/${info.row.original.numberOfPersons}`,
+    }),
+  ];
+  if (props.isAdmin) {
+    cols.push(
+      columnHelper.display({
+        id: 'actions',
+        header: 'Aktionen',
+      }),
+    );
+  }
+  return cols;
+});
 
 const table = useVueTable({
   get data() {
     return rows.value;
   },
-  columns,
+  get columns() {
+    return columns.value;
+  },
   state: {
     get sorting() {
       return sorting.value;
@@ -328,7 +386,25 @@ async function applyAssignments() {
     </template>
 
     <template #cell="{ cell, row }">
-      <template v-if="cell.column.id === 'assignees'">
+      <template v-if="cell.column.id === 'actions'">
+        <div class="flex gap-1">
+          <UiIconButton
+            tooltip="Zuweisung bearbeiten"
+            @click="openEditModal(row.original)"
+          >
+            <PencilIcon class="size-4" />
+          </UiIconButton>
+          <UiIconButton
+            color="error"
+            tooltip="Zuweisungen entfernen"
+            :disabled="row.original.assignedUserIds.length === 0"
+            @click="openDeleteModal(row.original)"
+          >
+            <TrashIcon class="size-4" />
+          </UiIconButton>
+        </div>
+      </template>
+      <template v-else-if="cell.column.id === 'assignees'">
         <ShiftAssigneesList
           :user-ids="row.original.assignedUserIds"
           :user-map="userMap"
@@ -363,6 +439,27 @@ async function applyAssignments() {
     @plan="planShifts"
     @confirm="applyAssignments"
     @profile="openProfileModal"
+  />
+
+  <ShiftAssignmentEditModal
+    v-if="editingRow"
+    :key="editingRow.id"
+    v-model:open="showEditModal"
+    :planned-shift-id="editingRow.id"
+    :month="monthParam"
+    :initial-user-ids="editingRow.assignedUserIds"
+    :number-of-persons="editingRow.numberOfPersons"
+    :users="backendUsers ?? []"
+    :title-context="assignmentContextLabel(editingRow)"
+    @success="refreshAssignments"
+  />
+
+  <UiConfirmDeleteModal
+    v-model:open="showDeleteModal"
+    title="Zuweisungen entfernen"
+    :description="`Alle Zuweisungen für die Schicht am ${deletingRow ? formatIsoDate(deletingRow.date) : ''} (${deletingRow ? shiftTypeLabels[deletingRow.type] : ''}) wirklich entfernen? Die Schicht selbst bleibt erhalten.`"
+    :loading="deletingLoading"
+    @confirm="confirmDeleteAssignments"
   />
 
   <UserProfileModal v-model:open="showProfileModal" :user="profileUser" />

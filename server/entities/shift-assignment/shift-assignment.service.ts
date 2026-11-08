@@ -5,10 +5,7 @@ import type {
   ShiftAssignmentReplace,
 } from '#shared/types/shift-assignment';
 import type { ShiftType } from '#shared/types/shift-type';
-import {
-  ForbiddenError,
-  ValidationError,
-} from '#server/utils/domain-errors';
+import { ForbiddenError, ValidationError } from '#server/utils/domain-errors';
 import {
   AvailabilityStatusProto,
   planShifts,
@@ -24,6 +21,19 @@ function assertAdmin(role: string) {
   if (role !== UserRole.admin) {
     throw new ForbiddenError('Admin access required');
   }
+}
+
+async function replaceAssignments(
+  plannedShiftIds: string[],
+  assignments: { plannedShiftId: string; userId: string }[],
+) {
+  return db.transaction(async (tx) => {
+    await shiftAssignmentRepository.deleteByPlannedShiftIds(
+      plannedShiftIds,
+      tx,
+    );
+    return shiftAssignmentRepository.createMany(assignments, tx);
+  });
 }
 
 function toIsoDateString(date: Date | string): string {
@@ -171,15 +181,46 @@ export const shiftAssignmentService = {
       }
     }
 
-    return db.transaction(async (tx) => {
-      await shiftAssignmentRepository.deleteByPlannedShiftIds(shiftIds, tx);
-      return shiftAssignmentRepository.createMany(
-        input.assignments.map((assignment) => ({
-          plannedShiftId: assignment.plannedShiftId,
-          userId: assignment.userId,
-        })),
-        tx,
+    return replaceAssignments(
+      shiftIds,
+      input.assignments.map((assignment) => ({
+        plannedShiftId: assignment.plannedShiftId,
+        userId: assignment.userId,
+      })),
+    );
+  },
+
+  async replaceForPlannedShift(
+    role: string,
+    plannedShiftId: string,
+    userIds: string[],
+  ) {
+    assertAdmin(role);
+
+    const shift = await plannedShiftService.getById(plannedShiftId);
+
+    const uniqueUserIds = new Set(userIds);
+    if (uniqueUserIds.size !== userIds.length) {
+      throw new ValidationError('Duplicate users are not allowed.');
+    }
+    if (userIds.length > shift.numberOfPersons) {
+      throw new ValidationError(
+        `At most ${shift.numberOfPersons} person(s) can be assigned to this shift.`,
       );
-    });
+    }
+
+    return replaceAssignments(
+      [plannedShiftId],
+      userIds.map((userId) => ({
+        plannedShiftId,
+        userId,
+      })),
+    );
+  },
+
+  async removeForPlannedShift(role: string, plannedShiftId: string) {
+    assertAdmin(role);
+    await plannedShiftService.getById(plannedShiftId);
+    await replaceAssignments([plannedShiftId], []);
   },
 };
