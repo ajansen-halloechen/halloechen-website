@@ -16,11 +16,9 @@ import type {
   ResolvedShiftAvailability,
 } from '~~/shared/types/shift-availability';
 import type { ResolvedShiftUserPreference } from '~~/shared/types/shift-user-preference';
-import {
-  SHIFT_TYPE_LABELS,
-  type ShiftType,
-} from '~~/shared/types/shift-type';
+import type { ShiftType } from '~~/shared/types/shift-type';
 import type { User } from '~~/shared/types/user';
+import { shiftTypeLabels } from '~/utils/shift-type';
 import { createUserAvatarColumn } from '~/utils/user-table-columns';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
@@ -232,10 +230,7 @@ const columns = computed(() => {
     }),
     columnHelper.accessor('type', {
       header: 'Typ',
-      cell: (info) => {
-        const value = info.getValue();
-        return value ? (SHIFT_TYPE_LABELS[value] ?? value) : '—';
-      },
+      enableSorting: false,
     }),
     columnHelper.accessor('comment', {
       header: 'Kommentar',
@@ -287,7 +282,7 @@ const table = useVueTable({
       r.date ? formatIsoDate(r.date) : '',
       r.date ? weekdayLabelFromDate(r.date) : '',
       r.startTime ? formatTimeRange(r.startTime, r.endTime, r.plusOneDay) : '',
-      r.type ? (SHIFT_TYPE_LABELS[r.type] ?? r.type) : '',
+      r.type ? shiftTypeLabels[r.type] : '',
       r.comment ?? '',
       user ? getUserDisplayName(user) : '',
       r.status,
@@ -397,6 +392,10 @@ async function setStatus(row: AvailabilityRow, status: string | undefined) {
             :user="userMap.get(row.original.userId)"
             @profile="openProfileModal"
           />
+        </template>
+        <template v-else-if="cell.column.id === 'type'">
+          <ShiftTypeBadge v-if="row.original.type" :type="row.original.type" />
+          <template v-else>—</template>
         </template>
         <template v-else-if="cell.column.id === 'status'">
           <UiRadioGroup

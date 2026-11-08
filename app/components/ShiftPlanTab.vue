@@ -17,8 +17,8 @@ import type {
   ShiftAssignmentPlanMode,
   ShiftAssignmentPlanResult,
 } from '~~/shared/types/shift-assignment';
-import { SHIFT_TYPE_LABELS } from '~~/shared/types/shift-type';
 import type { User } from '~~/shared/types/user';
+import { shiftTypeLabels } from '~/utils/shift-type';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
   formatIsoDate,
@@ -166,7 +166,7 @@ const columns = [
   }),
   columnHelper.accessor('type', {
     header: 'Typ',
-    cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
+    enableSorting: false,
   }),
   columnHelper.accessor('comment', {
     header: 'Kommentar',
@@ -213,7 +213,7 @@ const table = useVueTable({
       formatIsoDate(r.date),
       weekdayLabelFromDate(r.date),
       formatTimeRange(r.startTime, r.endTime, r.plusOneDay),
-      SHIFT_TYPE_LABELS[r.type] ?? r.type,
+      shiftTypeLabels[r.type],
       r.comment ?? '',
       names,
       `${r.assignedUserIds.length}/${r.numberOfPersons}`,
@@ -334,6 +334,9 @@ async function applyAssignments() {
           :user-map="userMap"
           @profile="openProfileModal"
         />
+      </template>
+      <template v-else-if="cell.column.id === 'type'">
+        <ShiftTypeBadge :type="row.original.type" />
       </template>
       <template v-else>
         <FlexRender

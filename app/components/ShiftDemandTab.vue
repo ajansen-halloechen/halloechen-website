@@ -16,9 +16,9 @@ import {
 } from '@heroicons/vue/24/outline';
 import type { ShiftTemplate } from '~~/shared/types/shift-template';
 import type { PlannedShift } from '~~/shared/types/planned-shift';
-import { SHIFT_TYPE_LABELS } from '~~/shared/types/shift-type';
 import type { ShiftTemplateFormData } from '~/components/ShiftTemplateForm.vue';
 import type { PlannedShiftFormData } from '~/components/PlannedShiftForm.vue';
+import { shiftTypeLabels } from '~/utils/shift-type';
 import {
   WEEKDAY_LABELS,
   formatIsoDate,
@@ -69,7 +69,7 @@ const templateColumns = computed(() => {
     }),
     templateColumnHelper.accessor('type', {
       header: 'Typ',
-      cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
+      enableSorting: false,
     }),
     templateColumnHelper.accessor('comment', {
       header: 'Kommentar',
@@ -115,7 +115,7 @@ const templateTable = useVueTable({
     return [
       WEEKDAY_LABELS[t.weekday] ?? '',
       formatTimeRange(t.startTime, t.endTime, t.plusOneDay),
-      SHIFT_TYPE_LABELS[t.type] ?? t.type,
+      shiftTypeLabels[t.type],
       t.comment ?? '',
       String(t.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
@@ -149,7 +149,7 @@ const shiftColumns = computed(() => {
     }),
     shiftColumnHelper.accessor('type', {
       header: 'Typ',
-      cell: (info) => SHIFT_TYPE_LABELS[info.getValue()] ?? info.getValue(),
+      enableSorting: false,
     }),
     shiftColumnHelper.accessor('comment', {
       header: 'Kommentar',
@@ -196,7 +196,7 @@ const shiftTable = useVueTable({
       formatIsoDate(s.date),
       weekdayLabelFromDate(s.date),
       formatTimeRange(s.startTime, s.endTime, s.plusOneDay),
-      SHIFT_TYPE_LABELS[s.type] ?? s.type,
+      shiftTypeLabels[s.type],
       s.comment ?? '',
       String(s.numberOfPersons),
     ].some((v) => v.toLowerCase().includes(search));
@@ -353,6 +353,9 @@ const defaultShiftDate = computed(() => {
               </UiIconButton>
             </div>
           </template>
+          <template v-else-if="cell.column.id === 'type'">
+            <ShiftTypeBadge :type="row.original.type" />
+          </template>
           <template v-else>
             <FlexRender
               :render="cell.column.columnDef.cell"
@@ -410,6 +413,9 @@ const defaultShiftDate = computed(() => {
             >
               <TrashIcon class="size-4" />
             </UiIconButton>
+          </template>
+          <template v-else-if="cell.column.id === 'type'">
+            <ShiftTypeBadge :type="row.original.type" />
           </template>
           <template v-else>
             <FlexRender

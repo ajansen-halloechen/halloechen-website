@@ -1,4 +1,4 @@
-export const SHIFT_TYPES = ['bar', 'cleaning', 'bar-support'] as const;
+export const SHIFT_TYPES = ['bar', 'bar-support', 'cleaning'] as const;
 
 export type ShiftType = (typeof SHIFT_TYPES)[number];
 
