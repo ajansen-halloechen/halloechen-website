@@ -4,6 +4,7 @@ import {
   validateDateTimeRange,
   workingHourToDateTimeRange,
 } from '~~/shared/time-range-validation';
+import { shiftTypeSchema } from '../shift-template/shift-template.schema';
 
 export const plannedShiftSchema = z.object({
   id: z.uuid(),
@@ -11,6 +12,7 @@ export const plannedShiftSchema = z.object({
   startTime: z.iso.time(),
   endTime: z.iso.time(),
   plusOneDay: z.boolean(),
+  type: shiftTypeSchema,
   comment: z.string().max(255).nullable(),
   numberOfPersons: z.number().int().min(1),
   templateId: z.uuid().nullable(),
@@ -24,6 +26,7 @@ export const plannedShiftCreateSchema = z
     startTime: z.iso.time(),
     endTime: z.iso.time(),
     plusOneDay: z.boolean().default(false),
+    type: shiftTypeSchema.default('bar'),
     comment: z.string().max(255).nullable().optional().default(null),
     numberOfPersons: z.number().int().min(1),
     templateId: z.uuid().nullable().optional(),

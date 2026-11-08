@@ -3,7 +3,9 @@ import type {
   ShiftUserPreferenceUpsert,
 } from '#shared/types/shift-user-preference';
 import {
-  DEFAULT_MAX_SHIFTS_PER_MONTH,
+  DEFAULT_MAX_BAR_SHIFTS_PER_MONTH,
+  DEFAULT_MAX_BAR_SUPPORT_SHIFTS_PER_MONTH,
+  DEFAULT_MAX_CLEANING_SHIFTS_PER_MONTH,
   DEFAULT_SHIFTS_IN_CONSECUTIVE_WEEKS,
   DEFAULT_SHIFTS_ON_CONSECUTIVE_DAYS,
 } from './shift-user-preference.schema';
@@ -12,7 +14,9 @@ import { shiftUserPreferenceRepository } from './shift-user-preference.repositor
 function defaultPreference(userId: string): ResolvedShiftUserPreference {
   return {
     userId,
-    maxShiftsPerMonth: DEFAULT_MAX_SHIFTS_PER_MONTH,
+    maxBarShiftsPerMonth: DEFAULT_MAX_BAR_SHIFTS_PER_MONTH,
+    maxBarSupportShiftsPerMonth: DEFAULT_MAX_BAR_SUPPORT_SHIFTS_PER_MONTH,
+    maxCleaningShiftsPerMonth: DEFAULT_MAX_CLEANING_SHIFTS_PER_MONTH,
     shiftsOnConsecutiveDays: DEFAULT_SHIFTS_ON_CONSECUTIVE_DAYS,
     shiftsInConsecutiveWeeks: DEFAULT_SHIFTS_IN_CONSECUTIVE_WEEKS,
   };
@@ -39,7 +43,9 @@ export const shiftUserPreferenceService = {
 
     if (existing) {
       const updated = await shiftUserPreferenceRepository.update(existing.id, {
-        maxShiftsPerMonth: input.maxShiftsPerMonth,
+        maxBarShiftsPerMonth: input.maxBarShiftsPerMonth,
+        maxBarSupportShiftsPerMonth: input.maxBarSupportShiftsPerMonth,
+        maxCleaningShiftsPerMonth: input.maxCleaningShiftsPerMonth,
         shiftsOnConsecutiveDays: input.shiftsOnConsecutiveDays,
         shiftsInConsecutiveWeeks: input.shiftsInConsecutiveWeeks,
       });
@@ -48,7 +54,9 @@ export const shiftUserPreferenceService = {
 
     return shiftUserPreferenceRepository.create({
       userId,
-      maxShiftsPerMonth: input.maxShiftsPerMonth,
+      maxBarShiftsPerMonth: input.maxBarShiftsPerMonth,
+      maxBarSupportShiftsPerMonth: input.maxBarSupportShiftsPerMonth,
+      maxCleaningShiftsPerMonth: input.maxCleaningShiftsPerMonth,
       shiftsOnConsecutiveDays: input.shiftsOnConsecutiveDays,
       shiftsInConsecutiveWeeks: input.shiftsInConsecutiveWeeks,
     });

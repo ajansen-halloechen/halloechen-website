@@ -16,12 +16,24 @@ class AvailabilityKind(str, Enum):
     UNAVAILABLE = "unavailable"
 
 
+class ShiftType(str, Enum):
+    BAR = "bar"
+    CLEANING = "cleaning"
+    BAR_SUPPORT = "bar-support"
+
+
 ELIGIBLE_KINDS = frozenset({AvailabilityKind.AVAILABLE, AvailabilityKind.PREFERENCE})
 
 _STATUS_MAP = {
     types_pb2.AVAILABILITY_STATUS_AVAILABLE: AvailabilityKind.AVAILABLE,
     types_pb2.AVAILABILITY_STATUS_PREFERENCE: AvailabilityKind.PREFERENCE,
     types_pb2.AVAILABILITY_STATUS_UNAVAILABLE: AvailabilityKind.UNAVAILABLE,
+}
+
+_SHIFT_TYPE_MAP = {
+    types_pb2.SHIFT_TYPE_BAR: ShiftType.BAR,
+    types_pb2.SHIFT_TYPE_CLEANING: ShiftType.CLEANING,
+    types_pb2.SHIFT_TYPE_BAR_SUPPORT: ShiftType.BAR_SUPPORT,
 }
 
 
@@ -34,6 +46,7 @@ class PlannedShift:
     id: str
     date: date
     number_of_persons: int
+    type: ShiftType
 
     @property
     def iso_week(self) -> tuple[int, int]:
@@ -44,9 +57,18 @@ class PlannedShift:
 @dataclass(frozen=True)
 class UserPreference:
     user_id: str
-    max_shifts_per_month: int
+    max_bar_shifts_per_month: int
+    max_bar_support_shifts_per_month: int
+    max_cleaning_shifts_per_month: int
     shifts_on_consecutive_days: bool
     shifts_in_consecutive_weeks: bool
+
+    def max_for_type(self, shift_type: ShiftType) -> int:
+        if shift_type is ShiftType.BAR:
+            return self.max_bar_shifts_per_month
+        if shift_type is ShiftType.BAR_SUPPORT:
+            return self.max_bar_support_shifts_per_month
+        return self.max_cleaning_shifts_per_month
 
 
 @dataclass(frozen=True)
@@ -58,6 +80,8 @@ class PlanningProblem:
     eligible_pairs: list[tuple[str, str]]
     user_ids: list[str]
     preferences_by_user: Mapping[str, UserPreference]
+    # (user_id, planned_shift_id) pairs that must stay assigned.
+    fixed_assignments: frozenset[tuple[str, str]]
 
 
 def _parse_date(value: str) -> date:
@@ -99,10 +123,18 @@ def planning_problem_from_request(
             raise PlanningInputError(
                 f"number_of_persons must be >= 1 for shift {shift_id}"
             )
+        if raw.type == types_pb2.SHIFT_TYPE_UNSPECIFIED:
+            raise PlanningInputError(f"shift type unspecified for shift {shift_id}")
+        shift_type = _SHIFT_TYPE_MAP.get(raw.type)
+        if shift_type is None:
+            raise PlanningInputError(
+                f"unknown shift type {raw.type} for shift {shift_id}"
+            )
         shift = PlannedShift(
             id=shift_id,
             date=_parse_date(raw.date.strip()),
             number_of_persons=raw.number_of_persons,
+            type=shift_type,
         )
         shift_month = f"{shift.date.year:04d}-{shift.date.month:02d}"
         if shift_month != month:
@@ -136,7 +168,37 @@ def planning_problem_from_request(
             raise PlanningInputError(f"duplicate availability for {key}")
         availability_by_pair[key] = kind
 
-    user_ids = sorted({user_id for user_id, _shift_id in availability_by_pair})
+    fixed_assignments: set[tuple[str, str]] = set()
+    fixed_count_by_shift: dict[str, int] = {}
+    for raw in request.fixed_assignments:
+        user_id = raw.user_id.strip()
+        shift_id = raw.planned_shift_id.strip()
+        if not user_id or not shift_id:
+            raise PlanningInputError(
+                "fixed assignment user_id and planned_shift_id required"
+            )
+        if shift_id not in shifts_by_id:
+            raise PlanningInputError(
+                f"fixed assignment references unknown shift {shift_id}"
+            )
+        key = (user_id, shift_id)
+        if key in fixed_assignments:
+            raise PlanningInputError(f"duplicate fixed assignment for {key}")
+        fixed_assignments.add(key)
+        fixed_count_by_shift[shift_id] = fixed_count_by_shift.get(shift_id, 0) + 1
+
+    for shift_id, count in fixed_count_by_shift.items():
+        capacity = shifts_by_id[shift_id].number_of_persons
+        if count > capacity:
+            raise PlanningInputError(
+                f"fixed assignments exceed capacity for shift {shift_id}: "
+                f"{count} > {capacity}"
+            )
+
+    user_ids = sorted(
+        {user_id for user_id, _shift_id in availability_by_pair}
+        | {user_id for user_id, _shift_id in fixed_assignments}
+    )
     preferences_by_user: dict[str, UserPreference] = {}
     for raw in request.user_preferences:
         user_id = raw.user_id.strip()
@@ -144,13 +206,21 @@ def planning_problem_from_request(
             raise PlanningInputError("user preference user_id must not be empty")
         if user_id in preferences_by_user:
             raise PlanningInputError(f"duplicate user preference for {user_id}")
-        if raw.max_shifts_per_month < 0:
-            raise PlanningInputError(
-                f"max_shifts_per_month must be >= 0 for user {user_id}"
-            )
+        for field_name, value in (
+            ("max_bar_shifts_per_month", raw.max_bar_shifts_per_month),
+            (
+                "max_bar_support_shifts_per_month",
+                raw.max_bar_support_shifts_per_month,
+            ),
+            ("max_cleaning_shifts_per_month", raw.max_cleaning_shifts_per_month),
+        ):
+            if value < 0:
+                raise PlanningInputError(f"{field_name} must be >= 0 for user {user_id}")
         preferences_by_user[user_id] = UserPreference(
             user_id=user_id,
-            max_shifts_per_month=raw.max_shifts_per_month,
+            max_bar_shifts_per_month=raw.max_bar_shifts_per_month,
+            max_bar_support_shifts_per_month=raw.max_bar_support_shifts_per_month,
+            max_cleaning_shifts_per_month=raw.max_cleaning_shifts_per_month,
             shifts_on_consecutive_days=raw.shifts_on_consecutive_days,
             shifts_in_consecutive_weeks=raw.shifts_in_consecutive_weeks,
         )
@@ -175,4 +245,5 @@ def planning_problem_from_request(
         eligible_pairs=eligible_pairs,
         user_ids=user_ids,
         preferences_by_user=preferences_by_user,
+        fixed_assignments=frozenset(fixed_assignments),
     )

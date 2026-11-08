@@ -6,7 +6,7 @@ Each public function adds exactly one constraint family.
 from __future__ import annotations
 
 from planner.optimization.context import OptimizationContext
-from planner.optimization.input import PlannedShift
+from planner.optimization.input import PlannedShift, ShiftType
 from planner.optimization.weeks import are_consecutive_iso_weeks
 
 
@@ -19,12 +19,43 @@ def add_shift_capacity(ctx: OptimizationContext) -> None:
 
 
 def add_max_shifts_per_month(ctx: OptimizationContext) -> None:
-    """sum_s x[u, s] <= max_shifts_per_month[u] for every user with a preference."""
+    """Per-type monthly caps: sum of x[u,s] for shifts of each type <= max for that type.
+
+    Effective cap is max(preference, fixed_count) so already-committed assignments
+    that exceed a preference do not make fill mode infeasible.
+    """
     for user_id, preference in ctx.problem.preferences_by_user.items():
-        user_vars = ctx.vars_by_user.get(user_id, [])
-        if not user_vars:
-            continue
-        ctx.model.Add(sum(user_vars) <= preference.max_shifts_per_month)
+        for shift_type in ShiftType:
+            typed_vars = [
+                var
+                for (uid, shift_id), var in ctx.x.items()
+                if uid == user_id
+                and ctx.problem.shifts_by_id[shift_id].type is shift_type
+            ]
+            if not typed_vars:
+                continue
+            fixed_count = sum(
+                1
+                for uid, shift_id in ctx.problem.fixed_assignments
+                if uid == user_id
+                and ctx.problem.shifts_by_id[shift_id].type is shift_type
+            )
+            cap = max(preference.max_for_type(shift_type), fixed_count)
+            ctx.model.Add(sum(typed_vars) <= cap)
+
+
+def add_no_bar_and_support_same_day(ctx: OptimizationContext) -> None:
+    """A user may not be assigned both a bar and a bar-support shift on the same day."""
+    for user_id in ctx.problem.preferences_by_user:
+        ordered = _eligible_shifts_for_user(ctx, user_id)
+        for i, shift_a in enumerate(ordered):
+            for shift_b in ordered[i + 1 :]:
+                if shift_a.date != shift_b.date:
+                    continue
+                types = {shift_a.type, shift_b.type}
+                if types != {ShiftType.BAR, ShiftType.BAR_SUPPORT}:
+                    continue
+                _forbid_both(ctx, user_id, shift_a.id, shift_b.id)
 
 
 def add_no_consecutive_days(ctx: OptimizationContext) -> None:
@@ -62,6 +93,10 @@ def _eligible_shifts_for_user(
         if uid != user_id:
             continue
         shifts_by_id[shift_id] = ctx.problem.shifts_by_id[shift_id]
+    for uid, shift_id in ctx.problem.fixed_assignments:
+        if uid != user_id:
+            continue
+        shifts_by_id[shift_id] = ctx.problem.shifts_by_id[shift_id]
     return sorted(shifts_by_id.values(), key=lambda s: s.date)
 
 
@@ -71,6 +106,12 @@ def _forbid_both(
     shift_a_id: str,
     shift_b_id: str,
 ) -> None:
+    # Both already committed: keep them; do not make fill mode infeasible.
+    if (
+        (user_id, shift_a_id) in ctx.problem.fixed_assignments
+        and (user_id, shift_b_id) in ctx.problem.fixed_assignments
+    ):
+        return
     var_a = ctx.x.get((user_id, shift_a_id))
     var_b = ctx.x.get((user_id, shift_b_id))
     if var_a is None or var_b is None:

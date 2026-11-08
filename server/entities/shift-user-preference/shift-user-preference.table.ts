@@ -15,7 +15,13 @@ export const shiftUserPreferences = pgTable(
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
-    maxShiftsPerMonth: integer('max_shifts_per_month').notNull(),
+    maxBarShiftsPerMonth: integer('max_bar_shifts_per_month').notNull(),
+    maxBarSupportShiftsPerMonth: integer(
+      'max_bar_support_shifts_per_month',
+    ).notNull(),
+    maxCleaningShiftsPerMonth: integer(
+      'max_cleaning_shifts_per_month',
+    ).notNull(),
     shiftsOnConsecutiveDays: boolean('shifts_on_consecutive_days').notNull(),
     shiftsInConsecutiveWeeks: boolean('shifts_in_consecutive_weeks').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true })

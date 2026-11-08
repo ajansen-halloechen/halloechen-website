@@ -1,10 +1,15 @@
 import { UserRole } from '#shared/types/user';
 import type { AvailabilityStatus } from '#shared/types/shift-availability';
-import type { ShiftAssignmentReplace } from '#shared/types/shift-assignment';
+import type {
+  ShiftAssignmentPlanMode,
+  ShiftAssignmentReplace,
+} from '#shared/types/shift-assignment';
+import type { ShiftType } from '#shared/types/shift-type';
 import { ForbiddenError, ValidationError } from '#server/utils/domain-errors';
 import {
   AvailabilityStatusProto,
   planShifts,
+  ShiftTypeProto,
 } from '#server/utils/planner-client';
 import { plannedShiftService } from '../planned-shift/planned-shift.service';
 import { shiftAvailabilityService } from '../shift-availability/shift-availability.service';
@@ -16,6 +21,19 @@ function assertAdmin(role: string) {
   if (role !== UserRole.admin) {
     throw new ForbiddenError('Admin access required');
   }
+}
+
+async function replaceAssignments(
+  plannedShiftIds: string[],
+  assignments: { plannedShiftId: string; userId: string }[],
+) {
+  return db.transaction(async (tx) => {
+    await shiftAssignmentRepository.deleteByPlannedShiftIds(
+      plannedShiftIds,
+      tx,
+    );
+    return shiftAssignmentRepository.createMany(assignments, tx);
+  });
 }
 
 function toIsoDateString(date: Date | string): string {
@@ -34,6 +52,17 @@ function toProtoAvailabilityStatus(status: AvailabilityStatus): number {
   }
 }
 
+function toProtoShiftType(type: ShiftType): number {
+  switch (type) {
+    case 'bar':
+      return ShiftTypeProto.BAR;
+    case 'cleaning':
+      return ShiftTypeProto.CLEANING;
+    case 'bar-support':
+      return ShiftTypeProto.BAR_SUPPORT;
+  }
+}
+
 export const shiftAssignmentService = {
   async getByMonth(year: number, month: number) {
     const shifts = await plannedShiftService.getByMonth(year, month);
@@ -45,6 +74,7 @@ export const shiftAssignmentService = {
     actor: { id: string; role: string },
     year: number,
     month: number,
+    mode: ShiftAssignmentPlanMode = 'replace',
   ) {
     assertAdmin(actor.role);
 
@@ -54,6 +84,34 @@ export const shiftAssignmentService = {
       throw new ValidationError('Keine Schichten in diesem Monat.');
     }
 
+    const existingAssignments =
+      mode === 'fill'
+        ? await shiftAssignmentRepository.findByPlannedShiftIds(
+            shifts.map((s) => s.id),
+          )
+        : [];
+
+    if (mode === 'fill') {
+      const assignedByShift = new Map<string, number>();
+      for (const assignment of existingAssignments) {
+        assignedByShift.set(
+          assignment.plannedShiftId,
+          (assignedByShift.get(assignment.plannedShiftId) ?? 0) + 1,
+        );
+      }
+      const hasOpenSlots = shifts.some(
+        (shift) => (assignedByShift.get(shift.id) ?? 0) < shift.numberOfPersons,
+      );
+      if (!hasOpenSlots) {
+        return {
+          assignments: existingAssignments.map((assignment) => ({
+            plannedShiftId: assignment.plannedShiftId,
+            userId: assignment.userId,
+          })),
+        };
+      }
+    }
+
     const availabilities = await shiftAvailabilityService.getByMonth(
       actor,
       year,
@@ -61,7 +119,12 @@ export const shiftAssignmentService = {
       { allUsers: true },
     );
 
-    const userIds = [...new Set(availabilities.map((a) => a.userId))];
+    const userIds = [
+      ...new Set([
+        ...availabilities.map((a) => a.userId),
+        ...existingAssignments.map((a) => a.userId),
+      ]),
+    ];
     const userPreferences =
       await shiftUserPreferenceService.getForUsers(userIds);
 
@@ -71,6 +134,7 @@ export const shiftAssignmentService = {
         id: shift.id,
         date: toIsoDateString(shift.date),
         numberOfPersons: shift.numberOfPersons,
+        type: toProtoShiftType(shift.type),
       })),
       availabilities: availabilities.map((availability) => ({
         userId: availability.userId,
@@ -79,9 +143,15 @@ export const shiftAssignmentService = {
       })),
       userPreferences: userPreferences.map((pref) => ({
         userId: pref.userId,
-        maxShiftsPerMonth: pref.maxShiftsPerMonth,
+        maxBarShiftsPerMonth: pref.maxBarShiftsPerMonth,
+        maxBarSupportShiftsPerMonth: pref.maxBarSupportShiftsPerMonth,
+        maxCleaningShiftsPerMonth: pref.maxCleaningShiftsPerMonth,
         shiftsOnConsecutiveDays: pref.shiftsOnConsecutiveDays,
         shiftsInConsecutiveWeeks: pref.shiftsInConsecutiveWeeks,
+      })),
+      fixedAssignments: existingAssignments.map((assignment) => ({
+        plannedShiftId: assignment.plannedShiftId,
+        userId: assignment.userId,
       })),
     });
 
@@ -110,15 +180,46 @@ export const shiftAssignmentService = {
       }
     }
 
-    return db.transaction(async (tx) => {
-      await shiftAssignmentRepository.deleteByPlannedShiftIds(shiftIds, tx);
-      return shiftAssignmentRepository.createMany(
-        input.assignments.map((assignment) => ({
-          plannedShiftId: assignment.plannedShiftId,
-          userId: assignment.userId,
-        })),
-        tx,
+    return replaceAssignments(
+      shiftIds,
+      input.assignments.map((assignment) => ({
+        plannedShiftId: assignment.plannedShiftId,
+        userId: assignment.userId,
+      })),
+    );
+  },
+
+  async replaceForPlannedShift(
+    role: string,
+    plannedShiftId: string,
+    userIds: string[],
+  ) {
+    assertAdmin(role);
+
+    const shift = await plannedShiftService.getById(plannedShiftId);
+
+    const uniqueUserIds = new Set(userIds);
+    if (uniqueUserIds.size !== userIds.length) {
+      throw new ValidationError('Duplicate users are not allowed.');
+    }
+    if (userIds.length > shift.numberOfPersons) {
+      throw new ValidationError(
+        `At most ${shift.numberOfPersons} person(s) can be assigned to this shift.`,
       );
-    });
+    }
+
+    return replaceAssignments(
+      [plannedShiftId],
+      userIds.map((userId) => ({
+        plannedShiftId,
+        userId,
+      })),
+    );
+  },
+
+  async removeForPlannedShift(role: string, plannedShiftId: string) {
+    assertAdmin(role);
+    await plannedShiftService.getById(plannedShiftId);
+    await replaceAssignments([plannedShiftId], []);
   },
 };

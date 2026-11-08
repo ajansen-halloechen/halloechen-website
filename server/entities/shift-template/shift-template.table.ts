@@ -1,12 +1,19 @@
 import {
   boolean,
   integer,
+  pgEnum,
   pgTable,
   time,
   timestamp,
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+
+export const shiftTypeEnum = pgEnum('shift_type', [
+  'bar',
+  'cleaning',
+  'bar-support',
+]);
 
 export const shiftTemplates = pgTable('shift_templates', {
   id: uuid('id').defaultRandom().primaryKey(),
@@ -15,6 +22,7 @@ export const shiftTemplates = pgTable('shift_templates', {
   startTime: time('start_time').notNull(),
   endTime: time('end_time').notNull(),
   plusOneDay: boolean('plus_one_day').notNull().default(false),
+  type: shiftTypeEnum('type').notNull().default('bar'),
   comment: varchar('comment', { length: 255 }),
   numberOfPersons: integer('number_of_persons').notNull(),
   createdAt: timestamp('created_at', { withTimezone: true })

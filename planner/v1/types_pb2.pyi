@@ -11,20 +11,33 @@ class AvailabilityStatus(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     AVAILABILITY_STATUS_AVAILABLE: _ClassVar[AvailabilityStatus]
     AVAILABILITY_STATUS_PREFERENCE: _ClassVar[AvailabilityStatus]
     AVAILABILITY_STATUS_UNAVAILABLE: _ClassVar[AvailabilityStatus]
+
+class ShiftType(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
+    __slots__ = ()
+    SHIFT_TYPE_UNSPECIFIED: _ClassVar[ShiftType]
+    SHIFT_TYPE_BAR: _ClassVar[ShiftType]
+    SHIFT_TYPE_CLEANING: _ClassVar[ShiftType]
+    SHIFT_TYPE_BAR_SUPPORT: _ClassVar[ShiftType]
 AVAILABILITY_STATUS_UNSPECIFIED: AvailabilityStatus
 AVAILABILITY_STATUS_AVAILABLE: AvailabilityStatus
 AVAILABILITY_STATUS_PREFERENCE: AvailabilityStatus
 AVAILABILITY_STATUS_UNAVAILABLE: AvailabilityStatus
+SHIFT_TYPE_UNSPECIFIED: ShiftType
+SHIFT_TYPE_BAR: ShiftType
+SHIFT_TYPE_CLEANING: ShiftType
+SHIFT_TYPE_BAR_SUPPORT: ShiftType
 
 class PlannedShift(_message.Message):
-    __slots__ = ("id", "date", "number_of_persons")
+    __slots__ = ("id", "date", "number_of_persons", "type")
     ID_FIELD_NUMBER: _ClassVar[int]
     DATE_FIELD_NUMBER: _ClassVar[int]
     NUMBER_OF_PERSONS_FIELD_NUMBER: _ClassVar[int]
+    TYPE_FIELD_NUMBER: _ClassVar[int]
     id: str
     date: str
     number_of_persons: int
-    def __init__(self, id: _Optional[str] = ..., date: _Optional[str] = ..., number_of_persons: _Optional[int] = ...) -> None: ...
+    type: ShiftType
+    def __init__(self, id: _Optional[str] = ..., date: _Optional[str] = ..., number_of_persons: _Optional[int] = ..., type: _Optional[_Union[ShiftType, str]] = ...) -> None: ...
 
 class Availability(_message.Message):
     __slots__ = ("user_id", "planned_shift_id", "status")
@@ -37,16 +50,20 @@ class Availability(_message.Message):
     def __init__(self, user_id: _Optional[str] = ..., planned_shift_id: _Optional[str] = ..., status: _Optional[_Union[AvailabilityStatus, str]] = ...) -> None: ...
 
 class UserPreference(_message.Message):
-    __slots__ = ("user_id", "max_shifts_per_month", "shifts_on_consecutive_days", "shifts_in_consecutive_weeks")
+    __slots__ = ("user_id", "max_bar_shifts_per_month", "shifts_on_consecutive_days", "shifts_in_consecutive_weeks", "max_bar_support_shifts_per_month", "max_cleaning_shifts_per_month")
     USER_ID_FIELD_NUMBER: _ClassVar[int]
-    MAX_SHIFTS_PER_MONTH_FIELD_NUMBER: _ClassVar[int]
+    MAX_BAR_SHIFTS_PER_MONTH_FIELD_NUMBER: _ClassVar[int]
     SHIFTS_ON_CONSECUTIVE_DAYS_FIELD_NUMBER: _ClassVar[int]
     SHIFTS_IN_CONSECUTIVE_WEEKS_FIELD_NUMBER: _ClassVar[int]
+    MAX_BAR_SUPPORT_SHIFTS_PER_MONTH_FIELD_NUMBER: _ClassVar[int]
+    MAX_CLEANING_SHIFTS_PER_MONTH_FIELD_NUMBER: _ClassVar[int]
     user_id: str
-    max_shifts_per_month: int
+    max_bar_shifts_per_month: int
     shifts_on_consecutive_days: bool
     shifts_in_consecutive_weeks: bool
-    def __init__(self, user_id: _Optional[str] = ..., max_shifts_per_month: _Optional[int] = ..., shifts_on_consecutive_days: _Optional[bool] = ..., shifts_in_consecutive_weeks: _Optional[bool] = ...) -> None: ...
+    max_bar_support_shifts_per_month: int
+    max_cleaning_shifts_per_month: int
+    def __init__(self, user_id: _Optional[str] = ..., max_bar_shifts_per_month: _Optional[int] = ..., shifts_on_consecutive_days: _Optional[bool] = ..., shifts_in_consecutive_weeks: _Optional[bool] = ..., max_bar_support_shifts_per_month: _Optional[int] = ..., max_cleaning_shifts_per_month: _Optional[int] = ...) -> None: ...
 
 class Assignment(_message.Message):
     __slots__ = ("planned_shift_id", "user_id")

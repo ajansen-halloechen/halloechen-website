@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { PlannedShift } from '~~/shared/types/planned-shift';
-import type { ShiftAssignmentPair } from '~~/shared/types/shift-assignment';
+import type {
+  ShiftAssignmentPair,
+  ShiftAssignmentPlanMode,
+} from '~~/shared/types/shift-assignment';
 import type { User } from '~~/shared/types/user';
 import { getUserDisplayName } from '~/utils/user-display';
 import {
@@ -9,38 +12,82 @@ import {
   weekdayLabelFromDate,
 } from '~/utils/shift-plan';
 
-const props = defineProps<{
-  plannedShifts: PlannedShift[];
-  assignments: ShiftAssignmentPair[];
-  userMap: Map<string, User>;
-  planning?: boolean;
-  applying?: boolean;
-  hasPlan?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    plannedShifts: PlannedShift[];
+    assignments: ShiftAssignmentPair[];
+    existingAssignments?: readonly ShiftAssignmentPair[];
+    userMap: Map<string, User>;
+    planning?: boolean;
+    applying?: boolean;
+    hasPlan?: boolean;
+    hasExistingAssignments?: boolean;
+    hasOpenSlots?: boolean;
+    planMode?: ShiftAssignmentPlanMode | null;
+  }>(),
+  {
+    existingAssignments: () => [],
+    planning: false,
+    applying: false,
+    hasPlan: false,
+    hasExistingAssignments: false,
+    hasOpenSlots: false,
+    planMode: null,
+  },
+);
 
 const open = defineModel<boolean>('open', { default: false });
 
 const emit = defineEmits<{
-  plan: [];
+  plan: [mode: ShiftAssignmentPlanMode];
   confirm: [];
   profile: [user: User];
 }>();
 
 const accordionValue = ref<string[]>(['summary', 'plan']);
 
+const noNewAssignmentsText = 'Keine neuen Zuweisungen.';
+
 type PreviewRow = PlannedShift & {
   assignedUserIds: string[];
 };
 
+function assignmentKey(assignment: ShiftAssignmentPair): string {
+  return `${assignment.plannedShiftId}:${assignment.userId}`;
+}
+
+const isFillPreview = computed(() => props.planMode === 'fill');
+
+const existingAssignmentKeys = computed(() => {
+  const keys = new Set<string>();
+  for (const assignment of props.existingAssignments) {
+    keys.add(assignmentKey(assignment));
+  }
+  return keys;
+});
+
+/** Newly proposed pairs in fill mode; full proposal otherwise. */
+const previewAssignments = computed(() => {
+  if (!isFillPreview.value) return props.assignments;
+  return props.assignments.filter(
+    (assignment) =>
+      !existingAssignmentKeys.value.has(assignmentKey(assignment)),
+  );
+});
+
 const rows = computed<PreviewRow[]>(() => {
   const byShift = new Map<string, string[]>();
-  for (const assignment of props.assignments) {
+  for (const assignment of previewAssignments.value) {
     const list = byShift.get(assignment.plannedShiftId) ?? [];
     list.push(assignment.userId);
     byShift.set(assignment.plannedShiftId, list);
   }
 
-  return [...props.plannedShifts]
+  const shifts = isFillPreview.value
+    ? props.plannedShifts.filter((shift) => byShift.has(shift.id))
+    : props.plannedShifts;
+
+  return shifts
     .map((shift) => ({
       ...shift,
       assignedUserIds: byShift.get(shift.id) ?? [],
@@ -56,7 +103,7 @@ const totalRequiredSlots = computed(() =>
   props.plannedShifts.reduce((sum, shift) => sum + shift.numberOfPersons, 0),
 );
 
-const totalAssignedSlots = computed(() => props.assignments.length);
+const totalAssignedSlots = computed(() => previewAssignments.value.length);
 
 const fullyStaffedShiftCount = computed(
   () =>
@@ -73,7 +120,7 @@ const allShiftsFullyAssigned = computed(
 
 const shiftsByUser = computed(() => {
   const counts = new Map<string, number>();
-  for (const assignment of props.assignments) {
+  for (const assignment of previewAssignments.value) {
     counts.set(assignment.userId, (counts.get(assignment.userId) ?? 0) + 1);
   }
 
@@ -88,6 +135,45 @@ const shiftsByUser = computed(() => {
     .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
 });
 
+const summaryStatusText = computed(() => {
+  if (isFillPreview.value) {
+    const slotCount = previewAssignments.value.length;
+    const shiftCount = rows.value.length;
+    if (slotCount === 0) {
+      return noNewAssignmentsText;
+    }
+    return `${slotCount} neue Zuweisung${slotCount === 1 ? '' : 'en'} in ${shiftCount} Schicht${shiftCount === 1 ? '' : 'en'}`;
+  }
+  return allShiftsFullyAssigned.value
+    ? `Ja (${totalAssignedSlots.value}/${totalRequiredSlots.value} Schichten)`
+    : `Nein (${totalAssignedSlots.value}/${totalRequiredSlots.value} Schichten)`;
+});
+
+const introText = computed(() => {
+  if (props.hasExistingAssignments) {
+    return 'Neu planen ersetzt alle Zuweisungen. Auffüllen behält bestehende Zuweisungen und besetzt offene Schichten.';
+  }
+  return 'Mit Planen wird ein Vorschlag für die Schichtbesetzung ermittelt.';
+});
+
+const confirmText = computed(() => {
+  if (props.planMode === 'fill') {
+    return '„Übernehmen“ behält bestehende Zuweisungen und ergänzt die neuen Vorschläge.';
+  }
+  return '„Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.';
+});
+
+const replaceLabel = computed(() => {
+  if (props.planning && props.planMode === 'replace') {
+    return props.hasExistingAssignments ? 'Neu planen…' : 'Planen…';
+  }
+  return props.hasExistingAssignments ? 'Neu planen' : 'Planen';
+});
+
+const fillLabel = computed(() =>
+  props.planning && props.planMode === 'fill' ? 'Auffüllen…' : 'Auffüllen',
+);
+
 watch(open, (isOpen) => {
   if (isOpen) {
     accordionValue.value = ['summary', 'plan'];
@@ -98,11 +184,22 @@ watch(open, (isOpen) => {
 <template>
   <UiModal v-model:open="open" title="Schichten zuweisen" size="xl">
     <p class="mb-4 text-sm text-gray-600">
-      Mit Planen wird ein Vorschlag für die Schichtbesetzung ermittelt.
+      {{ introText }}
     </p>
-    <div class="mb-4 flex justify-end">
-      <UiButton :disabled="planning || applying" @click="emit('plan')">
-        {{ planning ? 'Planen…' : 'Planen' }}
+    <div class="mb-4 flex flex-wrap justify-end gap-2">
+      <UiButton
+        :disabled="planning || applying"
+        @click="emit('plan', 'replace')"
+      >
+        {{ replaceLabel }}
+      </UiButton>
+      <UiButton
+        v-if="hasExistingAssignments"
+        variant="outlined"
+        :disabled="planning || applying || !hasOpenSlots"
+        @click="emit('plan', 'fill')"
+      >
+        {{ fillLabel }}
       </UiButton>
     </div>
 
@@ -110,15 +207,19 @@ watch(open, (isOpen) => {
       <UiAccordionItem value="summary" title="Zusammenfassung">
         <div class="flex flex-col gap-3 text-sm">
           <p>
-            <span class="font-medium">Vollständig besetzt:</span>
-            {{
-              allShiftsFullyAssigned
-                ? `Ja (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
-                : `Nein (${totalAssignedSlots}/${totalRequiredSlots} Schichten)`
-            }}
+            <span class="font-medium">
+              {{ isFillPreview ? 'Neu besetzt:' : 'Vollständig besetzt:' }}
+            </span>
+            {{ summaryStatusText }}
           </p>
           <div v-if="shiftsByUser.length">
-            <p class="mb-2 font-medium">Schichten pro Person</p>
+            <p class="mb-2 font-medium">
+              {{
+                isFillPreview
+                  ? 'Neue Schichten pro Person'
+                  : 'Schichten pro Person'
+              }}
+            </p>
             <table class="text-sm">
               <tbody>
                 <tr v-for="entry in shiftsByUser" :key="entry.userId">
@@ -147,16 +248,26 @@ watch(open, (isOpen) => {
         </div>
       </UiAccordionItem>
 
-      <UiAccordionItem value="plan" title="Schichtplan">
-        <div class="overflow-x-auto">
+      <UiAccordionItem
+        value="plan"
+        :title="isFillPreview ? 'Neu besetzte Schichten' : 'Schichtplan'"
+      >
+        <div v-if="rows.length === 0" class="text-sm text-gray-500">
+          {{ noNewAssignmentsText }}
+        </div>
+        <div v-else class="overflow-x-auto">
           <table class="w-full text-left text-sm">
             <thead>
               <tr class="border-b border-primary/20">
                 <th class="py-2 pr-3 font-semibold">Datum</th>
                 <th class="py-2 pr-3 font-semibold">Tag</th>
-                <th class="py-2 pr-3 font-semibold">Zugewiesen</th>
+                <th class="py-2 pr-3 font-semibold">
+                  {{ isFillPreview ? 'Neu zugewiesen' : 'Zugewiesen' }}
+                </th>
                 <th class="py-2 pr-3 font-semibold">Zeit</th>
-                <th class="py-2 font-semibold">Besetzung</th>
+                <th v-if="!isFillPreview" class="py-2 font-semibold">
+                  Besetzung
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -184,7 +295,10 @@ watch(open, (isOpen) => {
                     formatTimeRange(row.startTime, row.endTime, row.plusOneDay)
                   }}
                 </td>
-                <td class="py-2 align-middle whitespace-nowrap">
+                <td
+                  v-if="!isFillPreview"
+                  class="py-2 align-middle whitespace-nowrap"
+                >
                   {{ row.assignedUserIds.length }}/{{ row.numberOfPersons }}
                 </td>
               </tr>
@@ -195,7 +309,7 @@ watch(open, (isOpen) => {
     </UiAccordion>
 
     <p v-if="hasPlan" class="my-4 text-sm text-gray-600">
-      „Übernehmen“ ersetzt alle bisherigen Zuweisungen für diesen Monat.
+      {{ confirmText }}
     </p>
     <template #footer>
       <div v-if="hasPlan" class="flex flex-col gap-3">

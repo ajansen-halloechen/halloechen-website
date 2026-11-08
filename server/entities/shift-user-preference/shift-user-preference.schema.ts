@@ -1,13 +1,19 @@
 import { z } from 'zod';
 
-export const DEFAULT_MAX_SHIFTS_PER_MONTH = 2;
+export const DEFAULT_MAX_BAR_SHIFTS_PER_MONTH = 2;
+export const DEFAULT_MAX_BAR_SUPPORT_SHIFTS_PER_MONTH = 1;
+export const DEFAULT_MAX_CLEANING_SHIFTS_PER_MONTH = 1;
 export const DEFAULT_SHIFTS_ON_CONSECUTIVE_DAYS = false;
 export const DEFAULT_SHIFTS_IN_CONSECUTIVE_WEEKS = false;
+
+const maxShiftsPerTypeSchema = z.number().int().min(0);
 
 export const shiftUserPreferenceSchema = z.object({
   id: z.uuid(),
   userId: z.uuid(),
-  maxShiftsPerMonth: z.number().int().positive(),
+  maxBarShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxBarSupportShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxCleaningShiftsPerMonth: maxShiftsPerTypeSchema,
   shiftsOnConsecutiveDays: z.boolean(),
   shiftsInConsecutiveWeeks: z.boolean(),
   createdAt: z.date(),
@@ -17,7 +23,9 @@ export const shiftUserPreferenceSchema = z.object({
 export const resolvedShiftUserPreferenceSchema = z.object({
   id: z.uuid().optional(),
   userId: z.uuid(),
-  maxShiftsPerMonth: z.number().int().positive(),
+  maxBarShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxBarSupportShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxCleaningShiftsPerMonth: maxShiftsPerTypeSchema,
   shiftsOnConsecutiveDays: z.boolean(),
   shiftsInConsecutiveWeeks: z.boolean(),
   createdAt: z.date().optional(),
@@ -25,7 +33,9 @@ export const resolvedShiftUserPreferenceSchema = z.object({
 });
 
 export const shiftUserPreferenceUpsertSchema = z.object({
-  maxShiftsPerMonth: z.number().int().positive(),
+  maxBarShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxBarSupportShiftsPerMonth: maxShiftsPerTypeSchema,
+  maxCleaningShiftsPerMonth: maxShiftsPerTypeSchema,
   shiftsOnConsecutiveDays: z.boolean(),
   shiftsInConsecutiveWeeks: z.boolean(),
 });

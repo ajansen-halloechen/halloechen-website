@@ -24,21 +24,23 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16planner/v1/types.proto\x12\nplanner.v1\"C\n\x0cPlannedShift\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x19\n\x11number_of_persons\x18\x03 \x01(\x05\"i\n\x0c\x41vailability\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x18\n\x10planned_shift_id\x18\x02 \x01(\t\x12.\n\x06status\x18\x03 \x01(\x0e\x32\x1e.planner.v1.AvailabilityStatus\"\x88\x01\n\x0eUserPreference\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x1c\n\x14max_shifts_per_month\x18\x02 \x01(\x05\x12\"\n\x1ashifts_on_consecutive_days\x18\x03 \x01(\x08\x12#\n\x1bshifts_in_consecutive_weeks\x18\x04 \x01(\x08\"7\n\nAssignment\x12\x18\n\x10planned_shift_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t*\xa5\x01\n\x12\x41vailabilityStatus\x12#\n\x1f\x41VAILABILITY_STATUS_UNSPECIFIED\x10\x00\x12!\n\x1d\x41VAILABILITY_STATUS_AVAILABLE\x10\x01\x12\"\n\x1e\x41VAILABILITY_STATUS_PREFERENCE\x10\x02\x12#\n\x1f\x41VAILABILITY_STATUS_UNAVAILABLE\x10\x03\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16planner/v1/types.proto\x12\nplanner.v1\"h\n\x0cPlannedShift\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61te\x18\x02 \x01(\t\x12\x19\n\x11number_of_persons\x18\x03 \x01(\x05\x12#\n\x04type\x18\x04 \x01(\x0e\x32\x15.planner.v1.ShiftType\"i\n\x0c\x41vailability\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x18\n\x10planned_shift_id\x18\x02 \x01(\t\x12.\n\x06status\x18\x03 \x01(\x0e\x32\x1e.planner.v1.AvailabilityStatus\"\xdd\x01\n\x0eUserPreference\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12 \n\x18max_bar_shifts_per_month\x18\x02 \x01(\x05\x12\"\n\x1ashifts_on_consecutive_days\x18\x03 \x01(\x08\x12#\n\x1bshifts_in_consecutive_weeks\x18\x04 \x01(\x08\x12(\n max_bar_support_shifts_per_month\x18\x05 \x01(\x05\x12%\n\x1dmax_cleaning_shifts_per_month\x18\x06 \x01(\x05\"7\n\nAssignment\x12\x18\n\x10planned_shift_id\x18\x01 \x01(\t\x12\x0f\n\x07user_id\x18\x02 \x01(\t*\xa5\x01\n\x12\x41vailabilityStatus\x12#\n\x1f\x41VAILABILITY_STATUS_UNSPECIFIED\x10\x00\x12!\n\x1d\x41VAILABILITY_STATUS_AVAILABLE\x10\x01\x12\"\n\x1e\x41VAILABILITY_STATUS_PREFERENCE\x10\x02\x12#\n\x1f\x41VAILABILITY_STATUS_UNAVAILABLE\x10\x03*p\n\tShiftType\x12\x1a\n\x16SHIFT_TYPE_UNSPECIFIED\x10\x00\x12\x12\n\x0eSHIFT_TYPE_BAR\x10\x01\x12\x17\n\x13SHIFT_TYPE_CLEANING\x10\x02\x12\x1a\n\x16SHIFT_TYPE_BAR_SUPPORT\x10\x03\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'planner.v1.types_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_AVAILABILITYSTATUS']._serialized_start=411
-  _globals['_AVAILABILITYSTATUS']._serialized_end=576
+  _globals['_AVAILABILITYSTATUS']._serialized_start=533
+  _globals['_AVAILABILITYSTATUS']._serialized_end=698
+  _globals['_SHIFTTYPE']._serialized_start=700
+  _globals['_SHIFTTYPE']._serialized_end=812
   _globals['_PLANNEDSHIFT']._serialized_start=38
-  _globals['_PLANNEDSHIFT']._serialized_end=105
-  _globals['_AVAILABILITY']._serialized_start=107
-  _globals['_AVAILABILITY']._serialized_end=212
-  _globals['_USERPREFERENCE']._serialized_start=215
-  _globals['_USERPREFERENCE']._serialized_end=351
-  _globals['_ASSIGNMENT']._serialized_start=353
-  _globals['_ASSIGNMENT']._serialized_end=408
+  _globals['_PLANNEDSHIFT']._serialized_end=142
+  _globals['_AVAILABILITY']._serialized_start=144
+  _globals['_AVAILABILITY']._serialized_end=249
+  _globals['_USERPREFERENCE']._serialized_start=252
+  _globals['_USERPREFERENCE']._serialized_end=473
+  _globals['_ASSIGNMENT']._serialized_start=475
+  _globals['_ASSIGNMENT']._serialized_end=530
 # @@protoc_insertion_point(module_scope)

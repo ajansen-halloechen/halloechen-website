@@ -4,12 +4,14 @@ import {
   validateDateTimeRange,
   workingHourToDateTimeRange,
 } from '~~/shared/time-range-validation';
+import type { ShiftType } from '~~/shared/types/shift-type';
 
 export interface PlannedShiftFormData {
   date: string;
   startTime: string;
   endTime: string;
   plusOneDay: boolean;
+  type: ShiftType;
   comment: string | null;
   numberOfPersons: number;
 }
@@ -30,6 +32,7 @@ const date = ref(props.initialData?.date ?? props.defaultDate ?? todayIso);
 const startTime = ref(props.initialData?.startTime ?? '18:00');
 const endTime = ref(props.initialData?.endTime ?? '23:00');
 const plusOneDay = ref(props.initialData?.plusOneDay ?? false);
+const type = ref<ShiftType>(props.initialData?.type ?? 'bar');
 const comment = ref(props.initialData?.comment ?? '');
 const numberOfPersons = ref(String(props.initialData?.numberOfPersons ?? 2));
 const rangeError = ref('');
@@ -59,6 +62,7 @@ function handleSubmit() {
     startTime: startTime.value,
     endTime: endTime.value,
     plusOneDay: plusOneDay.value,
+    type: type.value,
     comment: trimmedComment || null,
     numberOfPersons: Number(numberOfPersons.value),
   });
@@ -82,6 +86,8 @@ function handleSubmit() {
       v-model="plusOneDay"
       label="Ende am Folgetag"
     />
+
+    <ShiftTypeSelect id="ps-type" v-model="type" required />
 
     <UiInputField id="ps-comment" v-model="comment" label="Kommentar" />
 

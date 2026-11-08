@@ -10,12 +10,21 @@ enum AvailabilityStatus {
   AVAILABILITY_STATUS_UNAVAILABLE = 3;
 }
 
-// Slot to fill for one calendar day. Template, times, and type stay on the Nuxt side.
+// Nuxt must always set type explicitly; never rely on the zero value.
+enum ShiftType {
+  SHIFT_TYPE_UNSPECIFIED = 0;
+  SHIFT_TYPE_BAR = 1;
+  SHIFT_TYPE_CLEANING = 2;
+  SHIFT_TYPE_BAR_SUPPORT = 3;
+}
+
+// Slot to fill for one calendar day. Template and times stay on the Nuxt side.
 message PlannedShift {
   string id = 1;
   // YYYY-MM-DD — calendar day of the shift start (used for consecutive-day/week rules).
   string date = 2;
   int32 number_of_persons = 3;
+  ShiftType type = 4;
 }
 
 // One row per (user, shift) the app knows about.
@@ -28,12 +37,16 @@ message Availability {
 // Per-user preferences for the planned month.
 message UserPreference {
   string user_id = 1;
-  // Hard upper bound on assignments for this user in the month.
-  int32 max_shifts_per_month = 2;
+  // Hard upper bound on bar assignments for this user in the month.
+  int32 max_bar_shifts_per_month = 2;
   // true = consecutive calendar days allowed; false = forbidden.
   bool shifts_on_consecutive_days = 3;
   // true = consecutive ISO weeks allowed; false = forbidden.
   bool shifts_in_consecutive_weeks = 4;
+  // Hard upper bound on bar-support assignments for this user in the month.
+  int32 max_bar_support_shifts_per_month = 5;
+  // Hard upper bound on cleaning assignments for this user in the month.
+  int32 max_cleaning_shifts_per_month = 6;
 }
 
 message Assignment {

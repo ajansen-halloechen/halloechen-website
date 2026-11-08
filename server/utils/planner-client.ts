@@ -9,10 +9,17 @@ export const AvailabilityStatusProto = {
   UNAVAILABLE: 3,
 } as const;
 
+export const ShiftTypeProto = {
+  BAR: 1,
+  CLEANING: 2,
+  BAR_SUPPORT: 3,
+} as const;
+
 export type PlannerPlannedShift = {
   id: string;
   date: string;
   numberOfPersons: number;
+  type: number;
 };
 
 export type PlannerAvailability = {
@@ -23,7 +30,9 @@ export type PlannerAvailability = {
 
 export type PlannerUserPreference = {
   userId: string;
-  maxShiftsPerMonth: number;
+  maxBarShiftsPerMonth: number;
+  maxBarSupportShiftsPerMonth: number;
+  maxCleaningShiftsPerMonth: number;
   shiftsOnConsecutiveDays: boolean;
   shiftsInConsecutiveWeeks: boolean;
 };
@@ -38,6 +47,7 @@ export type PlanShiftsInput = {
   plannedShifts: PlannerPlannedShift[];
   availabilities: PlannerAvailability[];
   userPreferences: PlannerUserPreference[];
+  fixedAssignments?: PlannerAssignment[];
 };
 
 type PlanShiftsResponse = {
@@ -131,6 +141,7 @@ export async function planShifts(
         plannedShifts: input.plannedShifts,
         availabilities: input.availabilities,
         userPreferences: input.userPreferences,
+        fixedAssignments: input.fixedAssignments ?? [],
       },
       (error, res) => {
         if (error) {
