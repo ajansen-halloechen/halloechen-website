@@ -100,8 +100,7 @@ export const shiftAssignmentService = {
         );
       }
       const hasOpenSlots = shifts.some(
-        (shift) =>
-          (assignedByShift.get(shift.id) ?? 0) < shift.numberOfPersons,
+        (shift) => (assignedByShift.get(shift.id) ?? 0) < shift.numberOfPersons,
       );
       if (!hasOpenSlots) {
         return {

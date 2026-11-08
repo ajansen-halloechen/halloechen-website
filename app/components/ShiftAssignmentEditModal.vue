@@ -102,10 +102,7 @@ async function loadAvailabilities() {
     );
   } catch (err: unknown) {
     toastError(
-      fetchErrorMessage(
-        err,
-        'Verfügbarkeiten konnten nicht geladen werden.',
-      ),
+      fetchErrorMessage(err, 'Verfügbarkeiten konnten nicht geladen werden.'),
     );
     showUnavailable.value = true;
   } finally {

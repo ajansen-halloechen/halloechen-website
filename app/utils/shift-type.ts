@@ -4,11 +4,7 @@ import {
   type ShiftType,
 } from '~~/shared/types/shift-type';
 
-export type ShiftTypeBadgeColor =
-  | 'primary'
-  | 'accent'
-  | 'warning'
-  | 'neutral';
+export type ShiftTypeBadgeColor = 'primary' | 'accent' | 'warning' | 'neutral';
 
 export const shiftTypeColors: Record<ShiftType, ShiftTypeBadgeColor> = {
   bar: 'neutral',

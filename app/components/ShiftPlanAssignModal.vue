@@ -27,6 +27,12 @@ const props = withDefaults(
   }>(),
   {
     existingAssignments: () => [],
+    planning: false,
+    applying: false,
+    hasPlan: false,
+    hasExistingAssignments: false,
+    hasOpenSlots: false,
+    planMode: null,
   },
 );
 
@@ -64,7 +70,8 @@ const existingAssignmentKeys = computed(() => {
 const previewAssignments = computed(() => {
   if (!isFillPreview.value) return props.assignments;
   return props.assignments.filter(
-    (assignment) => !existingAssignmentKeys.value.has(assignmentKey(assignment)),
+    (assignment) =>
+      !existingAssignmentKeys.value.has(assignmentKey(assignment)),
   );
 });
 
